@@ -49,14 +49,13 @@ TicketYo is designed to streamline the event ticketing process in Uganda. It off
 ### Steps
 1. **Clone the Repository**:
     ```bash
-    git clone https://github.com/yourusername/TicketYo.git
+    git clone https://github.com/allankalema/TicketYo.git
     cd TicketYo
     ```
 
 2. **Create a Virtual Environment**:
     ```bash
-    python3 -m venv env
-    source env/bin/activate
+    pipenv shell
     ```
 
 3. **Install Dependencies**:
@@ -97,11 +96,8 @@ The database consists of the following key tables:
 - **Statistics**: Summarizes event performance data.
 
 ## API Endpoints
-- **/api/v1/events/**: Retrieve and manage events.
-- **/api/v1/tickets/**: Handle ticket purchasing and management.
-- **/api/v1/users/**: User management (registration, login, profile updates).
 - **/api/v1/payments/**: Integrate with WooCommerce for payment processing.
-  > *Note: Actual API implementation details would go here.*
+
 
 ## Security
 - **Data Protection**: All sensitive data is encrypted.
