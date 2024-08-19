@@ -11,3 +11,8 @@ class VendorCreationForm(UserCreationForm):
         super().__init__(*args, **kwargs)
         self.fields['password1'].label = 'Password'
         self.fields['password2'].label = 'Confirm Password'
+
+class VendorUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Vendor
+        fields = ['username', 'email', 'first_name', 'last_name', 'storename', 'store_phone']
