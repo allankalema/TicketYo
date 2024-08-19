@@ -38,7 +38,6 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'customers',
     'vendors',
-    'admin_panel',
     'events',
     'tickets',
     'payments',
@@ -63,7 +62,7 @@ ROOT_URLCONF = 'TicketYo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [BASE_DIR / 'templates'],  # Add this line to specify the main templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -120,6 +119,11 @@ USE_I18N = True
 
 USE_TZ = True
 
+AUTHENTICATION_BACKENDS = [
+    'vendors.backends.VendorOrUserModelBackend',
+    'django.contrib.auth.backends.ModelBackend',  # Keep this as a fallback for the default User model
+]
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/5.1/howto/static-files/
@@ -132,6 +136,9 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+
+LOGIN_URL = '/vendors/login/'  # Update this to the correct path
+
 
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587

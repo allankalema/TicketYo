@@ -5,7 +5,6 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('customers/', include('customers.urls')),
     path('vendors/', include('vendors.urls')),
-    path('admin-panel/', include('admin_panel.urls')),  # Renamed to avoid conflict with 'admin/' path
     path('', include('events.urls')),
     path('tickets/', include('tickets.urls')),
     path('payments/', include('payments.urls')),
