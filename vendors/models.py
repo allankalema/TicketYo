@@ -42,7 +42,10 @@ class Vendor(AbstractBaseUser):
     last_name = models.CharField(max_length=30)
     storename = models.CharField(max_length=50)
     store_phone = models.CharField(max_length=15)
-
+    verification_code = models.CharField(max_length=6, null=True, blank=True)
+    verification_code_created_at = models.DateTimeField(null=True, blank=True)
+    
+    is_active = models.BooleanField(default=True)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
 

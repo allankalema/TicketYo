@@ -1,30 +1,90 @@
+import random
+import string
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import authenticate, login, logout, update_session_auth_hash
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from .models import Vendor
+from django.conf import settings
+from django.utils import timezone
 from .forms import *
 from .backends import VendorOrUserModelBackend  
+from django.utils.crypto import get_random_string
+from django.urls import reverse
+from django.core.mail import send_mail
+
+
+
+def generate_verification_code():
+    return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
 
 def signup(request):
     if request.method == 'POST':
         form = VendorCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
+            user = form.save(commit=False)
+            # Generate verification code and store it with the user
+            verification_code = generate_verification_code()
+            user.verification_code = verification_code
+            user.verification_code_created_at = timezone.now()
+            user.is_active = False  # Prevent login before verification
+            user.save()
             
-            # Authenticate and log in the user using the specified backend
-            authenticated_user = authenticate(username=user.username, password=form.cleaned_data.get('password1'), backend='vendors.backends.VendorOrUserModelBackend')
-            if authenticated_user is not None:
-                login(request, authenticated_user, backend='vendors.backends.VendorOrUserModelBackend')
-                return redirect('dashboard')
-            else:
-                # Debugging: This would indicate a failure in authentication
-                print("User could not be authenticated after signup.")
+            # Send verification email
+            verification_link = request.build_absolute_uri(
+                reverse('verify_email', args=[user.pk])
+            )
+            email_subject = 'Your Verification Code'
+            email_body = f'Your verification code is {verification_code}.'
+            send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
+
+            return redirect('verify_email', pk=user.pk)
     else:
         form = VendorCreationForm()
-    
+
     return render(request, 'vendors/signup.html', {'form': form})
 
+
+def verify_email(request, pk):
+    user = get_object_or_404(Vendor, pk=pk)
+    
+    if request.method == 'POST':
+        code = request.POST.get('code')
+        attempts = request.session.get('attempts', 0)
+        
+        # Check if code has expired
+        expiration_time = user.verification_code_created_at + timezone.timedelta(minutes=10)
+        if timezone.now() > expiration_time:
+            user.delete()
+            return redirect('signup')
+        
+        if code == user.verification_code:
+            # Code is correct, activate the user
+            user.is_active = True
+            user.verification_code = None  # Clear the code after verification
+            user.save()
+            
+            # Log in the user
+            login(request, user, backend='vendors.backends.VendorOrUserModelBackend')
+            
+            # Send a welcome email
+            email_subject = 'Welcome to Ticket Yo'
+            email_body = f'Hi {user.username}, welcome to Ticket Yo!'
+            send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
+            
+            return redirect('dashboard')
+        else:
+            attempts += 1
+            request.session['attempts'] = attempts
+            if attempts >= 5:
+                user.delete()  # Discard the user data after 5 failed attempts
+                return redirect('signup')
+            else:
+                error_message = 'Invalid code. Please try again.'
+                return render(request, 'vendors/verify_email.html', {'error': error_message})
+    else:
+        return render(request, 'vendors/verify_email.html')
+    
 # login view 
 def login_view(request):
     if request.method == 'POST':
