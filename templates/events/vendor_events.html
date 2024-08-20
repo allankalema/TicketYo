@@ -1,21 +1,20 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>All Events</title>
+    <title>My Events</title>
 </head>
 <body>
-    <h2>All Events</h2>
+    <h2>Your Events</h2>
 
     {% if events %}
         <ul>
             {% for event in events %}
                 <li>
                     <h3>{{ event.title }}</h3>
-                    <p><strong>Vendor:</strong> {{ event.vendor.name }}</p>
                     <p><strong>Description:</strong> {{ event.description }}</p>
                     <p><strong>Category:</strong> {{ event.category }}</p>
-                    <p><strong>Start Date:</strong> {{ event.startdate|date:"F d, Y" }}</p>
-                    <p><strong>End Date:</strong> {{ event.enddate|date:"F d, Y" }}</p>
+                    <p><strong>Start Date:</strong> {{ event.startdate }}</p>
+                    <p><strong>End Date:</strong> {{ event.enddate }}</p>
                     <p><strong>Venue:</strong> {{ event.venue_name }}</p>
                     <p><strong>Regular Price:</strong> {{ event.regular_price }}</p>
                     <p><strong>Sale Price:</strong> {{ event.sale_price }}</p>
@@ -29,7 +28,9 @@
             {% endfor %}
         </ul>
     {% else %}
-        <p>No events available.</p>
+        <p>You have not created any events yet.</p>
     {% endif %}
+
+    <a href="{% url 'create_event' %}">Create New Event</a>
 </body>
 </html>

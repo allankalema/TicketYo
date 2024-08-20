@@ -2,6 +2,7 @@ from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from .forms import EventForm, TicketCategoryFormSet
 from .models import Event
+from vendors.models import *
 
 @login_required
 def create_event(request):
@@ -30,3 +31,24 @@ def create_event(request):
         'formset': formset
     }
     return render(request, 'events/create_event.html', context)
+
+@login_required
+def vendor_events(request):
+    if isinstance(request.user, Vendor):
+        events = Event.objects.filter(vendor=request.user)  # Retrieve all events by the logged-in vendor
+    else:
+        return redirect('login')
+
+    context = {
+        'events': events
+    }
+    return render(request, 'events/vendor_events.html', context)
+
+
+def all_events(request):
+    events = Event.objects.all()  # Retrieve all events
+
+    context = {
+        'events': events
+    }
+    return render(request, 'events/all_events.html', context)
