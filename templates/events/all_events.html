@@ -1,0 +1,24 @@
+
+
+{% block content %}
+  <h1>{{ event.title }}</h1>
+  
+  <div class="event-details">
+    {% if event.image %}
+    <img src="{{ event.image.url }}" alt="{{ event.title }} image" />
+    {% endif %}
+    <p><strong>Category:</strong> {{ event.get_category_display }}</p>
+    <p><strong>Start Date:</strong> {{ event.start_date|date:"M d, Y" }}</p>
+    <p><strong>End Date:</strong> {{ event.end_date|date:"M d, Y" }}</p>
+    <p><strong>Venue:</strong> {{ event.venue_name }}</p>
+    {% if event.vendor %}
+    <p><strong>Vendor:</strong> {{ event.vendor.storename }}</p>  <!-- Assuming storename is a field in Vendor -->
+    {% endif %}
+    <p><strong>Description:</strong> {{ event.description }}</p>
+    <p><strong>Regular Price:</strong> {{ event.regular_price }}</p>
+    {% if event.sale_price %}
+    <p><strong>Sale Price:</strong> {{ event.sale_price }}</p>
+    {% endif %}
+  </div>
+  
+{% endblock %}

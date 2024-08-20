@@ -1,26 +1,19 @@
 from django.contrib import admin
 from .models import Event, TicketCategory
 
+# Register the Event model
 class TicketCategoryInline(admin.TabularInline):
     model = TicketCategory
-    extra = 1
+    extra = 1  # Allows adding one extra TicketCategory inline in the admin
 
 class EventAdmin(admin.ModelAdmin):
-    list_display = ('title', 'vendor', 'category', 'start_date', 'end_date', 'venue_name', 'regular_price', 'sale_price', 'inventory', 'tickets_available')
-    list_filter = ('category', 'start_date', 'end_date', 'inventory')
-    search_fields = ('title', 'description', 'venue_name', 'vendor__username', 'category')
-
+    list_display = ('title', 'vendor', 'start_date', 'end_date', 'tickets_available', 'regular_price', 'sale_price')
+    list_filter = ('category', 'start_date', 'end_date')
+    search_fields = ('title', 'description', 'venue_name', 'vendor__storename')
     inlines = [TicketCategoryInline]
 
-    def get_queryset(self, request):
-        qs = super().get_queryset(request)
-        if request.user.is_superuser:
-            return qs
-        return qs.filter(vendor=request.user)
 
-    def save_model(self, request, obj, form, change):
-        if not obj.vendor_id:
-            obj.vendor = request.user
-        obj.save()
-
+# Register the models with the admin site
 admin.site.register(Event, EventAdmin)
+admin.site.register(TicketCategory)
+

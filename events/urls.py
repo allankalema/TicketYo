@@ -1,7 +1,7 @@
 from django.urls import path
-from .views import *
+from . import views
 
 urlpatterns = [
-    path('', home, name='home'),
-    # Define vendor-related URL patterns here in the future.
+    path('create/', views.create_event, name='create_event'),
+    # Add other URLs related to events if needed
 ]

@@ -1,0 +1,7 @@
+vendor = Vendor.objects.get(id=1)
+events = vendor.events.all()  # Get all events associated with this vendor
+
+
+
+event = Event.objects.get(id=1)
+ticket_categories = event.ticket_categories.all()  # Get all ticket categories for this event

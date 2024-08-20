@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create Event</title>
+    <script>
+        function toggleInventory() {
+            var inventoryField = document.getElementById('id_tickets_available');
+            var manageInventory = document.getElementById('id_manage_inventory');
+            if (manageInventory.checked) {
+                inventoryField.style.display = 'block';
+            } else {
+                inventoryField.style.display = 'none';
+            }
+        }
+    </script>
+</head>
+<body>
+    <h2>Create Event</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ event_form.as_p }}
+        
+        <div id="inventory-field" style="display: none;">
+            {{ event_form.tickets_available.label_tag }}
+            {{ event_form.tickets_available }}
+        </div>
+        <label for="manage_inventory">Manage Inventory</label>
+        <input type="checkbox" id="id_manage_inventory" name="manage_inventory" onclick="toggleInventory()">
+        
+        <h3>Ticket Categories</h3>
+        {{ formset.management_form }}
+        {% for form in formset.forms %}
+            {{ form.as_p }}
+            {% if form.instance.pk %}
+                <input type="checkbox" name="{{ form.prefix }}-DELETE"> Delete this category
+            {% endif %}
+        {% endfor %}
+        
+        <button type="submit">Create Event</button>
+    </form>
+</body>
+</html>
