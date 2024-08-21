@@ -3,28 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Event</title>
+    <!-- Include your CSS file here -->
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
     <h2>Create Event</h2>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
-        <!-- Render all fields from the event form -->
-        {{ event_form.as_p }}
+        
+        <!-- Poster Field -->
+        <div class="form-group">
+            <label for="id_poster" class="form-label">Poster:</label>
+            <input type="file" id="id_poster" name="poster" class="form-control">
+        </div>
+        
+        <!-- Title Field -->
+        <div class="form-group">
+            <label for="id_title" class="form-label">Title:</label>
+            <input type="text" id="id_title" name="title" class="form-control">
+        </div>
+        
+        <!-- Description Field -->
+        <div class="form-group">
+            <label for="id_description" class="form-label">Description:</label>
+            <textarea id="id_description" name="description" class="form-control"></textarea>
+        </div>
+        
+        <!-- Category Field -->
+        <div class="form-group">
+            <label for="id_category" class="form-label">Category:</label>
+            <input type="text" id="id_category" name="category" class="form-control">
+        </div>
+        
+        <!-- Start Date Field -->
+        <div class="form-group">
+            <label for="id_start_date" class="form-label">Start Date:</label>
+            <input type="datetime-local" id="id_start_date" name="start_date" class="form-control">
+        </div>
+        
+        <!-- End Date Field -->
+        <div class="form-group">
+            <label for="id_end_date" class="form-label">End Date:</label>
+            <input type="datetime-local" id="id_end_date" name="end_date" class="form-control">
+        </div>
+        
+        <!-- Venue Name Field -->
+        <div class="form-group">
+            <label for="id_venue_name" class="form-label">Venue Name:</label>
+            <input type="text" id="id_venue_name" name="venue_name" class="form-control">
+        </div>
+        
+        <!-- Regular Price Field -->
+        <div class="form-group">
+            <label for="id_regular_price" class="form-label">Regular Price:</label>
+            <input type="number" step="0.01" id="id_regular_price" name="regular_price" class="form-control">
+        </div>
+        
+        <!-- Sale Price Field -->
+        <div class="form-group">
+            <label for="id_sale_price" class="form-label">Sale Price:</label>
+            <input type="number" step="0.01" id="id_sale_price" name="sale_price" class="form-control">
+        </div>
 
+        <div class="form-group">
+            <label for="tickets_available" class="form-label">Tickets Available:</label>
+            <input type="number" step="0.01" id="tickets_available" name="tickets_available" class="form-control">
+        </div>
+        
         <h3>Ticket Categories</h3>
         <!-- Management form for handling the formset -->
         {{ formset.management_form }}
-        <!-- Render each form in the formset -->
+        
+        <!-- Manually render each form in the formset -->
         {% for form in formset.forms %}
-            {{ form.as_p }}
-            <!-- Provide an option to delete a category if it already exists -->
-            {% if form.instance.pk %}
-                <input type="checkbox" name="{{ form.prefix }}-DELETE"> Delete this category
-            {% endif %}
+            <div class="ticket-category">
+                <!-- Category Title -->
+                <div class="form-group">
+                    <label for="{{ form.prefix }}-category_title" class="form-label">Category Title:</label>
+                    {{ form.category_title }}
+                </div>
+                
+                <!-- Category Price -->
+                <div class="form-group">
+                    <label for="{{ form.prefix }}-category_price" class="form-label">Category Price:</label>
+                    {{ form.category_price }}
+                </div>
+                
+                <!-- Tickets Available -->
+                <div class="form-group">
+                    <label for="{{ form.prefix }}-category_tickets_available" class="form-label">Tickets Available:</label>
+                    {{ form.category_tickets_available }}
+                </div>
+                
+                <!-- Provide an option to delete a category if it already exists -->
+                {% if form.instance.pk %}
+                    <div class="form-group">
+                        <input type="checkbox" name="{{ form.prefix }}-DELETE" class="form-check"> Delete this category
+                    </div>
+                {% endif %}
+            </div>
         {% endfor %}
         
         <!-- Submit button -->
-        <button type="submit">Create Event</button>
+        <button type="submit" class="btn btn-primary">Create Event</button>
     </form>
 </body>
 </html>
