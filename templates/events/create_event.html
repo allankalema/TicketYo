@@ -10,13 +10,7 @@
         {% csrf_token %}
         <!-- Render all fields from the event form -->
         {{ event_form.as_p }}
-        
-        <!-- Make sure the tickets available field is visible -->
-        <div id="inventory-field">
-            {{ event_form.tickets_available.label_tag }}
-            {{ event_form.tickets_available }}
-        </div>
-        
+
         <h3>Ticket Categories</h3>
         <!-- Management form for handling the formset -->
         {{ formset.management_form }}

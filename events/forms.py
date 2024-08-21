@@ -2,13 +2,12 @@ from django import forms
 from .models import Event, TicketCategory
 
 class EventForm(forms.ModelForm):
-    manage_inventory = forms.BooleanField(required=False, label='Manage Inventory')
-
     class Meta:
         model = Event
         fields = [
             'poster', 'title', 'description', 'category', 'start_date',
-            'end_date', 'venue_name', 'regular_price', 'sale_price'
+            'end_date', 'venue_name', 'regular_price', 'sale_price',
+            'tickets_available'  # Include this field directly
         ]
         widgets = {
             'start_date': forms.DateTimeInput(attrs={'type': 'datetime-local'}),
@@ -19,6 +18,7 @@ class EventForm(forms.ModelForm):
         super(EventForm, self).__init__(*args, **kwargs)
         self.fields['end_date'].required = False
         self.fields['sale_price'].required = False
+        self.fields['tickets_available'].required = False  # Make this optional
 
 class TicketCategoryForm(forms.ModelForm):
     class Meta:
