@@ -34,33 +34,33 @@
         <button type="submit" class="btn btn-primary">Create Event</button>
     </form>
     
+    
 
     <script>
-    $(document).ready(function() {
+  $(document).ready(function() {
     var formsetContainer = $('#formset-container');
     var totalForms = $('#id_form-TOTAL_FORMS');
     var formCount = parseInt(totalForms.val());
 
+    // Initially hide all forms except the first one
+    formsetContainer.children('.ticket-category').hide();
+    formsetContainer.children('.ticket-category').first().show();
+
     $('#add-category').click(function() {
-        var newForm = formsetContainer.children('.ticket-category:first').clone(true);
+        // Find the next hidden form and show it
+        var hiddenForms = formsetContainer.children('.ticket-category:hidden');
+        if (hiddenForms.length > 0) {
+            hiddenForms.first().show();
+        } else {
+            alert('You cannot add more categories.');
+        }
+    });
 
-        // Clear values in the cloned form
-        newForm.find(':input').each(function() {
-            var name = $(this).attr('name').replace('-0-', '-' + formCount + '-');
-            var id = 'id_' + name;
-            $(this).attr({'name': name, 'id': id}).val('');
+    // Automatically check the DELETE checkbox for all hidden forms on form submission
+    $('form').submit(function() {
+        formsetContainer.children('.ticket-category:hidden').each(function() {
+            $(this).find('input[type=checkbox][name$="-DELETE"]').prop('checked', true);
         });
-
-        // Update the labels' 'for' attributes
-        newForm.find('label').each(function() {
-            var newFor = $(this).attr('for').replace('-0-', '-' + formCount + '-');
-            $(this).attr('for', newFor);
-        });
-
-        formCount++;
-        totalForms.val(formCount);
-
-        formsetContainer.append(newForm);
     });
 });
 
