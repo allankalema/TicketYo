@@ -41,6 +41,12 @@
                     {% else %}
                         <p>No image available</p>
                     {% endif %}
+
+                    <!-- Delete Button -->
+                    <form action="{% url 'delete_event' event.id %}" method="POST" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </form>
                 </li>
             {% endfor %}
         </ul>
@@ -49,5 +55,4 @@
     {% endif %}
     <a href="{% url 'create_event' %}">Create New Event</a>
 </body>
-    
 </html>

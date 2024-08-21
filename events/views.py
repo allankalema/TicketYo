@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
 from .forms import EventForm, TicketCategoryFormSet, TicketCategoryForm
@@ -60,3 +60,13 @@ def all_events(request):
         'events': events
     }
     return render(request, 'events/all_events.html', context)
+
+@login_required
+def delete_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id, vendor=request.user)
+
+    if request.method == 'POST':
+        event.delete()
+        return redirect('dashboard')  # Redirect to the vendor's dashboard after deletion
+
+    return render(request, 'events/confirm_delete.html', {'event': event})
