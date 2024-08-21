@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Update Event</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+</head>
+<body>
+    <h2>Update Event</h2>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        
+        <!-- Event Fields -->
+        {{ event_form.as_p }}
+    
+        <h3>Ticket Categories</h3>
+        {{ formset.management_form }}
+        
+        <div id="formset-container">
+            {% for form in formset.forms %}
+                <div class="ticket-category">
+                    {{ form.as_p }}
+                    {% if form.instance.pk %}
+                        <div class="form-group">
+                            <input type="checkbox" name="{{ form.prefix }}-DELETE" class="form-check"> Delete this category
+                        </div>
+                    {% endif %}
+                </div>
+            {% endfor %}
+        </div>
+    
+        <button type="button" id="add-category" class="btn btn-secondary">Add Another Category</button>
+    
+        <button type="submit" class="btn btn-primary">Update Event</button>
+    </form>
+
+    <script>
+  $(document).ready(function() {
+    var formsetContainer = $('#formset-container');
+    var totalForms = $('#id_form-TOTAL_FORMS');
+    var formCount = parseInt(totalForms.val());
+
+    // Initially hide all forms except the first one
+    formsetContainer.children('.ticket-category').hide();
+    formsetContainer.children('.ticket-category').first().show();
+
+    $('#add-category').click(function() {
+        // Find the next hidden form and show it
+        var hiddenForms = formsetContainer.children('.ticket-category:hidden');
+        if (hiddenForms.length > 0) {
+            hiddenForms.first().show();
+        } else {
+            alert('You cannot add more categories.');
+        }
+    });
+
+    // Automatically check the DELETE checkbox for all hidden forms on form submission
+    $('form').submit(function() {
+        formsetContainer.children('.ticket-category:hidden').each(function() {
+            $(this).find('input[type=checkbox][name$="-DELETE"]').prop('checked', true);
+        });
+    });
+});
+
+    </script>
+</body>
+</html>

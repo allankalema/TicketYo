@@ -42,6 +42,9 @@
                         <p>No image available</p>
                     {% endif %}
 
+                    <!-- Update Button -->
+                    <a href="{% url 'update_event' event.id %}" class="btn btn-primary">Update</a>
+
                     <!-- Delete Button -->
                     <form action="{% url 'delete_event' event.id %}" method="POST" style="display:inline;">
                         {% csrf_token %}

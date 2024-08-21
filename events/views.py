@@ -70,3 +70,39 @@ def delete_event(request, event_id):
         return redirect('dashboard')  # Redirect to the vendor's dashboard after deletion
 
     return render(request, 'events/confirm_delete.html', {'event': event})
+
+
+@login_required
+def update_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id, vendor=request.user)
+    
+    TicketCategoryFormSet = modelformset_factory(
+        TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True
+    )
+    
+    if request.method == 'POST':
+        event_form = EventForm(request.POST, request.FILES, instance=event)
+        formset = TicketCategoryFormSet(request.POST, request.FILES, prefix='tickets', queryset=TicketCategory.objects.filter(event=event))
+        
+        if event_form.is_valid() and formset.is_valid():
+            # Save the event
+            event = event_form.save()
+            
+            # Save or update ticket categories
+            for form in formset:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    category = form.save(commit=False)
+                    category.event = event
+                    category.save()
+                    
+            return redirect('vendor_events')  # Redirect to the vendor's event list
+    else:
+        event_form = EventForm(instance=event)
+        formset = TicketCategoryFormSet(prefix='tickets', queryset=TicketCategory.objects.filter(event=event))
+    
+    context = {
+        'event_form': event_form,
+        'formset': formset,
+        'event': event
+    }
+    return render(request, 'events/update_event.html', context)
