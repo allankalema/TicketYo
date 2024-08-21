@@ -46,7 +46,8 @@ def vendor_events(request):
 
 
 def all_events(request):
-    events = Event.objects.all()  # Retrieve all events
+    # Retrieve all events and prefetch related ticket categories
+    events = Event.objects.prefetch_related('ticket_categories').all()
 
     context = {
         'events': events
