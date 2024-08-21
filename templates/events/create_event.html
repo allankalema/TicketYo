@@ -3,40 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <title>Create Event</title>
-    <script>
-        function toggleInventory() {
-            var inventoryField = document.getElementById('id_tickets_available');
-            var manageInventory = document.getElementById('id_manage_inventory');
-            if (manageInventory.checked) {
-                inventoryField.style.display = 'block';
-            } else {
-                inventoryField.style.display = 'none';
-            }
-        }
-    </script>
 </head>
 <body>
     <h2>Create Event</h2>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        <!-- Render all fields from the event form -->
         {{ event_form.as_p }}
         
-        <div id="inventory-field" style="display: none;">
+        <!-- Make sure the tickets available field is visible -->
+        <div id="inventory-field">
             {{ event_form.tickets_available.label_tag }}
             {{ event_form.tickets_available }}
         </div>
-        <label for="manage_inventory">Manage Inventory</label>
-        <input type="checkbox" id="id_manage_inventory" name="manage_inventory" onclick="toggleInventory()">
         
         <h3>Ticket Categories</h3>
+        <!-- Management form for handling the formset -->
         {{ formset.management_form }}
+        <!-- Render each form in the formset -->
         {% for form in formset.forms %}
             {{ form.as_p }}
+            <!-- Provide an option to delete a category if it already exists -->
             {% if form.instance.pk %}
                 <input type="checkbox" name="{{ form.prefix }}-DELETE"> Delete this category
             {% endif %}
         {% endfor %}
         
+        <!-- Submit button -->
         <button type="submit">Create Event</button>
     </form>
 </body>
