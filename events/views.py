@@ -1,30 +1,37 @@
 from django.shortcuts import render, redirect
+from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
-from .forms import EventForm, TicketCategoryFormSet
-from .models import Event
+from .forms import EventForm, TicketCategoryFormSet, TicketCategoryForm
+from .models import *
 from vendors.models import *
 
 @login_required
 def create_event(request):
-    # Remove the unnecessary check if we assume the request.user is already a Vendor.
-
+    TicketCategoryFormSet = modelformset_factory(
+        TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True
+    )
+    
     if request.method == 'POST':
         event_form = EventForm(request.POST, request.FILES)
-        formset = TicketCategoryFormSet(request.POST)
+        formset = TicketCategoryFormSet(request.POST, request.FILES, prefix='tickets')
 
         if event_form.is_valid() and formset.is_valid():
+            # Save the event
             event = event_form.save(commit=False)
-            event.vendor = request.user  # Directly assign the logged-in user as the vendor
+            event.vendor = request.user  # Assign the vendor to the event
             event.save()
-
-            formset.instance = event
-            formset.save()
-
-            return redirect('dashboard')  # Redirect to vendor's dashboard
-
+            
+            # Save the ticket categories
+            for form in formset:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    category = form.save(commit=False)
+                    category.event = event
+                    category.save()
+            
+            return redirect('dashboard')  # Redirect to the vendor's dashboard
     else:
         event_form = EventForm()
-        formset = TicketCategoryFormSet()
+        formset = TicketCategoryFormSet(prefix='tickets')
 
     context = {
         'event_form': event_form,
