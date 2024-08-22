@@ -1,9 +1,10 @@
 from django.shortcuts import render, redirect, get_object_or_404
 from django.forms import modelformset_factory
 from django.contrib.auth.decorators import login_required
-from .forms import EventForm, TicketCategoryFormSet, TicketCategoryForm
+from .forms import EventForm, TicketCategoryFormSet, TicketCategoryForm, TicketCategoryFormSet
 from .models import *
 from vendors.models import *
+from django.contrib import messages
 
 @login_required
 def create_event(request):
