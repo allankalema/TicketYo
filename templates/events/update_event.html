@@ -6,61 +6,49 @@
 </head>
 <body>
     <h2>Update Event</h2>
-    <form method="POST" enctype="multipart/form-data">
+    <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        
-        <!-- Event Fields -->
         {{ event_form.as_p }}
-    
+
         <h3>Ticket Categories</h3>
-        {{ formset.management_form }}
-        
-        <div id="formset-container">
-            {% for form in formset.forms %}
-                <div class="ticket-category">
+        <div id="ticket-categories">
+            {{ formset.management_form }}
+            {% for form in formset %}
+                <div class="ticket-form">
                     {{ form.as_p }}
-                    {% if form.instance.pk %}
-                        <div class="form-group">
-                            <input type="checkbox" name="{{ form.prefix }}-DELETE" class="form-check"> Delete this category
-                        </div>
-                    {% endif %}
+                    <button type="button" class="remove-form">Remove</button>
                 </div>
             {% endfor %}
         </div>
-    
-        <button type="button" id="add-category" class="btn btn-secondary">Add Another Category</button>
-    
-        <button type="submit" class="btn btn-primary">Update Event</button>
+
+        <div id="empty-form" style="display:none;">
+            {{ formset.empty_form.as_p }}
+        </div>
+
+        <button type="button" id="add-more">Add Another Category</button>
+        <br><br>
+        <button type="submit">Update Event</button>
     </form>
 
     <script>
-  $(document).ready(function() {
-    var formsetContainer = $('#formset-container');
-    var totalForms = $('#id_form-TOTAL_FORMS');
-    var formCount = parseInt(totalForms.val());
+        $(document).ready(function() {
+            let formCount = {{ formset.total_form_count }};
+            const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
 
-    // Initially hide all forms except the first one
-    formsetContainer.children('.ticket-category').hide();
-    formsetContainer.children('.ticket-category').first().show();
+            $('#add-more').click(function() {
+                // Replace the prefix in the empty form HTML with the new form count
+                const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
+                $('#ticket-categories').append('<div class="ticket-form">' + newFormHtml + '</div>');
+                formCount++;
+                $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
+            });
 
-    $('#add-category').click(function() {
-        // Find the next hidden form and show it
-        var hiddenForms = formsetContainer.children('.ticket-category:hidden');
-        if (hiddenForms.length > 0) {
-            hiddenForms.first().show();
-        } else {
-            alert('You cannot add more categories.');
-        }
-    });
-
-    // Automatically check the DELETE checkbox for all hidden forms on form submission
-    $('form').submit(function() {
-        formsetContainer.children('.ticket-category:hidden').each(function() {
-            $(this).find('input[type=checkbox][name$="-DELETE"]').prop('checked', true);
+            $(document).on('click', '.remove-form', function() {
+                $(this).closest('.ticket-form').remove();
+                formCount--;
+                $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
+            });
         });
-    });
-});
-
     </script>
 </body>
 </html>
