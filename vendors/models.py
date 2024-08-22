@@ -1,7 +1,6 @@
 from django.db import models
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
-from django.utils import timezone
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
+from django.utils import timezone
 
 class VendorManager(BaseUserManager):
     def create_user(self, username, email, first_name, last_name, storename, store_phone, password=None):
@@ -35,8 +34,6 @@ class VendorManager(BaseUserManager):
         user.save(using=self._db)
         return user
 
-
-
 class Vendor(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=30, unique=True)
     email = models.EmailField(unique=True)
@@ -49,6 +46,8 @@ class Vendor(AbstractBaseUser, PermissionsMixin):
     
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
+    is_superuser = models.BooleanField(default=False)
+    is_staff = models.BooleanField(default=False)
 
     objects = VendorManager()
 
@@ -57,10 +56,6 @@ class Vendor(AbstractBaseUser, PermissionsMixin):
 
     def __str__(self):
         return self.username
-
-    @property
-    def is_staff(self):
-        return self.is_admin
 
     def has_perm(self, perm, obj=None):
         return True

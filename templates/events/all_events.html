@@ -1,9 +1,18 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
     <title>All Events</title>
 </head>
 <body>
+    {% if user.is_authenticated %}
+        <h2>Welcome, {{ user.username }}!</h2>
+        <form method="post" action="{% url 'logout' %}">
+            {% csrf_token %}
+            <button type="submit">Logout</button>
+        </form>
+    {% endif %}
+
     <h2>All Events</h2>
 
     {% if events %}
