@@ -34,36 +34,30 @@
         <button type="submit" class="btn btn-primary">Create Event</button>
     </form>
     
-    
-
     <script>
-  $(document).ready(function() {
-    var formsetContainer = $('#formset-container');
-    var totalForms = $('#id_form-TOTAL_FORMS');
-    var formCount = parseInt(totalForms.val());
+        $(document).ready(function() {
+            var formsetContainer = $('#formset-container');
+            var totalForms = $('#id_form-TOTAL_FORMS');
+            var formCount = parseInt(totalForms.val());
 
-    // Initially hide all forms except the first one
-    formsetContainer.children('.ticket-category').hide();
-    formsetContainer.children('.ticket-category').first().show();
-
-    $('#add-category').click(function() {
-        // Find the next hidden form and show it
-        var hiddenForms = formsetContainer.children('.ticket-category:hidden');
-        if (hiddenForms.length > 0) {
-            hiddenForms.first().show();
-        } else {
-            alert('You cannot add more categories.');
-        }
-    });
-
-    // Automatically check the DELETE checkbox for all hidden forms on form submission
-    $('form').submit(function() {
-        formsetContainer.children('.ticket-category:hidden').each(function() {
-            $(this).find('input[type=checkbox][name$="-DELETE"]').prop('checked', true);
+            // Handle the add category button
+            $('#add-category').click(function() {
+                var newFormIndex = formCount;
+                var newForm = $('#formset-container .ticket-category').first().clone();
+                
+                newForm.find('input, select, textarea').each(function() {
+                    var name = $(this).attr('name').replace(/-\d+-/, '-' + newFormIndex + '-');
+                    $(this).attr('name', name);
+                    $(this).val('');
+                });
+                
+                newForm.find('input[type=checkbox]').remove();
+                
+                formsetContainer.append(newForm);
+                totalForms.val(newFormIndex + 1);
+                formCount++;
+            });
         });
-    });
-});
-
     </script>
 </body>
 </html>

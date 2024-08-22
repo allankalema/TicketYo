@@ -7,10 +7,6 @@ from vendors.models import *
 
 @login_required
 def create_event(request):
-    TicketCategoryFormSet = modelformset_factory(
-        TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True
-    )
-    
     if request.method == 'POST':
         event_form = EventForm(request.POST, request.FILES)
         formset = TicketCategoryFormSet(request.POST, request.FILES, prefix='tickets')
@@ -38,6 +34,7 @@ def create_event(request):
         'formset': formset
     }
     return render(request, 'events/create_event.html', context)
+
 
 @login_required
 def vendor_events(request):
