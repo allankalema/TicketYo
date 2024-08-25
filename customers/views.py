@@ -1,17 +1,8 @@
-# customers/views.py
-from django.contrib.auth.views import LoginView
+from django.contrib.auth import login as auth_login, logout as auth_logout
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-from .models import Customer
-from django.contrib.auth import login
-from .forms import CustomerSignupForm, CustomerAuthenticationForm
 from django.views import View
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import TemplateView
-
-
-class CustomerLoginView(LoginView):
-    template_name = 'customers/login.html'
-    authentication_form = CustomerAuthenticationForm
+from .forms import CustomerSignupForm, CustomerAuthenticationForm
 
 class CustomerSignupView(View):
     def get(self, request, *args, **kwargs):
@@ -21,10 +12,28 @@ class CustomerSignupView(View):
     def post(self, request, *args, **kwargs):
         form = CustomerSignupForm(request.POST)
         if form.is_valid():
-            customer = form.save()
-            login(request, customer, backend='django.contrib.auth.backends.ModelBackend')
+            user = form.save()
+            auth_login(request, user)
             return redirect('customer_home')
         return render(request, 'customers/signup.html', {'form': form})
-    
-class CustomerHomeView(LoginRequiredMixin, TemplateView):
-    template_name = 'customers/customer_home.html'
+
+class CustomerLoginView(View):
+    def get(self, request, *args, **kwargs):
+        form = CustomerAuthenticationForm()
+        return render(request, 'customers/login.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = CustomerAuthenticationForm(request, data=request.POST)
+        if form.is_valid():
+            auth_login(request, form.get_user())
+            return redirect('customer_home')
+        return render(request, 'customers/login.html', {'form': form})
+
+@login_required
+def customer_home(request):
+    return render(request, 'customers/customer_home.html')
+
+@login_required
+def logout_view(request):
+    auth_logout(request)
+    return redirect('customer_login')

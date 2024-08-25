@@ -1,15 +1,15 @@
-<!-- customers/templates/customers/signup.html -->
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Customer Signup</title>
+    <title>Sign Up</title>
 </head>
 <body>
-    <h2>Signup</h2>
+    <h2>Sign Up</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
-        <button type="submit">Signup</button>
+        <button type="submit">Sign Up</button>
     </form>
+    <a href="{% url 'login' %}">Already have an account? Log in</a>
 </body>
 </html>
