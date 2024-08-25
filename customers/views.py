@@ -1,7 +1,10 @@
-from django.contrib.auth import login as auth_login, logout as auth_logout
-from django.contrib.auth.decorators import login_required
+# customers/views.py
+from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect
+from django.contrib.auth.views import LoginView
+from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
+from django.views.generic import TemplateView
 from .forms import CustomerSignupForm, CustomerAuthenticationForm
 
 class CustomerSignupView(View):
@@ -12,28 +15,26 @@ class CustomerSignupView(View):
     def post(self, request, *args, **kwargs):
         form = CustomerSignupForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            auth_login(request, user)
+            customer = form.save()
+            login(request, customer, backend='customers.backends.CustomerBackend')
             return redirect('customer_home')
         return render(request, 'customers/signup.html', {'form': form})
 
-class CustomerLoginView(View):
-    def get(self, request, *args, **kwargs):
-        form = CustomerAuthenticationForm()
-        return render(request, 'customers/login.html', {'form': form})
+class CustomerLoginView(LoginView):
+    template_name = 'customers/login.html'
+    authentication_form = CustomerAuthenticationForm
 
-    def post(self, request, *args, **kwargs):
-        form = CustomerAuthenticationForm(request, data=request.POST)
-        if form.is_valid():
-            auth_login(request, form.get_user())
+    def form_valid(self, form):
+        user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
+        if user is not None:
+            login(self.request, user, backend='customers.backends.CustomerBackend')
             return redirect('customer_home')
-        return render(request, 'customers/login.html', {'form': form})
+        return self.form_invalid(form)
 
-@login_required
-def customer_home(request):
-    return render(request, 'customers/customer_home.html')
+class CustomerHomeView(LoginRequiredMixin, TemplateView):
+    template_name = 'customers/customer_home.html'
 
-@login_required
-def logout_view(request):
-    auth_logout(request)
-    return redirect('customer_login')
+class CustomerLogoutView(View):
+    def get(self, request, *args, **kwargs):
+        logout(request)
+        return redirect('customer_login')

@@ -1,15 +1,18 @@
+<!-- customers/templates/customers/signup.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Sign Up</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Signup</title>
 </head>
 <body>
-    <h2>Sign Up</h2>
+    <h2>Signup</h2>
     <form method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <button type="submit">Sign Up</button>
     </form>
-    <a href="{% url 'login' %}">Already have an account? Log in</a>
+    <p>Already have an account? <a href="{% url 'customer_login' %}">Login here</a></p>
 </body>
 </html>
