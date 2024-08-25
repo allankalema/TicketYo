@@ -1,11 +1,12 @@
 # customers/urls.py
-
-# from django.urls import path
-# from django.contrib.auth import views as auth_views
-# from . import views
+from django.urls import path
+from .views import CustomerLoginView, CustomerSignupView, CustomerHomeView
+from django.contrib.auth.views import LogoutView
 
 urlpatterns = [
-    # path('register/', views.register, name='register'),
-    # path('login/', auth_views.LoginView.as_view(template_name='customers/login.html'), name='login'),
-    # path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('login/', CustomerLoginView.as_view(), name='customer_login'),
+    path('signup/', CustomerSignupView.as_view(), name='customer_signup'),
+    path('home/', CustomerHomeView.as_view(), name='customer_home'),
+    path('logout/', LogoutView.as_view(), name='customer_logout'),  # Logout URL
 ]
+
