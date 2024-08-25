@@ -6,6 +6,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
 from django.views.generic import TemplateView
 from .forms import CustomerSignupForm, CustomerAuthenticationForm
+from vendors.backends import *
 
 class CustomerSignupView(View):
     def get(self, request, *args, **kwargs):
@@ -16,7 +17,7 @@ class CustomerSignupView(View):
         form = CustomerSignupForm(request.POST)
         if form.is_valid():
             customer = form.save()
-            login(request, customer, backend='customers.backends.CustomerBackend')
+            login(request, customer, backend='vendors.backends.VendorOrCustomerModelBackend')
             return redirect('customer_home')
         return render(request, 'customers/signup.html', {'form': form})
 
@@ -27,9 +28,10 @@ class CustomerLoginView(LoginView):
     def form_valid(self, form):
         user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
         if user is not None:
-            login(self.request, user, backend='customers.backends.CustomerBackend')
+            login(self.request, user, backend='vendors.backends.VendorOrCustomerModelBackend')
             return redirect('customer_home')
         return self.form_invalid(form)
+
 
 class CustomerHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'customers/customer_home.html'

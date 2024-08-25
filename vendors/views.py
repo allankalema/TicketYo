@@ -8,7 +8,7 @@ from .models import Vendor
 from django.conf import settings
 from django.utils import timezone
 from .forms import *
-from .backends import VendorOrUserModelBackend  
+from .backends import VendorOrCustomerModelBackend 
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.core.mail import send_mail
@@ -65,7 +65,7 @@ def verify_email(request, pk):
             user.save()
             
             # Log in the user
-            login(request, user, backend='vendors.backends.VendorOrUserModelBackend')
+            login(request, user, backend='vendors.backends.VendorOrCustomerModelBackend')
             
             # Send a welcome email
             email_subject = 'Welcome to Ticket Yo'
