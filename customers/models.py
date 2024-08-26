@@ -1,5 +1,6 @@
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
+from django.utils import timezone
 
 class CustomerManager(BaseUserManager):
     def create_user(self, username, email, password=None, **extra_fields):
@@ -21,7 +22,11 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
     is_customer = models.BooleanField(default=True)
-    
+
+    is_verified = models.BooleanField(default=False)
+    verification_code = models.CharField(max_length=6, blank=True, null=True)
+    verification_code_created_at = models.DateTimeField(null=True, blank=True)
+
     # Group and permissions related to customer
     groups = models.ManyToManyField(
         'auth.Group',
