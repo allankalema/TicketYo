@@ -1,6 +1,6 @@
 # customers/forms.py
 from django import forms
-from django.contrib.auth.forms import UserCreationForm, AuthenticationForm
+from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,  UserChangeForm, PasswordChangeForm
 from .models import Customer
 
 class CustomerSignupForm(UserCreationForm):
@@ -22,3 +22,12 @@ class CustomerSignupForm(UserCreationForm):
 class CustomerAuthenticationForm(AuthenticationForm):
     username = forms.CharField(max_length=150)
     password = forms.CharField(widget=forms.PasswordInput)
+
+class CustomerUpdateForm(UserChangeForm):
+    class Meta:
+        model = Customer
+        fields = ['username', 'email', 'first_name', 'last_name']
+
+class CustomerPasswordChangeForm(PasswordChangeForm):
+    class Meta:
+        model = Customer
