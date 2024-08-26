@@ -48,7 +48,7 @@ class Vendor(AbstractBaseUser, PermissionsMixin):
     is_admin = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
-
+    is_vendor = models.BooleanField(default=True)
     objects = VendorManager()
 
     USERNAME_FIELD = 'username'
