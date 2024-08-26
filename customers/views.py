@@ -7,13 +7,19 @@ from django.contrib.auth import authenticate, login, logout
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views import View
-from django.views.generic import TemplateView
-from .forms import CustomerSignupForm, CustomerAuthenticationForm, CustomerUpdateForm
-from .models import Customer  # Assuming this is the correct path
+from django.views.generic import TemplateView, FormView
 from django.contrib import messages
 from django.conf import settings
 from django.utils import timezone
 from django.core.mail import send_mail
+from django.contrib.auth.tokens import default_token_generator
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from django.utils.encoding import force_bytes, force_str
+from django.template.loader import render_to_string
+from .forms import CustomerSignupForm, CustomerAuthenticationForm, CustomerUpdateForm, PasswordResetRequestForm, SetNewPasswordForm
+from .models import Customer
+from django.utils.encoding import force_str
+
 
 def generate_verification_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -137,3 +143,107 @@ class CustomerPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     def form_valid(self, form):
         messages.success(self.request, "Your password has been changed successfully.")
         return super().form_valid(form)
+
+class PasswordResetRequestView(View):
+    def get(self, request, *args, **kwargs):
+        form = PasswordResetRequestForm()
+        return render(request, 'customers/password_reset_request.html', {'form': form})
+
+    def post(self, request, *args, **kwargs):
+        form = PasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            customer = Customer.objects.get(email=email)
+            verification_code = generate_verification_code()
+            customer.verification_code = verification_code
+            customer.verification_code_created_at = timezone.now()
+            customer.save()
+
+            # Send verification email
+            email_subject = 'Your Password Reset Code'
+            email_body = f'Your password reset code is {verification_code}.'
+            send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [customer.email])
+
+            return redirect('password_reset_verify', uidb64=urlsafe_base64_encode(force_bytes(customer.pk)))
+
+        return render(request, 'customers/password_reset_request.html', {'form': form})
+
+
+class PasswordResetVerifyView(View):
+    def get(self, request, uidb64, *args, **kwargs):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            customer = Customer.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Customer.DoesNotExist):
+            customer = None
+
+        if customer is not None:
+            return render(request, 'customers/password_reset_verify.html', {'customer': customer})
+        else:
+            return redirect('password_reset_request')
+
+    def post(self, request, uidb64, *args, **kwargs):
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            customer = Customer.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Customer.DoesNotExist):
+            customer = None
+
+        if customer is not None:
+            code = request.POST.get('code')
+            expiration_time = customer.verification_code_created_at + timezone.timedelta(minutes=10)
+
+            if timezone.now() > expiration_time:
+                messages.error(request, "Verification code has expired.")
+                return redirect('password_reset_request')
+
+            if code == customer.verification_code:
+                customer.verification_code = None  # Clear the code after verification
+                customer.save()
+                return redirect('password_reset_confirm', uidb64=uidb64)
+
+            messages.error(request, "Invalid verification code.")
+        else:
+            messages.error(request, "Invalid request.")
+
+        return render(request, 'customers/password_reset_verify.html', {'customer': customer})
+
+
+class PasswordResetConfirmView(FormView):
+    template_name = "customers/password_reset_confirm.html"
+    form_class = SetNewPasswordForm
+    success_url = reverse_lazy('customer_home')
+
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
+        uidb64 = self.kwargs.get('uidb64')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            customer = Customer.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Customer.DoesNotExist):
+            customer = None
+
+        if customer is not None:
+            kwargs['user'] = customer  # Pass the customer as the 'user' argument to the form
+        return kwargs
+
+    def form_valid(self, form):
+        form.save()
+        user = form.user
+        login(self.request, user, backend='vendors.backends.VendorOrCustomerModelBackend')
+        messages.success(self.request, "Your password has been reset successfully.")
+        return super().form_valid(form)
+
+    def dispatch(self, *args, **kwargs):
+        uidb64 = self.kwargs.get('uidb64')
+        try:
+            uid = force_str(urlsafe_base64_decode(uidb64))
+            self.customer = Customer.objects.get(pk=uid)
+        except (TypeError, ValueError, OverflowError, Customer.DoesNotExist):
+            self.customer = None
+
+        if not self.customer:
+            messages.error(self.request, "The reset link is invalid or has expired.")
+            return redirect('password_reset_request')
+        
+        return super().dispatch(*args, **kwargs)

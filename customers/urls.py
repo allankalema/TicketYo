@@ -8,6 +8,7 @@ from .views import (
     CustomerDeleteView,
     CustomerPasswordChangeView,
     CustomerVerifyEmailView,
+    PasswordResetRequestView, PasswordResetVerifyView, PasswordResetConfirmView
 )
 
 urlpatterns = [
@@ -19,4 +20,7 @@ urlpatterns = [
     path('delete/', CustomerDeleteView.as_view(), name='customer_delete'),
     path('change-password/', CustomerPasswordChangeView.as_view(), name='customer_change_password'),
     path('verify_email/<int:pk>/', CustomerVerifyEmailView.as_view(), name='customer_verify_email'),
+     path('password-reset/', PasswordResetRequestView.as_view(), name='password_reset_request'),
+    path('password-reset/verify/<uidb64>/', PasswordResetVerifyView.as_view(), name='password_reset_verify'),
+    path('password-reset/confirm/<uidb64>/', PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
 ]
