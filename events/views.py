@@ -5,8 +5,10 @@ from .forms import EventForm, TicketCategoryFormSet, TicketCategoryForm, TicketC
 from .models import *
 from vendors.models import *
 from django.contrib import messages
+from vendors.decorators import vendor_required
 
 @login_required
+@vendor_required
 def create_event(request):
     if request.method == 'POST':
         event_form = EventForm(request.POST, request.FILES)
@@ -38,6 +40,7 @@ def create_event(request):
 
 
 @login_required
+@vendor_required
 def vendor_events(request):
     if isinstance(request.user, Vendor):
         events = Event.objects.filter(vendor=request.user)  # Retrieve all events by the logged-in vendor
@@ -60,6 +63,7 @@ def all_events(request):
     return render(request, 'events/all_events.html', context)
 
 @login_required
+@vendor_required
 def delete_event(request, event_id):
     event = get_object_or_404(Event, id=event_id, vendor=request.user)
 
@@ -71,6 +75,7 @@ def delete_event(request, event_id):
 
 
 @login_required
+@vendor_required
 def update_event(request, event_id):
     event = get_object_or_404(Event, id=event_id)
 

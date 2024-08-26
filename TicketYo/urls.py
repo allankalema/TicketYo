@@ -2,6 +2,8 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from django.conf.urls import handler403
+from vendors.views import custom_permission_denied_view
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -14,3 +16,5 @@ urlpatterns = [
     path('analytics/', include('analytics.urls')),
     path('api/', include('api.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+handler403 = custom_permission_denied_view

@@ -13,6 +13,9 @@ from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.core.mail import send_mail
 from django.contrib import messages
+from .decorators import vendor_required
+from django.core.exceptions import PermissionDenied
+
 
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
@@ -103,15 +106,18 @@ def login_view(request):
     return render(request, 'vendors/login.html', {'form': form})
 
 @login_required
+@vendor_required
 def logout_view(request):
     logout(request)
     return redirect('login')
 
 @login_required
+@vendor_required
 def dashboard(request):
     return render(request, 'vendors/dashboard.html')
 
 @login_required
+@vendor_required
 def update_vendor(request):
     vendor = get_object_or_404(Vendor, pk=request.user.pk)
     if request.method == 'POST':
@@ -124,6 +130,7 @@ def update_vendor(request):
     return render(request, 'vendors/update_vendor.html', {'form': form})
 
 @login_required
+@vendor_required
 def delete_vendor(request):
     vendor = get_object_or_404(Vendor, username=request.user.username)
     if request.method == 'POST':
@@ -133,6 +140,7 @@ def delete_vendor(request):
     return render(request, 'vendors/delete_vendor.html', {'vendor': vendor})
 
 @login_required
+@vendor_required
 def change_password(request):
     if request.method == 'POST':
         form = PasswordChangeForm(request.user, request.POST)
@@ -143,3 +151,6 @@ def change_password(request):
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'vendors/change_password.html', {'form': form})
+
+def custom_permission_denied_view(request, exception=None):
+    return render(request, '403.html', status=403)
