@@ -12,8 +12,7 @@ from .backends import VendorOrCustomerModelBackend
 from django.utils.crypto import get_random_string
 from django.urls import reverse
 from django.core.mail import send_mail
-
-
+from django.contrib import messages
 
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
@@ -85,17 +84,20 @@ def verify_email(request, pk):
     else:
         return render(request, 'vendors/verify_email.html')
     
-# login view 
 def login_view(request):
     if request.method == 'POST':
         form = AuthenticationForm(request, data=request.POST)
         if form.is_valid():
             username = form.cleaned_data.get('username')
             password = form.cleaned_data.get('password')
-            user = authenticate(username=username, password=password)
+            user = authenticate(username=username, password=password, is_vendor_login=True)
             if user is not None:
                 login(request, user)
                 return redirect('dashboard')
+            else:
+                messages.error(request, "You are not a vendor! Please sign in as your appropriate category.")
+        else:
+            messages.error(request, "Invalid login credentials. Please try again.")
     else:
         form = AuthenticationForm()
     return render(request, 'vendors/login.html', {'form': form})
