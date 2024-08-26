@@ -141,6 +141,23 @@ class CustomerPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     success_url = reverse_lazy('customer_home')
 
     def form_valid(self, form):
+        # Send an email notification to the user
+        user = self.request.user
+        email_subject = 'Password Changed Successfully'
+        email_body = (
+            f'Hi {user.first_name},\n\n'
+            f'We wanted to let you know that your account password was changed successfully.\n'
+            f'If you did not make this change, please contact our support team immediately.\n\n'
+            f'Best regards,\n'
+            f'Ticket yo'
+        )
+        send_mail(
+            email_subject,
+            email_body,
+            settings.DEFAULT_FROM_EMAIL,
+            [user.email],
+        )
+
         messages.success(self.request, "Your password has been changed successfully.")
         return super().form_valid(form)
 
