@@ -147,10 +147,28 @@ def change_password(request):
         if form.is_valid():
             user = form.save()
             update_session_auth_hash(request, user)  # Important to update the session
+            
+            # Send an email notification
+            email_subject = 'Your Ticket Yo Password has been Changed'
+            email_body = (
+                f'Hi {user.username},\n\n'
+                f'This is to inform you that your password was changed successfully. If you did not initiate this change, please contact our support team immediately.\n\n'
+                f'Thank you,\n'
+                f'The Ticket Yo Team'
+            )
+            send_mail(
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email],
+            )
+            
+            messages.success(request, "Your password has been changed successfully.")
             return redirect('dashboard')
     else:
         form = PasswordChangeForm(request.user)
     return render(request, 'vendors/change_password.html', {'form': form})
+
 
 def custom_permission_denied_view(request, exception=None):
     return render(request, '403.html', status=403)
