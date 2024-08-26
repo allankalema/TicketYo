@@ -7,6 +7,7 @@ from django.views import View
 from django.views.generic import TemplateView
 from .forms import CustomerSignupForm, CustomerAuthenticationForm
 from vendors.backends import *
+from django.contrib import messages
 
 class CustomerSignupView(View):
     def get(self, request, *args, **kwargs):
@@ -27,9 +28,11 @@ class CustomerLoginView(LoginView):
 
     def form_valid(self, form):
         user = authenticate(username=form.cleaned_data['username'], password=form.cleaned_data['password'])
-        if user is not None:
+        if user is not None and hasattr(user, 'is_customer') and user.is_customer:
             login(self.request, user, backend='vendors.backends.VendorOrCustomerModelBackend')
             return redirect('customer_home')
+        else:
+            messages.error(self.request, "Invalid credentials or account type.")
         return self.form_invalid(form)
 
 

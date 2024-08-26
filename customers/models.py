@@ -20,7 +20,8 @@ class Customer(AbstractBaseUser, PermissionsMixin):
     last_name = models.CharField(max_length=30)
     is_active = models.BooleanField(default=True)
     is_staff = models.BooleanField(default=False)
-
+    is_customer = models.BooleanField(default=True)
+    
     # Group and permissions related to customer
     groups = models.ManyToManyField(
         'auth.Group',

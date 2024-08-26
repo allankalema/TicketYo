@@ -5,16 +5,17 @@ from customers.models import Customer
 class VendorOrCustomerModelBackend(ModelBackend):
     def authenticate(self, request, username=None, password=None, **kwargs):
         is_vendor_login = kwargs.get('is_vendor_login', False)
+        
         try:
-            # Authenticate as a Vendor only if it's a vendor login
             if is_vendor_login:
+                # Authenticate as a vendor
                 vendor = Vendor.objects.get(username=username)
-                if vendor.check_password(password):
+                if vendor.check_password(password) and vendor.is_vendor:
                     return vendor
             else:
-                # Authenticate as a Customer if it's not a vendor login
+                # Authenticate as a customer
                 customer = Customer.objects.get(username=username)
-                if customer.check_password(password):
+                if customer.check_password(password) and customer.is_customer:
                     return customer
         except (Vendor.DoesNotExist, Customer.DoesNotExist):
             return None
