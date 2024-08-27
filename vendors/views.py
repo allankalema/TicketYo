@@ -135,8 +135,22 @@ def update_vendor(request):
 def delete_vendor(request):
     vendor = get_object_or_404(Vendor, username=request.user.username)
     if request.method == 'POST':
+        vendor_email = vendor.email  # Store the vendor's email before deletion
         vendor.delete()
         logout(request)
+
+        # Send account deletion confirmation email
+        email_subject = 'Account Deletion Confirmation'
+        email_body = (
+            f"Dear {vendor.username},\n\n"
+            "We're sorry to see you go. Your account has been successfully deleted.\n"
+            "If you didn't request this deletion or if you have any concerns, "
+            "please contact our support team immediately.\n\n"
+            "Best regards,\n"
+            "Your Company Team"
+        )
+        send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor_email])
+
         return redirect('login')
     return render(request, 'vendors/delete_vendor.html', {'vendor': vendor})
 
