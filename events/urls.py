@@ -9,6 +9,6 @@ urlpatterns = [
      path('events/<int:event_id>/update/', views.update_event, name='update_event'),
      path('event/<int:event_id>/add/', views.add_to_cart, name='add_to_cart'),
     path('cart/', views.view_cart, name='view_cart'),
-    path('event/<int:event_id>/remove/', views.remove_from_cart, name='remove_from_cart'),
+    path('cart/<int:cart_item_id>/remove/', views.remove_from_cart, name='remove_from_cart'),
     path('event/<int:event_id>/', views.event_detail, name='event_detail'),
 ]

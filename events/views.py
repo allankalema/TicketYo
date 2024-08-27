@@ -147,8 +147,9 @@ def view_cart(request):
 
 @login_required
 def remove_from_cart(request, cart_item_id):
+    # Fetch the cart item
     cart_item = get_object_or_404(Cart, id=cart_item_id)
-    
+
     # Ensure the user owns this cart item before deleting
     if (hasattr(request.user, 'is_vendor') and request.user.is_vendor and cart_item.vendor == request.user) or \
        (hasattr(request.user, 'is_customer') and request.user.is_customer and cart_item.customer == request.user):
