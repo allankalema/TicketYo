@@ -1,0 +1,25 @@
+
+
+{% block content %}
+<div class="container">
+    <h2>Email Verification</h2>
+    <p>We've sent a verification code to your email address. Please enter the code below to verify your account.</p>
+    
+    <form method="post">
+        {% csrf_token %}
+        <div class="form-group">
+            <label for="code">Verification Code:</label>
+            <input type="text" name="code" id="code" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-primary">Verify</button>
+    </form>
+
+    {% if messages %}
+        <ul class="messages">
+            {% for message in messages %}
+                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+</div>
+{% endblock %}

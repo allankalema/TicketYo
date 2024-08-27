@@ -129,12 +129,33 @@ class CustomerDeleteView(LoginRequiredMixin, DeleteView):
     success_url = reverse_lazy('customer_signup')
 
     def get_object(self, queryset=None):
-        return self.request.user  # Assuming the user is the customer
+        return self.request.user  # Assuming the logged-in user is the customer
 
     def delete(self, request, *args, **kwargs):
-        messages.success(request, "Your account has been deleted successfully.")
-        return super().delete(request, *args, **kwargs)
+        # Get the customer's email before deletion
+        customer_email = self.get_object().email
+        customer_username = self.get_object().username
+        
+        # Perform the deletion
+        response = super().delete(request, *args, **kwargs)
 
+        # Send account deletion confirmation email
+        email_subject = 'Account Deletion Confirmation'
+        email_body = (
+            f"Dear {customer_username},\n\n"
+            "We're sorry to see you go. Your account has been successfully deleted.\n"
+            "If you didn't request this deletion or if you have any concerns, "
+            "please contact our support team immediately.\n\n"
+            "Best regards,\n"
+            "Your Company Team"
+        )
+        send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [customer_email])
+
+        # Display a success message
+        messages.success(request, "Your account has been deleted successfully.")
+        
+        return response
+    
 
 class CustomerPasswordChangeView(LoginRequiredMixin, PasswordChangeView):
     template_name = 'customers/change_password.html'

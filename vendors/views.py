@@ -147,7 +147,7 @@ def delete_vendor(request):
             "If you didn't request this deletion or if you have any concerns, "
             "please contact our support team immediately.\n\n"
             "Best regards,\n"
-            "Your Company Team"
+            "TicketYo"
         )
         send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor_email])
 
