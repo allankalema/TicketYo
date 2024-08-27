@@ -50,6 +50,13 @@
                     {% else %}
                         <p>No image available</p>
                     {% endif %}
+
+                    {% if user.is_authenticated %}
+                        <form method="post" action="{% url 'add_to_cart' event.id %}">
+                            {% csrf_token %}
+                            <button type="submit">Add to Cart</button>
+                        </form>
+                    {% endif %}
                 </li>
             {% endfor %}
         </ul>

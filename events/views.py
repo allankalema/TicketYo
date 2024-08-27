@@ -101,3 +101,37 @@ def update_event(request, event_id):
         'formset': formset
     }
     return render(request, 'events/update_event.html', context)
+
+
+@login_required
+def add_to_cart(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    cart_item, created = Cart.objects.get_or_create(user=request.user, event=event)
+
+    if created:
+        messages.success(request, 'Event added to your cart.')
+    else:
+        messages.info(request, 'Event already in your cart.')
+
+    return redirect('view_cart')  # Redirect to a page showing all events or the event details
+
+@login_required
+def view_cart(request):
+    cart_items = Cart.objects.filter(user=request.user)
+    context = {
+        'cart_items': cart_items
+    }
+    return render(request, 'events/view_cart.html', context)
+
+
+@login_required
+def remove_from_cart(request, event_id):
+    cart_item = get_object_or_404(Cart, user=request.user, event_id=event_id)
+    cart_item.delete()
+    messages.success(request, 'Event removed from your cart.')
+    return redirect('view_cart')
+
+@login_required
+def event_detail(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    return render(request, 'events/event_detail.html', {'event': event})

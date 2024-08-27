@@ -1,0 +1,27 @@
+<!-- events/templates/events/event_detail.html -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{ event.title }}</title>
+</head>
+<body>
+    <h1>{{ event.title }}</h1>
+    <p><strong>Vendor:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
+    <p><strong>Description:</strong> {{ event.description }}</p>
+    <p><strong>Category:</strong> {{ event.category }}</p>
+    <p><strong>Start Date:</strong> {{ event.start_date|date:"F d, Y" }}</p>
+    <p><strong>End Date:</strong> {{ event.end_date|date:"F d, Y" }}</p>
+    <p><strong>Venue:</strong> {{ event.venue_name }}</p>
+    <p><strong>Regular Price:</strong> {{ event.regular_price }}</p>
+    <p><strong>Sale Price:</strong> {{ event.sale_price }}</p>
+    <p><strong>Tickets Available:</strong> {{ event.tickets_available }}</p>
+
+    {% if event.poster %}
+        <p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>
+    {% else %}
+        <p>No image available</p>
+    {% endif %}
+</body>
+</html>

@@ -1,5 +1,6 @@
 from django.db import models
 from vendors.models import Vendor
+from django.conf import settings
 
 class Event(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='events')  # Mandatory, linked to Vendor
@@ -25,3 +26,15 @@ class TicketCategory(models.Model):
 
     def __str__(self):
         return f'{self.category_title} - {self.event.title}'
+
+
+
+class Cart(models.Model):
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart_items'
+    )
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f'{self.user} - {self.event.title}'

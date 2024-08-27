@@ -1,0 +1,15 @@
+<!-- events/templates/events/cart.html -->
+
+{% if cart_items %}
+    <ul>
+        {% for cart_item in cart_items %}
+            <li>
+                <h3>{{ cart_item.event.title }}</h3>
+                <p><strong>Vendor:</strong> {{ cart_item.event.vendor.first_name }} from {{ cart_item.event.vendor.storename }}</p>
+                <a href="{% url 'event_detail' event_id=cart_item.event.id %}">View Details</a>
+            </li>
+        {% endfor %}
+    </ul>
+{% else %}
+    <p>Your cart is empty.</p>
+{% endif %}

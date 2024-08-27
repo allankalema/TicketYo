@@ -1,6 +1,6 @@
 from django import forms
 from django.forms import inlineformset_factory
-from .models import Event, TicketCategory
+from .models import Event, TicketCategory, Cart
 
 class EventForm(forms.ModelForm):
     start_date = forms.DateTimeField(
@@ -27,3 +27,10 @@ class TicketCategoryForm(forms.ModelForm):
 TicketCategoryFormSet = inlineformset_factory(
     Event, TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True
 )
+
+
+
+class AddToCartForm(forms.ModelForm):
+    class Meta:
+        model = Cart
+        fields = []
