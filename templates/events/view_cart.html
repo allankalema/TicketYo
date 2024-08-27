@@ -6,7 +6,8 @@
             <li>
                 <h3>{{ cart_item.event.title }}</h3>
                 <p><strong>Vendor:</strong> {{ cart_item.event.vendor.first_name }} from {{ cart_item.event.vendor.storename }}</p>
-                <a href="{% url 'event_detail' event_id=cart_item.event.id %}">View Details</a>
+                <a href="{% url 'event_detail' event_id=cart_item.event.id %}">View Details</a> | 
+                <a href="{% url 'remove_from_cart' cart_item.id %}">Remove from Cart</a>
             </li>
         {% endfor %}
     </ul>

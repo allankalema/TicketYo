@@ -106,30 +106,59 @@ def update_event(request, event_id):
 @login_required
 def add_to_cart(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    cart_item, created = Cart.objects.get_or_create(user=request.user, event=event)
+
+    if hasattr(request.user, 'is_vendor') and request.user.is_vendor:
+        # User is a Vendor
+        cart_item, created = Cart.objects.get_or_create(
+            vendor=request.user,  # Directly use request.user for the vendor
+            event=event
+        )
+    elif hasattr(request.user, 'is_customer') and request.user.is_customer:
+        # User is a Customer
+        cart_item, created = Cart.objects.get_or_create(
+            customer=request.user,  # Directly use request.user for the customer
+            event=event
+        )
+    else:
+        messages.error(request, 'You need to be logged in as a valid user.')
+        return redirect('login')
 
     if created:
         messages.success(request, 'Event added to your cart.')
     else:
         messages.info(request, 'Event already in your cart.')
 
-    return redirect('view_cart')  # Redirect to a page showing all events or the event details
+    return redirect('view_cart')
 
 @login_required
 def view_cart(request):
-    cart_items = Cart.objects.filter(user=request.user)
-    context = {
-        'cart_items': cart_items
-    }
-    return render(request, 'events/view_cart.html', context)
+    if hasattr(request.user, 'is_vendor') and request.user.is_vendor:
+        # User is a Vendor
+        cart_items = Cart.objects.filter(vendor=request.user)
+    elif hasattr(request.user, 'is_customer') and request.user.is_customer:
+        # User is a Customer
+        cart_items = Cart.objects.filter(customer=request.user)
+    else:
+        messages.error(request, 'You need to be logged in as a valid user.')
+        return redirect('login')
+
+    return render(request, 'events/view_cart.html', {'cart_items': cart_items})
 
 
 @login_required
-def remove_from_cart(request, event_id):
-    cart_item = get_object_or_404(Cart, user=request.user, event_id=event_id)
-    cart_item.delete()
-    messages.success(request, 'Event removed from your cart.')
+def remove_from_cart(request, cart_item_id):
+    cart_item = get_object_or_404(Cart, id=cart_item_id)
+    
+    # Ensure the user owns this cart item before deleting
+    if (hasattr(request.user, 'is_vendor') and request.user.is_vendor and cart_item.vendor == request.user) or \
+       (hasattr(request.user, 'is_customer') and request.user.is_customer and cart_item.customer == request.user):
+        cart_item.delete()
+        messages.success(request, 'Item removed from your cart.')
+    else:
+        messages.error(request, 'You do not have permission to remove this item.')
+
     return redirect('view_cart')
+
 
 @login_required
 def event_detail(request, event_id):

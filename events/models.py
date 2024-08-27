@@ -1,6 +1,8 @@
 from django.db import models
 from vendors.models import Vendor
 from django.conf import settings
+from django.contrib.contenttypes.models import ContentType
+from django.contrib.contenttypes.fields import GenericForeignKey
 
 class Event(models.Model):
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='events')  # Mandatory, linked to Vendor
@@ -30,11 +32,13 @@ class TicketCategory(models.Model):
 
 
 class Cart(models.Model):
-    user = models.ForeignKey(
-        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='cart_items'
-    )
+    vendor = models.ForeignKey('vendors.Vendor', on_delete=models.CASCADE, null=True, blank=True)
+    customer = models.ForeignKey('customers.Customer', on_delete=models.CASCADE, null=True, blank=True)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user} - {self.event.title}'
+        return f'{self.get_user()} - {self.event.title}'
+    
+    def get_user(self):
+        return self.vendor if self.vendor else self.customer
