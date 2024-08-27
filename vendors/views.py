@@ -15,7 +15,8 @@ from django.core.mail import send_mail
 from django.contrib import messages
 from .decorators import vendor_required
 from django.core.exceptions import PermissionDenied
-
+from django.utils.encoding import force_bytes, force_str
+from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
@@ -172,3 +173,85 @@ def change_password(request):
 
 def custom_permission_denied_view(request, exception=None):
     return render(request, '403.html', status=403)
+
+def vendor_password_reset_request(request):
+    if request.method == "POST":
+        form = VendorPasswordResetRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            vendor = Vendor.objects.get(email=email)
+            verification_code = generate_verification_code()  # Function to generate a code
+            vendor.verification_code = verification_code
+            vendor.verification_code_created_at = timezone.now()
+            vendor.save()
+
+            # Send verification email
+            email_subject = 'Your Password Reset Code'
+            email_body = f'Your password reset code is {verification_code}.'
+            send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor.email])
+
+            return redirect('vendor_password_reset_verify', uidb64=urlsafe_base64_encode(force_bytes(vendor.pk)))
+    else:
+        form = VendorPasswordResetRequestForm()
+
+    return render(request, 'vendors/password_reset_request.html', {'form': form})
+
+def vendor_password_reset_verify(request, uidb64):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        vendor = Vendor.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Vendor.DoesNotExist):
+        vendor = None
+
+    if vendor is not None:
+        if request.method == "POST":
+            code = request.POST.get('code')
+            expiration_time = vendor.verification_code_created_at + timezone.timedelta(minutes=10)
+
+            if timezone.now() > expiration_time:
+                messages.error(request, "Verification code has expired.")
+                return redirect('vendor_password_reset_request')
+
+            if code == vendor.verification_code:
+                vendor.verification_code = None  # Clear the code after verification
+                vendor.save()
+                return redirect('vendor_password_reset_confirm', uidb64=uidb64)
+
+            messages.error(request, "Invalid verification code.")
+        return render(request, 'vendors/password_reset_verify.html', {'vendor': vendor})
+    else:
+        messages.error(request, "Invalid request.")
+        return redirect('vendor_password_reset_request')
+
+def vendor_password_reset_confirm(request, uidb64):
+    try:
+        uid = force_str(urlsafe_base64_decode(uidb64))
+        vendor = Vendor.objects.get(pk=uid)
+    except (TypeError, ValueError, OverflowError, Vendor.DoesNotExist):
+        vendor = None
+
+    if vendor is not None:
+        if request.method == "POST":
+            form = VendorSetNewPasswordForm(request.POST)
+            if form.is_valid():
+                new_password = form.cleaned_data['new_password1']
+                vendor.set_password(new_password)
+                vendor.save()
+
+                # Log the vendor in automatically
+                login(request, vendor, backend='vendors.backends.VendorOrCustomerModelBackend')
+
+                # Send confirmation email
+                email_subject = 'Password Changed Successfully'
+                email_body = 'Your password has been changed successfully. If you did not perform this action, please contact support immediately.'
+                send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor.email])
+
+                messages.success(request, "Your password has been reset successfully.")
+                return redirect('dashboard')  # Redirect to the vendor dashboard after login
+        else:
+            form = VendorSetNewPasswordForm()
+
+        return render(request, 'vendors/password_reset_confirm.html', {'form': form, 'vendor': vendor})
+    else:
+        messages.error(request, "The reset link is invalid or has expired.")
+        return redirect('vendor_password_reset_request')
