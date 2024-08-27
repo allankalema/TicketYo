@@ -51,6 +51,9 @@
                         <p>No image available</p>
                     {% endif %}
 
+                    <!-- Add a link to the Get Ticket functionality -->
+                    <p><a href="{% url 'buy_ticket' event.id %}">Get Tickets</a></p>
+
                     {% if user.is_authenticated %}
                         <form method="post" action="{% url 'add_to_cart' event.id %}">
                             {% csrf_token %}

@@ -1,0 +1,12 @@
+<!-- tickets/templates/tickets/ticket_success.html -->
+
+<h1>Thank You for Your Purchase!</h1>
+<p>Your ticket(s) have been successfully generated.</p>
+
+<ul>
+    {% for ticket_number in ticket_numbers %}
+        <li>Ticket Number: {{ ticket_number }}</li>
+    {% endfor %}
+</ul>
+
+<p>An email confirmation has been sent to your registered email address.</p>

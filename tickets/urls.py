@@ -1,5 +1,9 @@
+# tickets/urls.py
+
 from django.urls import path
+from . import views
 
 urlpatterns = [
-    # Define vendor-related URL patterns here in the future.
+    path('buy/<int:event_id>/', views.buy_ticket, name='buy_ticket'),
+    # Other ticket-related paths...
 ]
