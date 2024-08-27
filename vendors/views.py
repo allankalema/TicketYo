@@ -149,7 +149,13 @@ def delete_vendor(request):
             "Best regards,\n"
             "TicketYo"
         )
-        send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor_email])
+        
+        print("About to send email to:", vendor_email)
+        try:
+            send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [vendor_email])
+            print("Email sent successfully")
+        except Exception as e:
+            print("Error sending email:", str(e))
 
         return redirect('login')
     return render(request, 'vendors/delete_vendor.html', {'vendor': vendor})
