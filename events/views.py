@@ -57,6 +57,19 @@ def all_events(request):
     # Retrieve all events and prefetch related ticket categories
     events = Event.objects.prefetch_related('ticket_categories').all()
 
+    # Calculate remaining tickets for each event and category
+    for event in events:
+        # Handle None values by providing a default value of 0
+        tickets_available = event.tickets_available or 0
+        tickets_sold = event.tickets_sold or 0
+        event.remaining_tickets = tickets_available - tickets_sold
+
+        # Calculate remaining tickets for each category
+        for category in event.ticket_categories.all():
+            category_tickets_available = category.category_tickets_available or 0
+            category_tickets_sold = category.category_tickets_sold or 0
+            category.remaining_tickets = category_tickets_available - category_tickets_sold
+
     context = {
         'events': events
     }
