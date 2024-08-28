@@ -12,25 +12,39 @@ def buy_ticket(request, event_id):
     if event.is_sold_out():
         return render(request, 'tickets/sold_out.html', {'event': event})
 
-    # Calculate the 30% threshold for each category
-    category_thresholds = {}
+    # Initialize variables to store ticket data
+    ticket_data = []
+    ordinary_ticket_data = None
+
+    # Calculate remaining tickets for each category
     for category in categories:
-        category_thresholds[category.id] = category.category_tickets_available * 0.3
+        remaining_tickets = category.category_tickets_available - category.category_tickets_sold
+        ticket_data.append({
+            'category': category,
+            'tickets_remaining': remaining_tickets
+        })
+
+    # Handle ordinary tickets if no categories are available
+    if not categories.exists():
+        ordinary_remaining = event.tickets_available - event.tickets_sold
+        ordinary_ticket_data = {
+            'price': event.sale_price,
+            'tickets_remaining': ordinary_remaining
+        }
 
     if request.method == 'POST':
-        tickets_info = request.POST  # Retrieve ticket quantities per category
+        tickets_info = request.POST
         total_tickets = 0
         total_price = 0
         ticket_details = []
 
-        for category in categories:
+        for data in ticket_data:
+            category = data['category']
             quantity = int(tickets_info.get(f'quantity_{category.id}', 0))
             if quantity > 0:
-                # Check if the category is sold out
                 if category.is_category_sold_out() or category.category_tickets_sold + quantity > category.category_tickets_available:
                     return render(request, 'events/sold_out.html', {'event': event})
 
-                # Create tickets and update sold count
                 for _ in range(quantity):
                     ticket_number = Ticket.generate_ticket_number(
                         event=event,
@@ -53,15 +67,12 @@ def buy_ticket(request, event_id):
                 total_tickets += quantity
                 total_price += quantity * category.category_price
 
-                # Update the sold counts
                 category.category_tickets_sold += quantity
                 category.save()
 
-        # Handling ordinary ticket
-        if not categories.exists():
+        if not categories.exists() and ordinary_ticket_data:
             quantity = int(tickets_info.get('quantity_ordinary', 0))
             if quantity > 0:
-                # Check if the event is sold out
                 if event.is_sold_out() or event.tickets_sold + quantity > event.tickets_available:
                     return render(request, 'events/sold_out.html', {'event': event})
 
@@ -87,11 +98,9 @@ def buy_ticket(request, event_id):
                 total_tickets += quantity
                 total_price += quantity * event.sale_price
 
-        # Update event tickets sold count
         event.tickets_sold += total_tickets
         event.save()
 
-        # Pass detailed information to the template
         context = {
             'event': event,
             'vendor': event.vendor,
@@ -99,12 +108,15 @@ def buy_ticket(request, event_id):
             'total_price': total_price,
             'total_tickets': total_tickets,
             'customer': request.user,
+            'ticket_data': ticket_data,
+            'ordinary_ticket_data': ordinary_ticket_data
         }
 
         return render(request, 'tickets/ticket_success.html', context)
 
-    return render(request, 'tickets/buy_ticket.html', {
+    context = {
         'event': event,
-        'categories': categories,
-        'category_thresholds': category_thresholds
-    })
+        'ticket_data': ticket_data,
+        'ordinary_ticket_data': ordinary_ticket_data
+    }
+    return render(request, 'tickets/buy_ticket.html', context)
