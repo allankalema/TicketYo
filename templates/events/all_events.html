@@ -50,9 +50,12 @@
                     {% else %}
                         <p>No image available</p>
                     {% endif %}
-
-                    <!-- Add a link to the Get Ticket functionality -->
+                    
+                    {% if event.is_sold_out %}
+                    <p><strong>Status:</strong> Sold Out</p>
+                {% else %}
                     <p><a href="{% url 'buy_ticket' event.id %}">Get Tickets</a></p>
+                {% endif %}
 
                     {% if user.is_authenticated %}
                         <form method="post" action="{% url 'add_to_cart' event.id %}">

@@ -16,6 +16,10 @@ class Event(models.Model):
     regular_price = models.DecimalField(max_digits=10, decimal_places=2)  # Required field
     sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Optional field
     tickets_available = models.PositiveIntegerField(null=True, blank=True)  # Optional field
+    tickets_sold = models.PositiveIntegerField(default=0)  # New field to track tickets sold
+
+    def is_sold_out(self):
+        return self.tickets_available is not None and self.tickets_sold >= self.tickets_available
 
     def __str__(self):
         return self.title
@@ -25,10 +29,13 @@ class TicketCategory(models.Model):
     category_title = models.CharField(max_length=100)  # Required field
     category_price = models.DecimalField(max_digits=10, decimal_places=2)  # Required field
     category_tickets_available = models.PositiveIntegerField()  # Required field
+    category_tickets_sold = models.PositiveIntegerField(default=0)  # New field to track tickets sold in this category
+
+    def is_category_sold_out(self):
+        return self.category_tickets_sold >= self.category_tickets_available
 
     def __str__(self):
         return f'{self.category_title} - {self.event.title}'
-
 
 
 class Cart(models.Model):
