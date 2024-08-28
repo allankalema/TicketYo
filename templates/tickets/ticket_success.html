@@ -1,12 +1,44 @@
 <!-- tickets/templates/tickets/ticket_success.html -->
 
 <h1>Thank You for Your Purchase!</h1>
-<p>Your ticket(s) have been successfully generated.</p>
 
+<p>Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
+
+<h2>Event Details:</h2>
 <ul>
-    {% for ticket_number in ticket_numbers %}
-        <li>Ticket Number: {{ ticket_number }}</li>
+    <p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>
+    <li><strong>Event Title:</strong> {{ event.title }}</li>
+    <li><strong>Event Description:</strong> {{ event.description }}</li>
+    <li><strong>Event Category:</strong> {{ event.category }}</li>
+    <li><strong>Event Start Date:</strong> {{ event.start_date }}</li>
+    {% if event.end_date %}
+        <p><strong>End Date:</strong> {{ event.end_date|date:"F d, Y" }}</p>
+    {% endif %}
+    <li><strong>Event Location:</strong> {{ event.venue_name }}</li>
+</ul>
+
+<h2>Vendor Information:</h2>
+<ul>
+    <li><strong>Store Name:</strong> {{ vendor.storename }}</li>
+    <li><strong>Contact Email:</strong> {{ vendor.email }}</li>
+    <li><strong>Phone Number:</strong> {{ vendor.store_phone }}</li>
+</ul>
+
+<h2>Ticket Details:</h2>
+<ul>
+    {% for detail in ticket_details %}
+        <li>
+            <strong>Category:</strong> {{ detail.category }}<br>
+            <strong>Ticket Number:</strong> {{ detail.ticket_number }}<br>
+            <strong>Price:</strong> UGX:{{ detail.price }}
+        </li>
     {% endfor %}
 </ul>
 
-<p>An email confirmation has been sent to your registered email address.</p>
+<h2>Total Summary:</h2>
+<ul>
+    <li><strong>Total Tickets:</strong> {{ total_tickets }}</li>
+    <li><strong>Total Price:</strong> UGX:{{ total_price }}</li>
+</ul>
+
+<p>An email confirmation has been sent to your registered email address. If you have any questions, feel free to contact the vendor or event organizer.</p>

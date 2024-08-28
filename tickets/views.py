@@ -17,7 +17,7 @@ def buy_ticket(request, event_id):
         tickets_info = request.POST  # Retrieve ticket quantities per category
         total_tickets = 0
         total_price = 0
-        ticket_numbers = []
+        ticket_details = []
 
         for category in categories:
             quantity = int(tickets_info.get(f'quantity_{category.id}', 0))
@@ -27,16 +27,20 @@ def buy_ticket(request, event_id):
                         event=event,
                         vendor=event.vendor,
                         category=category,
-                        customer=request.user  # Update this line
+                        customer=request.user
                     )
                     Ticket.objects.create(
                         event=event,
                         ticket_category=category,
-                        customer=request.user,  # Update this line
+                        customer=request.user,
                         vendor=event.vendor,
                         ticket_number=ticket_number
                     )
-                    ticket_numbers.append(ticket_number)
+                    ticket_details.append({
+                        'ticket_number': ticket_number,
+                        'category': category.category_title,
+                        'price': category.category_price,
+                    })
                 total_tickets += quantity
                 total_price += quantity * category.category_price
 
@@ -49,22 +53,34 @@ def buy_ticket(request, event_id):
                         event=event,
                         vendor=event.vendor,
                         category=None,
-                        customer=request.user  # Update this line
+                        customer=request.user
                     )
                     Ticket.objects.create(
                         event=event,
                         ticket_category=None,
-                        customer=request.user,  # Update this line
+                        customer=request.user,
                         vendor=event.vendor,
                         ticket_number=ticket_number
                     )
-                    ticket_numbers.append(ticket_number)
+                    ticket_details.append({
+                        'ticket_number': ticket_number,
+                        'category': 'Ordinary',
+                        'price': event.sale_price,
+                    })
                 total_tickets += quantity
                 total_price += quantity * event.sale_price
 
-        # Email confirmation and success page
-        # (You'll need to implement the email functionality separately)
-        return render(request, 'tickets/ticket_success.html', {'ticket_numbers': ticket_numbers})
+        # Pass detailed information to the template
+        context = {
+            'event': event,
+            'vendor': event.vendor,
+            'ticket_details': ticket_details,
+            'total_price': total_price,
+            'total_tickets': total_tickets,
+            'customer': request.user,
+        }
+
+        return render(request, 'tickets/ticket_success.html', context)
 
     return render(request, 'tickets/buy_ticket.html', {
         'event': event,
