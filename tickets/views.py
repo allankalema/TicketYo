@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect, get_object_or_404
 from events.models import Event, TicketCategory
 from .models import Ticket
 from django.contrib.auth.decorators import login_required
+import qrcode
+from io import BytesIO
+from django.core.files import File
 
 @login_required
 def buy_ticket(request, event_id):
@@ -52,17 +55,35 @@ def buy_ticket(request, event_id):
                         category=category,
                         customer=request.user
                     )
-                    Ticket.objects.create(
+
+                    # Create a QR code for the ticket number
+                    qr = qrcode.QRCode(
+                        version=1,
+                        error_correction=qrcode.constants.ERROR_CORRECT_L,
+                        box_size=10,
+                        border=4,
+                    )
+                    qr.add_data(ticket_number)
+                    qr.make(fit=True)
+
+                    img = qr.make_image(fill_color="black", back_color="white")
+                    buffer = BytesIO()
+                    img.save(buffer)
+                    qr_image = File(buffer, name=f'{ticket_number}_qr.png')
+
+                    ticket = Ticket.objects.create(
                         event=event,
                         ticket_category=category,
                         customer=request.user,
                         vendor=event.vendor,
-                        ticket_number=ticket_number
+                        ticket_number=ticket_number,
+                        qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
                     )
                     ticket_details.append({
                         'ticket_number': ticket_number,
                         'category': category.category_title,
                         'price': category.category_price,
+                        'qr_code_url': ticket.qr_code.url  # Add the QR code URL to the ticket details
                     })
                 total_tickets += quantity
                 total_price += quantity * category.category_price
@@ -83,17 +104,35 @@ def buy_ticket(request, event_id):
                         category=None,
                         customer=request.user
                     )
-                    Ticket.objects.create(
+
+                    # Create a QR code for the ticket number
+                    qr = qrcode.QRCode(
+                        version=1,
+                        error_correction=qrcode.constants.ERROR_CORRECT_L,
+                        box_size=10,
+                        border=4,
+                    )
+                    qr.add_data(ticket_number)
+                    qr.make(fit=True)
+
+                    img = qr.make_image(fill_color="black", back_color="white")
+                    buffer = BytesIO()
+                    img.save(buffer)
+                    qr_image = File(buffer, name=f'{ticket_number}_qr.png')
+
+                    ticket = Ticket.objects.create(
                         event=event,
                         ticket_category=None,
                         customer=request.user,
                         vendor=event.vendor,
-                        ticket_number=ticket_number
+                        ticket_number=ticket_number,
+                        qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
                     )
                     ticket_details.append({
                         'ticket_number': ticket_number,
                         'category': 'Ordinary',
                         'price': event.sale_price,
+                        'qr_code_url': ticket.qr_code.url  # Add the QR code URL to the ticket details
                     })
                 total_tickets += quantity
                 total_price += quantity * event.sale_price
@@ -120,3 +159,15 @@ def buy_ticket(request, event_id):
         'ordinary_ticket_data': ordinary_ticket_data
     }
     return render(request, 'tickets/buy_ticket.html', context)
+
+
+@login_required
+def view_qr_codes(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    tickets = Ticket.objects.filter(event=event, customer=request.user)
+
+    context = {
+        'event': event,
+        'tickets': tickets
+    }
+    return render(request, 'tickets/view_qr_codes.html', context)

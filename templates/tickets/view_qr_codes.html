@@ -1,0 +1,14 @@
+<!-- tickets/templates/tickets/view_qr_codes.html -->
+<h1>{{ event.title }} - Your QR Codes</h1>
+
+<ul>
+    {% for ticket in tickets %}
+    <li>
+        <strong>Category:</strong> {{ ticket.ticket_category.category_title }}<br>
+        <strong>Ticket Number:</strong> {{ ticket.ticket_number }}<br>
+        <img src="{{ ticket.qr_code.url }}" alt="QR Code for {{ ticket.ticket_number }}">
+    </li>
+    {% endfor %}
+</ul>
+
+<a href="{% url 'event_detail' event.id %}">Back to Event</a>

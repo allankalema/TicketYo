@@ -138,7 +138,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-LOGIN_URL = '/vendors/login/'  # Update this to the correct path
+LOGIN_URL = '/'  # Update this to the correct path
 
 
 EMAIL_HOST = 'smtp.gmail.com'
