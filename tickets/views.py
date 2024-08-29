@@ -166,8 +166,18 @@ def view_qr_codes(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     tickets = Ticket.objects.filter(event=event, customer=request.user)
 
+    # Prepare a list of ticket details including QR code URLs
+    ticket_details = []
+    for ticket in tickets:
+        ticket_details.append({
+            'ticket_number': ticket.ticket_number,
+            'category': ticket.ticket_category.category_title if ticket.ticket_category else 'Ordinary',
+            'price': ticket.ticket_category.category_price if ticket.ticket_category else event.sale_price,
+            'qr_code_url': ticket.qr_code.url if ticket.qr_code else None
+        })
+
     context = {
         'event': event,
-        'tickets': tickets
+        'ticket_details': ticket_details
     }
     return render(request, 'tickets/view_qr_codes.html', context)
