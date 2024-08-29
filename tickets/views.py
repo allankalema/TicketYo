@@ -92,7 +92,8 @@ def buy_ticket(request, event_id):
                             customer_username=entity.username,  # Assign entity as customer
                             vendor=event.vendor,
                             ticket_number=ticket_number,
-                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
+                            entity_type='customer'
                         )
                     elif entity_type == 'vendor':
                         ticket = Ticket.objects.create(
@@ -101,7 +102,8 @@ def buy_ticket(request, event_id):
                             customer_username=entity.username,  
                             vendor=event.vendor,  # Assign entity as vendor
                             ticket_number=ticket_number,
-                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
+                            entity_type='vendor'
                         )
 
                     ticket_details.append({
@@ -154,7 +156,8 @@ def buy_ticket(request, event_id):
                             customer_username=entity.username,  # Assign entity as customer
                             vendor=event.vendor,
                             ticket_number=ticket_number,
-                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
+                            entity_type='customer'
                         )
                     elif entity_type == 'vendor':
                         ticket = Ticket.objects.create(
@@ -163,7 +166,8 @@ def buy_ticket(request, event_id):
                             customer_username=entity.username,  
                             vendor=event.vendor,  
                             ticket_number=ticket_number,
-                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
+                            entity_type='vendor'
                         )
 
                     ticket_details.append({

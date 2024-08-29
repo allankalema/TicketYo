@@ -7,7 +7,7 @@ from django.contrib import admin
 from .models import Ticket
 
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('ticket_number', 'event', 'ticket_category', 'customer_username', 'vendor', 'purchase_date')
+    list_display = ('ticket_number', 'event', 'ticket_category', 'customer_username', 'vendor', 'purchase_date','entity_type')
     search_fields = ('ticket_number', 'event__title', 'customer__username', 'vendor__storename')
     list_filter = ('event', 'ticket_category', 'vendor', 'purchase_date')
     ordering = ('-purchase_date',)
