@@ -1,17 +1,78 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Dashboard</title>
+    <title>Vendor Dashboard</title>
 </head>
 <body>
     <h2>Welcome, {{ user.username }}</h2>
     <a href="{% url 'logout' %}">Logout</a>
-    <a href="{% url 'update_vendor' %}">update</a>
-    <a href="{% url 'delete_vendor' %}">delete</a>
-    <a href="{% url 'change_password' %}">change password</a>
+    <a href="{% url 'update_vendor' %}">Update</a>
+    <a href="{% url 'delete_vendor' %}">Delete</a>
+    <a href="{% url 'change_password' %}">Change Password</a>
     <a href="{% url 'create_event' %}">Create Event</a> 
-    <a href="{%url 'vendor_events' %}">view events</a>
-    <a href="{%url 'view_cart' %}">view cart</a>
-    <a href="{%url 'all_events' %}">Home</a>
+    <a href="{% url 'vendor_events' %}">View Events</a>
+    <a href="{% url 'view_cart' %}">View Cart</a>
+    <a href="{% url 'all_events' %}">Home</a>
+
+    <h3>Past Events</h3>
+    {% if past_events %}
+        <ul>
+            {% for event in past_events %}
+                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No past events.</p>
+    {% endif %}
+
+    <h3>Upcoming Events</h3>
+    {% if upcoming_events %}
+        <ul>
+            {% for event in upcoming_events %}
+                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming events.</p>
+    {% endif %}
+
+    <h3>Sold Out Events</h3>
+    <h4>Past Sold Out Events</h4>
+    {% if sold_out_past_events %}
+        <ul>
+            {% for event in sold_out_past_events %}
+                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No past sold out events.</p>
+    {% endif %}
+
+    <h4>Upcoming Sold Out Events</h4>
+    {% if sold_out_upcoming_events %}
+        <ul>
+            {% for event in sold_out_upcoming_events %}
+                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No upcoming sold out events.</p>
+    {% endif %}
+
+    <h3>Total Tickets Sold: {{ total_tickets_sold }}</h3>
+
+    <h3>Top 5 Events by Ticket Sales</h3>
+    {% if top_5_events %}
+        <ul>
+            {% for event, tickets_sold in top_5_events %}
+                <li>{{ event.title }}: {{ tickets_sold }} tickets sold</li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No events available.</p>
+    {% endif %}
+
+    <h3>Inventory</h3>
+    <a href="{% url 'view_inventory' %}">View Inventory</a>
 </body>
 </html>

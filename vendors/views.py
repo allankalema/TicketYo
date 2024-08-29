@@ -17,6 +17,8 @@ from .decorators import vendor_required
 from django.core.exceptions import PermissionDenied
 from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
+from tickets.models import Ticket
+from events.models import Event
 
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
@@ -114,9 +116,49 @@ def logout_view(request):
 
 @login_required
 @vendor_required
-def dashboard(request):
-    return render(request, 'vendors/dashboard.html')
+def vendor_dashboard(request):
+    vendor = request.user  # Assuming the user is a vendor
+    events = Event.objects.filter(vendor=vendor)
 
+    # Categorize events
+    past_events = []
+    upcoming_events = []
+    sold_out_past_events = []
+    sold_out_upcoming_events = []
+
+    for event in events:
+        remaining_tickets = event.tickets_available - event.tickets_sold
+        
+        if event.start_date < timezone.now():
+            if remaining_tickets == 0:
+                sold_out_past_events.append(event)
+            else:
+                past_events.append(event)
+        else:
+            if remaining_tickets == 0:
+                sold_out_upcoming_events.append(event)
+            else:
+                upcoming_events.append(event)
+
+    # Total tickets sold and top 5 events by ticket sales
+    tickets_sold_per_event = {}
+    for event in events:
+        tickets_sold_per_event[event] = Ticket.objects.filter(event=event).count()
+
+    top_5_events = sorted(tickets_sold_per_event.items(), key=lambda x: x[1], reverse=True)[:5]
+    total_tickets_sold = sum(tickets_sold_per_event.values())
+
+    context = {
+        'past_events': past_events,
+        'upcoming_events': upcoming_events,
+        'sold_out_past_events': sold_out_past_events,
+        'sold_out_upcoming_events': sold_out_upcoming_events,
+        'total_tickets_sold': total_tickets_sold,
+        'top_5_events': top_5_events,
+        'inventory': Ticket.objects.filter(customer_username=vendor.username, entity_type='vendor'),
+    }
+
+    return render(request, 'vendors/dashboard.html', context)
 @login_required
 @vendor_required
 def update_vendor(request):
@@ -129,6 +171,7 @@ def update_vendor(request):
     else:
         form = VendorUpdateForm(instance=vendor)
     return render(request, 'vendors/update_vendor.html', {'form': form})
+
 
 @login_required
 @vendor_required
@@ -216,6 +259,8 @@ def vendor_password_reset_request(request):
 
     return render(request, 'vendors/password_reset_request.html', {'form': form})
 
+
+
 def vendor_password_reset_verify(request, uidb64):
     try:
         uid = force_str(urlsafe_base64_decode(uidb64))
@@ -275,3 +320,16 @@ def vendor_password_reset_confirm(request, uidb64):
     else:
         messages.error(request, "The reset link is invalid or has expired.")
         return redirect('vendor_password_reset_request')
+
+@login_required    
+def view_inventory(request):
+    vendor = request.user
+    inventory = Ticket.objects.filter(customer_username=vendor.username, entity_type='vendor')
+
+    return render(request, 'vendors/inventory.html', {'inventory': inventory})
+
+
+@login_required 
+def ticket_receipt(request, ticket_id):
+    ticket = get_object_or_404(Ticket, id=ticket_id)
+    return render(request, 'vendors/receipt.html', {'ticket': ticket})

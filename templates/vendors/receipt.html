@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Ticket Receipt</title>
+</head>
+<body>
+    <h1>Thank You for Your Purchase!</h1>
+
+    <p>Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
+
+    <h2>Event Details:</h2>
+    <ul>
+        <p><img src="{{ ticket.event.poster.url }}" alt="{{ ticket.event.title }}" width="200"></p>
+        <li><strong>Event Title:</strong> {{ ticket.event.title }}</li>
+        <li><strong>Event Description:</strong> {{ ticket.event.description }}</li>
+        <li><strong>Event Category:</strong> {{ ticket.event.category }}</li>
+        <li><strong>Event Start Date:</strong> {{ ticket.event.start_date }}</li>
+        {% if ticket.event.end_date %}
+            <p><strong>End Date:</strong> {{ ticket.event.end_date|date:"F d, Y" }}</p>
+        {% endif %}
+        <li><strong>Event Location:</strong> {{ ticket.event.venue_name }}</li>
+    </ul>
+
+    <h2>Vendor Information:</h2>
+    <ul>
+        <li><strong>Store Name:</strong> {{ ticket.vendor.storename }}</li>
+        <li><strong>Contact Email:</strong> {{ ticket.vendor.email }}</li>
+        <li><strong>Phone Number:</strong> {{ ticket.vendor.store_phone }}</li>
+    </ul>
+
+    <h2>Ticket Details:</h2>
+    <ul>
+        <li>
+            <strong>Category:</strong> {{ ticket.ticket_category.category_title }}<br>
+            <strong>Ticket Number:</strong> {{ ticket.ticket_number }}<br>
+            <strong>Price:</strong> UGX:{{ ticket.ticket_category.category_price }}<br>
+            {% if ticket.qr_code %}
+                <img src="{{ ticket.qr_code.url }}" alt="QR Code for {{ ticket.ticket_number }}">
+            {% else %}
+                <p>No QR code available</p>
+            {% endif %}
+        </li>
+    </ul>
+</body>
+</html>
