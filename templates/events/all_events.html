@@ -14,6 +14,12 @@
     {% endif %}
 
     <h2>All Events</h2>
+    <a href="{%url 'customer_signup' %}">customer signup</a>
+    <a href="{%url 'customer_login' %}">customer login</a>
+    <a href="{%url 'signup' %}">vendor signup</a>
+    <a href="{%url 'login' %}">Vendor login </a>
+    <a href="{%url 'dashboard' %}">vendor dashboard</a>
+    <a href="{%url 'customer_home' %}">customer Home</a>
 
     {% if events %}
         <ul>
