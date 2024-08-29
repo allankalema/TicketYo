@@ -41,6 +41,18 @@ def buy_ticket(request, event_id):
         total_price = 0
         ticket_details = []
 
+        # Determine if the logged-in user is a Customer or Vendor
+        if hasattr(request.user, 'is_vendor') and request.user.is_vendor:
+            entity_type = 'vendor'
+            entity = request.user
+            
+        elif hasattr(request.user, 'is_customer') and request.user.is_customer:
+            entity_type = 'customer'
+            entity = request.user
+        else:
+            # Handle cases where the user is neither a Customer nor a Vendor
+            return render(request, 'tickets/error.html', {'message': 'User is not authorized to buy tickets.'})
+
         for data in ticket_data:
             category = data['category']
             quantity = int(tickets_info.get(f'quantity_{category.id}', 0))
@@ -50,11 +62,12 @@ def buy_ticket(request, event_id):
 
                 for _ in range(quantity):
                     ticket_number = Ticket.generate_ticket_number(
-                        event=event,
-                        vendor=event.vendor,
-                        category=category,
-                        customer=request.user
-                    )
+                                    event=event,
+                                    vendor=event.vendor,
+                                    category=category,
+                                    entity=entity,  # Pass the determined entity here
+                                    entity_type=entity_type  # Pass the determined entity type here
+                                )
 
                     # Create a QR code for the ticket number
                     qr = qrcode.QRCode(
@@ -71,14 +84,26 @@ def buy_ticket(request, event_id):
                     img.save(buffer)
                     qr_image = File(buffer, name=f'{ticket_number}_qr.png')
 
-                    ticket = Ticket.objects.create(
-                        event=event,
-                        ticket_category=category,
-                        customer=request.user,
-                        vendor=event.vendor,
-                        ticket_number=ticket_number,
-                        qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
-                    )
+                    # Create the ticket based on the entity type
+                    if entity_type == 'customer':
+                        ticket = Ticket.objects.create(
+                            event=event,
+                            ticket_category=category,
+                            customer_username=entity.username,  # Assign entity as customer
+                            vendor=event.vendor,
+                            ticket_number=ticket_number,
+                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                        )
+                    elif entity_type == 'vendor':
+                        ticket = Ticket.objects.create(
+                            event=event,
+                            ticket_category=category,
+                            customer_username=entity.username,  
+                            vendor=event.vendor,  # Assign entity as vendor
+                            ticket_number=ticket_number,
+                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                        )
+
                     ticket_details.append({
                         'ticket_number': ticket_number,
                         'category': category.category_title,
@@ -102,7 +127,8 @@ def buy_ticket(request, event_id):
                         event=event,
                         vendor=event.vendor,
                         category=None,
-                        customer=request.user
+                        entity=entity,  # Pass the determined entity here
+                        entity_type=entity_type  # Pass the determined entity type here
                     )
 
                     # Create a QR code for the ticket number
@@ -120,14 +146,26 @@ def buy_ticket(request, event_id):
                     img.save(buffer)
                     qr_image = File(buffer, name=f'{ticket_number}_qr.png')
 
-                    ticket = Ticket.objects.create(
-                        event=event,
-                        ticket_category=None,
-                        customer=request.user,
-                        vendor=event.vendor,
-                        ticket_number=ticket_number,
-                        qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
-                    )
+                    # Create the ticket based on the entity type
+                    if entity_type == 'customer':
+                        ticket = Ticket.objects.create(
+                            event=event,
+                            ticket_category=None,
+                            customer_username=entity.username,  # Assign entity as customer
+                            vendor=event.vendor,
+                            ticket_number=ticket_number,
+                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                        )
+                    elif entity_type == 'vendor':
+                        ticket = Ticket.objects.create(
+                            event=event,
+                            ticket_category=None,
+                            customer_username=entity.username,  
+                            vendor=event.vendor,  
+                            ticket_number=ticket_number,
+                            qr_code=qr_image  # assuming you have a `qr_code` field in your Ticket model
+                        )
+
                     ticket_details.append({
                         'ticket_number': ticket_number,
                         'category': 'Ordinary',
@@ -146,7 +184,7 @@ def buy_ticket(request, event_id):
             'ticket_details': ticket_details,
             'total_price': total_price,
             'total_tickets': total_tickets,
-            'customer': request.user,
+            'customer': entity,
             'ticket_data': ticket_data,
             'ordinary_ticket_data': ordinary_ticket_data
         }
@@ -159,6 +197,7 @@ def buy_ticket(request, event_id):
         'ordinary_ticket_data': ordinary_ticket_data
     }
     return render(request, 'tickets/buy_ticket.html', context)
+
 
 
 @login_required
