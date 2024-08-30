@@ -6,6 +6,8 @@ from .models import *
 from vendors.models import *
 from django.contrib import messages
 from vendors.decorators import vendor_required
+from datetime import timedelta
+
 
 @login_required
 @vendor_required
@@ -57,7 +59,13 @@ def all_events(request):
     # Retrieve all events and prefetch related ticket categories
     events = Event.objects.prefetch_related('ticket_categories').all()
 
-    # Calculate remaining tickets for each event and category
+    # Define the threshold for upcoming events (e.g., events happening within the next 7 days)
+    upcoming_threshold = timezone.now() + timedelta(days=7)
+    
+    # Separate events into upcoming and other categories
+    upcoming_events = []
+    other_events = []
+
     for event in events:
         # Handle None values by providing a default value of 0
         tickets_available = event.tickets_available or 0
@@ -69,9 +77,16 @@ def all_events(request):
             category_tickets_available = category.category_tickets_available or 0
             category_tickets_sold = category.category_tickets_sold or 0
             category.remaining_tickets = category_tickets_available - category_tickets_sold
+        
+        # Categorize the event
+        if event.start_date <= upcoming_threshold:
+            upcoming_events.append(event)
+        else:
+            other_events.append(event)
 
     context = {
-        'events': events
+        'upcoming_events': upcoming_events,
+        'other_events': other_events,
     }
     return render(request, 'events/all_events.html', context)
 
@@ -176,5 +191,21 @@ def remove_from_cart(request, cart_item_id):
 
 @login_required
 def event_detail(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
-    return render(request, 'events/event_detail.html', {'event': event})
+    # Retrieve the event with prefetching related ticket categories
+    event = Event.objects.prefetch_related('ticket_categories').get(id=event_id)
+
+    # Calculate remaining tickets for the event
+    tickets_available = event.tickets_available or 0
+    tickets_sold = event.tickets_sold or 0
+    event.remaining_tickets = tickets_available - tickets_sold
+
+    # Calculate remaining tickets for each category
+    for category in event.ticket_categories.all():
+        category_tickets_available = category.category_tickets_available or 0
+        category_tickets_sold = category.category_tickets_sold or 0
+        category.remaining_tickets = category_tickets_available - category_tickets_sold
+
+    context = {
+        'event': event
+    }
+    return render(request, 'events/event_detail.html', context)

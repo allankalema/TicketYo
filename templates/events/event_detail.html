@@ -1,5 +1,3 @@
-<!-- events/templates/events/event_detail.html -->
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -16,21 +14,35 @@
     <p><strong>Venue:</strong> {{ event.venue_name }}</p>
     <p><strong>Regular Price:</strong> {{ event.regular_price }}</p>
     <p><strong>Sale Price:</strong> {{ event.sale_price }}</p>
-    <p><strong>Tickets Available:</strong> {{ event.tickets_available }}</p>
+    
+    <p><strong>Tickets Available:</strong> 
+        {% if event.remaining_tickets > 0 %}
+            {{ event.remaining_tickets }}
+        {% else %}
+            <span style="color: red;">Sold Out</span>
+        {% endif %}
+    </p>
+
     {% if event.ticket_categories.all %}
-                        <h4>Ticket Categories:</h4>
-                        <ul>
-                            {% for category in event.ticket_categories.all %}
-                                <li>
-                                    <p><strong>Category Title:</strong> {{ category.category_title }}</p>
-                                    <p><strong>Price:</strong> {{ category.category_price }}</p>
-                                    <p><strong>Tickets Available:</strong> {{ category.category_tickets_available }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No ticket categories available.</p>
-                    {% endif %}
+        <h4>Ticket Categories:</h4>
+        <ul>
+            {% for category in event.ticket_categories.all %}
+                <li>
+                    <p><strong>Category Title:</strong> {{ category.category_title }}</p>
+                    <p><strong>Price:</strong> {{ category.category_price }}</p>
+                    <p><strong>Tickets Available:</strong> 
+                        {% if category.remaining_tickets > 0 %}
+                            {{ category.remaining_tickets }}
+                        {% else %}
+                            <span style="color: red;">Sold Out</span>
+                        {% endif %}
+                    </p>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No ticket categories available.</p>
+    {% endif %}
 
     {% if event.poster %}
         <p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>

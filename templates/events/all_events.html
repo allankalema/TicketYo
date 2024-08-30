@@ -7,20 +7,22 @@
 <body>
     {% if user.is_authenticated %}
         <h2>Welcome, {{ user.username }}!</h2>
-        
     {% endif %}
 
     <h2>All Events</h2>
-    <a href="{%url 'customer_signup' %}">customer signup</a>
-    <a href="{%url 'customer_login' %}">customer login</a>
-    <a href="{%url 'signup' %}">vendor signup</a>
-    <a href="{%url 'login' %}">Vendor login </a>
-    <a href="{%url 'dashboard' %}">vendor dashboard</a>
-    <a href="{%url 'customer_home' %}">customer Home</a>
+    <nav>
+        <a href="{% url 'customer_signup' %}">Customer Signup</a>
+        <a href="{% url 'customer_login' %}">Customer Login</a>
+        <a href="{% url 'signup' %}">Vendor Signup</a>
+        <a href="{% url 'login' %}">Vendor Login</a>
+        <a href="{% url 'dashboard' %}">Vendor Dashboard</a>
+        <a href="{% url 'customer_home' %}">Customer Home</a>
+    </nav>
 
-    {% if events %}
+    <h3>Upcoming Events</h3>
+    {% if upcoming_events %}
         <ul>
-            {% for event in events %}
+            {% for event in upcoming_events %}
                 <li>
                     <h3>{{ event.title }}</h3>
                     <p><strong>Vendor:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
@@ -71,21 +73,34 @@
                         <p><strong>Status:</strong> Sold Out</p>
                     {% else %}
                         {% if event.remaining_tickets <= 5 %}
-                            <p><strong>Hurry!</strong> Only A few tickets left!</p>
+                            <p><strong>Hurry!</strong> Only a few tickets left!</p>
                         {% endif %}
                         <p><a href="{% url 'buy_ticket' event.id %}">Get Tickets</a></p>
 
-                            <form method="post" action="{% url 'add_to_cart' event.id %}">
-                                {% csrf_token %}
-                                <button type="submit">Add to Cart</button>
-                            </form>
-                       
+                        <form method="post" action="{% url 'add_to_cart' event.id %}">
+                            {% csrf_token %}
+                            <button type="submit">Add to Cart</button>
+                        </form>
                     {% endif %}
                 </li>
             {% endfor %}
         </ul>
     {% else %}
-        <p>No events available.</p>
+        <p>No upcoming events available.</p>
+    {% endif %}
+
+    <h3>Other Events</h3>
+    {% if other_events %}
+        <ul>
+            {% for event in other_events %}
+                <li>
+                    <!-- Reuse the same event structure here -->
+                    <!-- ... -->
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <p>No other events available.</p>
     {% endif %}
 </body>
 </html>
