@@ -3,6 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <title>Verify Ticket for {{ event.title }}</title>
+    <!-- Include the HTML5 QR Code library -->
+    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 </head>
 <body>
     <h1>Verify Ticket for {{ event.title }}</h1>
@@ -13,9 +15,36 @@
         <button type="submit">Verify</button>
     </form>
 
+    <!-- QR Code Scanner Section -->
+    <div id="qr-code-scanner">
+        <button id="start-scanner">Start QR Code Scanner</button>
+        <div id="qr-reader" style="width: 300px; height: 300px;"></div>
+    </div>
+
     <div id="verification_result"></div>
 
     <script>
+        // Initialize HTML5 QR Code scanner
+        const qrCodeScanner = new Html5Qrcode("qr-reader");
+
+        document.getElementById('start-scanner').addEventListener('click', function() {
+            qrCodeScanner.start({ facingMode: "environment" }, {
+                fps: 10,
+                qrbox: { width: 250, height: 250 }
+            }, (decodedText, decodedResult) => {
+                // Stop scanning once a QR code is detected
+                qrCodeScanner.stop();
+                // Fill the ticket number input with the scanned result
+                document.getElementById('ticket_number').value = decodedText;
+                // Submit the form
+                document.getElementById('verify-ticket-form').submit();
+            }, (error) => {
+                console.error('QR Code scan error:', error);
+            }).catch((err) => {
+                console.error('Failed to start QR code scanner:', err);
+            });
+        });
+
         document.getElementById('verify-ticket-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const ticketNumber = document.getElementById('ticket_number').value;
