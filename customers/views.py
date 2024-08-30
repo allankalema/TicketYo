@@ -19,7 +19,8 @@ from django.template.loader import render_to_string
 from .forms import CustomerSignupForm, CustomerAuthenticationForm, CustomerUpdateForm, PasswordResetRequestForm, SetNewPasswordForm
 from .models import Customer
 from django.utils.encoding import force_str
-
+from tickets.models import Ticket
+from django.views.generic import DetailView
 
 def generate_verification_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
@@ -102,6 +103,23 @@ class CustomerLoginView(LoginView):
 class CustomerHomeView(LoginRequiredMixin, TemplateView):
     template_name = 'customers/customer_home.html'
 
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        customer = self.request.user
+        # Get all tickets for the logged-in customer
+        tickets = Ticket.objects.filter(customer_username=customer.username)
+        # Get distinct events from those tickets
+        events = {ticket.event for ticket in tickets}
+        
+        context['events'] = events
+        context['tickets'] = tickets
+        return context
+    
+
+class TicketDetailView(LoginRequiredMixin, DetailView):
+    model = Ticket
+    template_name = 'tickets/ticket_detail.html'
+    context_object_name = 'ticket'
 
 class CustomerLogoutView(View):
     def get(self, request, *args, **kwargs):

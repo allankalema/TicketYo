@@ -1,4 +1,3 @@
-<!-- customers/templates/customers/customer_home.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -9,11 +8,42 @@
 <body>
     <h2>Welcome, {{ user.username }}!</h2>
     <p>This is your home page.</p>
+
+    <hr>
     <a href="{% url 'customer_update' %}">Update Profile</a>
     <a href="{% url 'customer_delete' %}">Delete</a>
     <a href="{% url 'customer_change_password' %}">Change Password</a>
     <a href="{% url 'customer_logout' %}">Logout</a>
-    <a href="{%url 'view_cart' %}">view cart</a>
-    <a href="{%url 'all_events' %}">Home</a>
+    <a href="{% url 'view_cart' %}">View Cart</a>
+    <a href="{% url 'all_events' %}">Home</a>
+    <hr>
+    
+    <!-- Event List -->
+    <h3>Your Events</h3>
+    <ul>
+        {% for event in events %}
+            <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+        {% endfor %}
+    </ul>
+
+    <!-- Ticket Inventory -->
+    <h3>Your Ticket Inventory</h3>
+    {% for event in events %}
+        <h4>{{ event.title }}</h4>
+        <ul>
+            {% for ticket in tickets %}
+                {% if ticket.event == event %}
+                    <li>
+                        <strong>Ticket Number:</strong> {{ ticket.ticket_number }}<br>
+                        <strong>Category:</strong> {{ ticket.ticket_category.category_title }}<br>
+                        <strong>Purchase Date:</strong> {{ ticket.purchase_date }}<br>
+                        <a href="{% url 'ticket_detail' ticket.id %}">View Ticket Details</a>
+                    </li>
+                {% endif %}
+            {% endfor %}
+        </ul>
+    {% endfor %}
+
+    
 </body>
 </html>
