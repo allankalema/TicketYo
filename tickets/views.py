@@ -311,9 +311,15 @@ def verify_ticket(request, event_id):
                 # Mark the ticket as verified
                 ticket.verified = True
                 ticket.save()
+
+                # Safely retrieve the category title
+                ticket_category_title = 'N/A'
+                if ticket.ticket_category:
+                    ticket_category_title = ticket.ticket_category.category_title
+
                 return JsonResponse({
                     'status': 'success',
-                    'ticket_category': ticket.ticket_category.name if ticket.ticket_category else 'N/A',
+                    'ticket_category': ticket_category_title,
                     'customer_username': ticket.customer_username or 'N/A',
                     'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
                 })

@@ -6,7 +6,7 @@
 </head>
 <body>
     <h1>Verify Ticket for {{ event.title }}</h1>
-    <form method="post">
+    <form method="post" id="verify-ticket-form">
         {% csrf_token %}
         <label for="ticket_number">Enter Ticket Number:</label>
         <input type="text" id="ticket_number" name="ticket_number">
@@ -16,7 +16,7 @@
     <div id="verification_result"></div>
 
     <script>
-        document.querySelector('form').addEventListener('submit', function(event) {
+        document.getElementById('verify-ticket-form').addEventListener('submit', function(event) {
             event.preventDefault();
             const ticketNumber = document.getElementById('ticket_number').value;
             fetch('', {
@@ -25,7 +25,7 @@
                     'Content-Type': 'application/x-www-form-urlencoded',
                     'X-CSRFToken': '{{ csrf_token }}'
                 },
-                body: `ticket_number=${ticketNumber}`
+                body: `ticket_number=${encodeURIComponent(ticketNumber)}`
             }).then(response => response.json())
             .then(data => {
                 const resultDiv = document.getElementById('verification_result');
@@ -39,6 +39,10 @@
                 } else {
                     resultDiv.innerHTML = `<p>${data.message}</p>`;
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                document.getElementById('verification_result').innerHTML = '<p>An error occurred while verifying the ticket.</p>';
             });
         });
     </script>
