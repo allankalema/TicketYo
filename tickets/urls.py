@@ -7,5 +7,7 @@ urlpatterns = [
     path('buy/<int:event_id>/', views.buy_ticket, name='buy_ticket'),
     path('buy_ticket/<int:event_id>/', views.buy_ticket, name='buy_ticket'),
     path('view_qr_codes/<int:event_id>/', views.view_qr_codes, name='view_qr_codes'),
-    # (Other URL patterns...)
+     path('verifiable-events/', views.verifiable_events, name='verifiable_events'),
+    path('verify-ticket/<int:event_id>/', views.verify_ticket, name='verify_ticket'),
+
 ]

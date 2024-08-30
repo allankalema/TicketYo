@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Verify Ticket for {{ event.title }}</title>
+</head>
+<body>
+    <h1>Verify Ticket for {{ event.title }}</h1>
+    <form method="post">
+        {% csrf_token %}
+        <label for="ticket_number">Enter Ticket Number:</label>
+        <input type="text" id="ticket_number" name="ticket_number">
+        <button type="submit">Verify</button>
+    </form>
+
+    <div id="verification_result"></div>
+
+    <script>
+        document.querySelector('form').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const ticketNumber = document.getElementById('ticket_number').value;
+            fetch('', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': '{{ csrf_token }}'
+                },
+                body: `ticket_number=${ticketNumber}`
+            }).then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('verification_result');
+                if (data.status === 'success') {
+                    resultDiv.innerHTML = `
+                        <p>Ticket Verified Successfully!</p>
+                        <p>Ticket Category: ${data.ticket_category}</p>
+                        <p>Customer Username: ${data.customer_username}</p>
+                        <p>Purchase Date: ${data.purchase_date}</p>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `<p>${data.message}</p>`;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

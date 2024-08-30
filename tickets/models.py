@@ -22,6 +22,8 @@ class Ticket(models.Model):
     purchase_date = models.DateTimeField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
     entity_type = models.CharField(max_length=10, choices=ENTITY_TYPE_CHOICES)
+    verified = models.BooleanField(default=False)
+    
     def generate_qr_code(self):
         qr = qrcode.QRCode(
             version=1,

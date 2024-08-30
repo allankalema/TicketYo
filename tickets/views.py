@@ -5,6 +5,12 @@ from django.contrib.auth.decorators import login_required
 import qrcode
 from io import BytesIO
 from django.core.files import File
+from django.utils import timezone
+from vendors.decorators import *
+from django.http import JsonResponse
+from django.utils.timezone import now
+from datetime import timedelta
+
 
 @login_required
 def buy_ticket(request, event_id):
@@ -224,3 +230,94 @@ def view_qr_codes(request, event_id):
         'ticket_details': ticket_details
     }
     return render(request, 'tickets/view_qr_codes.html', context)
+
+@login_required
+@vendor_required
+def verifiable_events(request):
+    current_date = now().date()  # Get the current date
+    vendor = request.user  # Assuming this gets the correct vendor associated with the user
+    
+    verifiable_events = Event.objects.filter(vendor=vendor)  # Filter events for the logged-in vendor
+    events_data = []
+
+    for event in verifiable_events:
+        start_date = event.start_date.date()  # Truncate start_date to date only
+        end_date = event.end_date.date() if event.end_date else None  # Handle cases with no end_date
+
+        is_clickable = False
+        should_display = False
+
+        if start_date == current_date:
+            # The event starts today, make it clickable and display it
+            is_clickable = True
+            should_display = True
+        elif start_date < current_date:
+            # The event has started in the past
+            if end_date is None:
+                # No end date, check if it has been less than 24 hours since start_date
+                if now() <= event.start_date + timedelta(days=1):
+                    # It's still within the 24-hour window
+                    is_clickable = True
+                    should_display = True
+            else:
+                # Event has an end date
+                if start_date <= current_date <= end_date:
+                    # Current date is between the start and end date, make it clickable and display it
+                    is_clickable = True
+                    should_display = True
+                elif current_date == end_date + timedelta(hours=1):
+                    # 1 hour after the end date, remove it from the list
+                    should_display = False
+                elif current_date > end_date:
+                    # After the end date, don't display the event
+                    should_display = False
+        else:
+            # Event's start_date is in the future
+            should_display = True  # Display the event
+            # The event is not clickable yet
+            is_clickable = False
+
+        if should_display:
+            events_data.append({
+                'event': event,
+                'is_clickable': is_clickable,
+            })
+
+    context = {
+        'verifiable_events': events_data,
+    }
+    return render(request, 'tickets/verifiable_events.html', context)
+
+
+@login_required
+@vendor_required
+def verify_ticket(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    vendor = request.user
+    
+    # Ensure the correct tickets are being filtered by event and vendor
+    tickets = Ticket.objects.filter(event=event, vendor=vendor)
+    
+    if request.method == 'POST':
+        ticket_number = request.POST.get('ticket_number', '').strip()
+        
+        # Case-insensitive search and check if the ticket exists
+        ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
+        
+        if ticket:
+            if ticket.verified:
+                return JsonResponse({'status': 'error', 'message': 'This ticket has already been verified.'})
+            else:
+                # Mark the ticket as verified
+                ticket.verified = True
+                ticket.save()
+                return JsonResponse({
+                    'status': 'success',
+                    'ticket_category': ticket.ticket_category.name if ticket.ticket_category else 'N/A',
+                    'customer_username': ticket.customer_username or 'N/A',
+                    'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
+                })
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Ticket not found.'})
+
+    return render(request, 'tickets/verify_ticket.html', {'event': event})
