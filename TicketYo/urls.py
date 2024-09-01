@@ -9,11 +9,12 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('customers/', include('customers.urls')),
     path('vendors/', include('vendors.urls')),
-    path('', include('events.urls')),
+    path('events', include('events.urls')),
     path('tickets/', include('tickets.urls')),
     path('payments/', include('payments.urls')),
     path('notifications/', include('notifications.urls')),
     path('analytics/', include('analytics.urls')),
+    path('', include('frontend.urls')),
     path('api/', include('api.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
