@@ -1,11 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vendor Login</title>
-</head>
-<body>
+{% extends "frontend/universal_login.html" %}
+
+{% block form_content %}
     <h2>Vendor Login</h2>
     <form method="post">
         {% csrf_token %}
@@ -27,5 +22,4 @@
     </form>
     <a href="{% url 'signup' %}">Don't have an account? Signup</a>
     <a href="{% url 'vendor_password_reset_request' %}">Forgot Password</a>
-</body>
-</html>
+{% endblock %}
