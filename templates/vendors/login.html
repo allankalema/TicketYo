@@ -1,25 +1,51 @@
 {% extends "frontend/universal_login.html" %}
 
 {% block form_content %}
-    <h2>Vendor Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        <div>
-            <label for="{{ form.username.id_for_label }}">Username:</label>
-            {{ form.username }}
+    {% load static %}
+    <!-- Include Login CSS -->
+    <link rel="stylesheet" href="{% static 'frontend/login.css' %}">
+    
+    <div class="login-form">
+        <h2 class="login-heading">Vendor Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
+            </div>
             {% if form.username.errors %}
-                <div class="error">{{ form.username.errors }}</div>
+                <div class="error-message">{{ form.username.errors.0 }}</div>
             {% endif %}
-        </div>
-        <div>
-            <label for="{{ form.password.id_for_label }}">Password:</label>
-            {{ form.password }}
+            
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }}
+                <span class="show-password" onclick="togglePassword()">Show</span>
+            </div>
             {% if form.password.errors %}
-                <div class="error">{{ form.password.errors }}</div>
+                <div class="error-message">{{ form.password.errors.0 }}</div>
             {% endif %}
+            
+            <button type="submit" class="login-button">Login</button>
+        </form>
+        
+        <div class="login-links">
+            <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+            <p>Forgot Password? <a href="{% url 'vendor_password_reset_request' %}">Reset Password</a></p>
         </div>
-        <button type="submit">Login</button>
-    </form>
-    <a href="{% url 'signup' %}">Don't have an account? Signup</a>
-    <a href="{% url 'vendor_password_reset_request' %}">Forgot Password</a>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.querySelector('#id_password');
+            const passwordToggle = document.querySelector('.show-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.textContent = 'Show';
+            }
+        }
+    </script>
 {% endblock %}
