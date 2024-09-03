@@ -18,12 +18,18 @@
             </div>
             <h1 class="ms-3">Ticket Yo</h1>
         </div>
+        
+    
         <nav>
             <ul class="nav">
-                <li class="nav-item"><a href="{% url 'universal_login' %}}" class="nav-link text-white">Dashboard</a></li>
+                {% if user.is_authenticated %}
+                <li class="nav-item" ><a href="{% url 'all_events' %}" class="nav-link text-white"> {{ user.username }}'s Dashboard</a></li>
+                {%else%}
+                <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-white">  Dashboard</a></li>
+                {% endif %}
                 <li class="nav-item"><a href="#" class="nav-link text-white">Past Events</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-white">Customer Dashboard</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-white">Vendor Dashboard</a></li>
+                <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-white">Customer Dashboard</a></li>
+                <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-white">Vendor Dashboard</a></li>
                 <li class="nav-item"><a href="#" class="nav-link text-white">Sign Up</a></li>
                 <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-white">Login</a></li>
             </ul>
@@ -36,12 +42,12 @@
         <div class="logo mb-3">
             <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
         </div>
-        <h2>Ticket Yo</h2>
+        <h2 style="color:antiquewhite">Ticket Yo</h2>
         <ul class="nav flex-column mt-3">
-            <li class="nav-item"><a href="{% url 'universal_login' %}" class="nav-link text-white">Dashboard</a></li>
+            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-white">Dashboard</a></li>
             <li class="nav-item"><a href="#" class="nav-link text-white">Past Events</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white">Customer Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white">Vendor Dashboard</a></li>
+            <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-white">Customer Dashboard</a></li>
+            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-white">Vendor Dashboard</a></li>
             <li class="nav-item"><a href="#" class="nav-link text-white">Sign Up</a></li>
             <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-white">Login</a></li>
         </ul>

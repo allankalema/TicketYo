@@ -6,13 +6,13 @@ body {
 /* Header styles */
 .header {
     background-color: #e70000;
-    color: white;
+    color: whitesmoke;
 }
 
 /* Sidebar styles */
 .sidebar {
     background-color: #e70000;
-    color: white;
+    color: black;
     width: 30%;
     position: fixed;
     top: 0;
