@@ -1,15 +1,102 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Signup</title>
-</head>
-<body>
-    <h2>Signup</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Signup</button>
-    </form>
-    <a href="{% url 'login' %}">Already have an account? Login</a>
-</body>
-</html>
+{% extends "frontend/universal_signup.html" %}
+
+{% block form_content %}
+    {% load static %}
+    <!-- Include Signup CSS (same as login) -->
+    <link rel="stylesheet" href="{% static 'frontend/login.css' %}">
+
+    <div class="login-form">
+        <h2 class="login-heading">Vendor Signup</h2>
+        <form method="post">
+            {% csrf_token %}
+
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
+            </div>
+            {% if form.username.errors %}
+                <div class="error-message">{{ form.username.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.email.id_for_label }}">Email:</label>
+                {{ form.email }}
+            </div>
+            {% if form.email.errors %}
+                <div class="error-message">{{ form.email.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.first_name.id_for_label }}">First Name:</label>
+                {{ form.first_name }}
+            </div>
+            {% if form.first_name.errors %}
+                <div class="error-message">{{ form.first_name.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.last_name.id_for_label }}">Last Name:</label>
+                {{ form.last_name }}
+            </div>
+            {% if form.last_name.errors %}
+                <div class="error-message">{{ form.last_name.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.storename.id_for_label }}">Store Name:</label>
+                {{ form.storename }}
+            </div>
+            {% if form.storename.errors %}
+                <div class="error-message">{{ form.storename.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.store_phone.id_for_label }}">Store Phone:</label>
+                {{ form.store_phone }}
+            </div>
+            {% if form.store_phone.errors %}
+                <div class="error-message">{{ form.store_phone.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.password1.id_for_label }}">Password:</label>
+                {{ form.password1 }}
+                <span class="show-password" onclick="togglePassword()">Show</span>
+            </div>
+            {% if form.password1.errors %}
+                <div class="error-message">{{ form.password1.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.password2.id_for_label }}">Confirm Password:</label>
+                {{ form.password2 }}
+                <span class="show-password" onclick="togglePassword()">Show</span>
+            </div>
+            {% if form.password2.errors %}
+                <div class="error-message">{{ form.password2.errors.0 }}</div>
+            {% endif %}
+
+            <button type="submit" class="login-button">Signup</button>
+        </form>
+
+        <div class="login-links">
+            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInputs = document.querySelectorAll('input[type="password"]');
+            passwordInputs.forEach(input => {
+                const passwordToggle = input.nextElementSibling;
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    passwordToggle.textContent = 'Hide';
+                } else {
+                    input.type = 'password';
+                    passwordToggle.textContent = 'Show';
+                }
+            });
+        }
+    </script>
+{% endblock %}

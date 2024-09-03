@@ -1,0 +1,27 @@
+{% extends "frontend/base.html" %}
+
+{% block content %}
+{% load static %}
+    <!-- Include CSS specific to this page -->
+    <link rel="stylesheet" href="{% static 'frontend/universal_login/styles.css' %}">
+
+    <!-- Main content area with blur effect applied -->
+    <div class="container main-content d-flex justify-content-center align-items-center min-vh-100">
+        <div class="card login-card">
+            <div class="card-body">
+                <!-- Buttons to switch between customer and vendor login forms -->
+                <div class="btn-group d-flex justify-content-center mb-3" role="group">
+                    <a href="{% url 'customer_signup' %}" class="btn btn-login">Customers</a>
+                    <a href="{% url 'signup' %}" class="btn btn-login">Event Organizers</a>
+                </div>
+
+                <!-- Content area for the login forms -->
+                <div id="login-form-content">
+                    {% block form_content %}
+                    <!-- Content from child templates will be injected here -->
+                    {% endblock %}
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
