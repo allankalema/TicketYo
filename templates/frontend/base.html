@@ -11,50 +11,49 @@
 </head>
 <body>
     <!-- Header -->
-    <header id="main-header" class="header p-3 d-flex justify-content-between align-items-center">
-        <div class="d-flex align-items-center">
-            <div class="logo">
-                <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
-            </div>
-            <h1 class="ms-3">Ticket Yo</h1>
-        </div>
-        
-    
-        <nav>
-            <ul class="nav">
-                {% if user.is_authenticated %}
-                <li class="nav-item" ><a href="{% url 'all_events' %}" class="nav-link text-white"> {{ user.username }}'s Dashboard</a></li>
-                {%else%}
-                <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-white">  Dashboard</a></li>
-                {% endif %}
-                <li class="nav-item"><a href="#" class="nav-link text-white">Past Events</a></li>
-                <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-white">Customer Dashboard</a></li>
-                <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-white">Vendor Dashboard</a></li>
-                <li class="nav-item"><a href="#" class="nav-link text-white">Sign Up</a></li>
-                <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-white">Login</a></li>
-            </ul>
-        </nav>
-    </header>
-
-    <!-- Sidebar -->
-    <div class="sidebar" id="sidebar">
-        <button class="close-btn" id="closeSidebar">&times;</button>
-        <div class="logo mb-3">
+<header id="main-header" class="header p-3 d-flex justify-content-between align-items-center">
+    <div class="d-flex align-items-center">
+        <div class="logo">
             <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
         </div>
-        <h2 style="color:antiquewhite">Ticket Yo</h2>
-        <ul class="nav flex-column mt-3">
-            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-white">Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white">Past Events</a></li>
-            <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-white">Customer Dashboard</a></li>
-            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-white">Vendor Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-white">Sign Up</a></li>
-            <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-white">Login</a></li>
-        </ul>
+        <h1 class="ms-3" style="color:black">Ticket Yo</h1>
     </div>
 
-    <!-- Sidebar button for mobile view -->
-    <button class="sidebar-btn" id="openSidebar">&#9776;</button>
+    <nav>
+        <ul class="nav">
+            {% if user.is_authenticated %}
+            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black"> {{ user.username }}'s Dashboard</a></li>
+            {%else%}
+            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black">  Dashboard</a></li>
+            {% endif %}
+            <li class="nav-item"><a href="#" class="nav-link text-black">Past Events</a></li>
+            <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a></li>
+            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a></li>
+            <li class="nav-item"><a href="#" class="nav-link text-black">Sign Up</a></li>
+            <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a></li>
+        </ul>
+    </nav>
+</header>
+
+<!-- Sidebar -->
+<div class="sidebar" id="sidebar">
+    <button class="close-btn" id="closeSidebar">&times;</button>
+    <div class="logo mb-3">
+        <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
+    </div>
+    <h2 style="color:black">Ticket Yo</h2>
+    <ul class="nav flex-column mt-3">
+        <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a></li>
+        <li class="nav-item"><a href="#" class="nav-link text-black">Past Events</a></li>
+        <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a></li>
+        <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a></li>
+        <li class="nav-item"><a href="#" class="nav-link text-black">Sign Up</a></li>
+        <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a></li>
+    </ul>
+</div>
+
+<!-- Sidebar button for mobile view -->
+<button class="sidebar-btn" id="openSidebar">&#9776;</button>
 
     <!-- Main Content -->
     <div class="container main-content">

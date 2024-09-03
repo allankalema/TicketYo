@@ -5,13 +5,14 @@ body {
 
 /* Header styles */
 .header {
-    background-color: #e70000;
-    color: whitesmoke;
+    background-color: white;
+    color: white;
+    
 }
 
 /* Sidebar styles */
 .sidebar {
-    background-color: #e70000;
+    background-color: white;
     color: black;
     width: 30%;
     position: fixed;
@@ -21,6 +22,7 @@ body {
     display: none;
     z-index: 1000;
     padding: 20px;
+    
 }
 
 .sidebar.show {
@@ -28,9 +30,9 @@ body {
 }
 
 .sidebar .close-btn {
-    background-color: #e70000;
+    background-color: white;
     border: none;
-    color: white;
+    color:black;
     font-size: 30px;
     cursor: pointer;
     position: absolute;
@@ -40,16 +42,26 @@ body {
 
 /* Sidebar link styles */
 .sidebar .nav-link {
-    color: white; /* Default text color */
+    color: black; /* Black text color */
     text-decoration: none; /* Remove underline */
     padding: 10px;
     display: block; /* Ensure buttons take full width */
 }
 
 .sidebar .nav-link:hover {
-    background-color: #6f0707; /* Darker background on hover */
-    color: #e70000; /* Change text color on hover */
+    background-color: #f9a1a1; /* Lighter red background on hover */
+    color: black; /* Keep the text color black on hover */
     border-radius: 4px; /* Rounded corners for better appearance */
+}
+
+/* Sidebar button styles */
+.sidebar-btn {
+    background-color: white; /* White background */
+    color: #e70000; /* Red text color */
+    border: 1px solid #e70000; /* Red border */
+    font-size: 24px;
+    padding: 10px 20px;
+    border-radius: 4px; /* Slightly smooth edges */
 }
 
 /* Footer styles */
@@ -84,11 +96,6 @@ body {
 
     .sidebar-btn {
         display: block;
-        background-color: #e70000;
-        color: white;
-        border: none;
-        font-size: 24px;
-        padding: 10px 20px;
     }
 }
 
