@@ -13,116 +13,187 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-icons/1.10.5/font/bootstrap-icons.min.css" integrity="sha512-+rG1W9AwGShq3Gf3V9ULGh2o/VB3+e2ZtB5Y6HIziK7pGpSttYc9SFTelgDg4pX5QVHADwKCzE3MURhQVQI9Ng==" crossorigin="anonymous" referrerpolicy="no-referrer" />
     
     <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar-container">
+            <form method="get" action="{% url 'all_events' %}" id="search-form">
+                <div class="input-group mb-4">
+                    <input type="text" name="q" value="{{ query }}" class="form-control" id="search-input" placeholder="Search for events">
+                    <span class="input-group-text" id="search-icon"><i class="bi bi-search"></i></span>
+                </div>
+            </form>
+        </div>
+        
         
         <h3 class="text-center">Upcoming Events</h3>
-        {% if upcoming_events %}
-            <div class="row">
-                {% for event in upcoming_events %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card event-card text-center">
-                            {% if event.poster %}
-                                <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
-                            {% else %}
-                                <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title fancy-font">{{ event.title }}</h5>
-                                
-                                <p class="venue">
-                                    <i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}
-                                </p>
-                                
-                                <p class="creator">
-                                    <i class="bi bi-person-fill"></i> Created by {{ event.vendor.first_name }} from  {{ event.vendor.storename }}
-                                    
-                                </p>
-                                
-                                <p class="price">
-                                    <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
-                                    <span class="sale-price">UGX {{ event.sale_price|floatformat:0 }}</span>
-                                </p>
-                                
-                                <p class="date">
-                                    {% if event.end_date %}
-                                        From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
-                                    {% else %}
-                                        {{ event.start_date|date:"F jS, Y" }}
-                                    {% endif %}
-                                </p>
-                                
-                                {% if event.remaining_tickets == 0 %}
-                                    <p class="status text-danger"><strong>Sold Out</strong></p>
+        <div id="upcoming-events-container">
+            {% if upcoming_events %}
+                <div class="row">
+                    {% for event in upcoming_events %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card event-card text-center">
+                                {% if event.poster %}
+                                    <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
                                 {% else %}
-                                    <div class="d-flex justify-content-between mt-3">
-                                        <form method="post" action="{% url 'add_to_cart' event.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-secondary">Add to Cart</button>
-                                        </form>
-                                        <a href="{% url 'buy_ticket' event.id %}" class="btn btn-outline-danger">Get Tickets</a>
-                                    </div>
+                                    <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
                                 {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title fancy-font">{{ event.title }}</h5>
+                                    
+                                    <p class="venue">
+                                        <i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}
+                                    </p>
+                                    
+                                    <p class="creator">
+                                        <i class="bi bi-person-fill"></i> Created by {{ event.vendor.first_name }} from  {{ event.vendor.storename }}
+                                        
+                                    </p>
+                                    
+                                    <p class="price">
+                                        <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
+                                        <span class="sale-price">UGX {{ event.sale_price|floatformat:0 }}</span>
+                                    </p>
+                                    
+                                    <p class="date">
+                                        {% if event.end_date %}
+                                            From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
+                                        {% else %}
+                                            {{ event.start_date|date:"F jS, Y" }}
+                                        {% endif %}
+                                    </p>
+                                    
+                                    {% if event.remaining_tickets == 0 %}
+                                        <p class="status text-danger"><strong>Sold Out</strong></p>
+                                    {% else %}
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <form method="post" action="{% url 'add_to_cart' event.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-secondary">Add to Cart</button>
+                                            </form>
+                                            <a href="{% url 'buy_ticket' event.id %}" class="btn btn-outline-danger">Get Tickets</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-center">No upcoming events available.</p>
-        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">No upcoming events available.</p>
+            {% endif %}
+        </div>
 
         <h3 class="text-center">Other Events</h3>
-        {% if other_events %}
-            <div class="row">
-                {% for event in other_events %}
-                    <div class="col-md-4 mb-4">
-                        <div class="card event-card text-center">
-                            {% if event.poster %}
-                                <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
-                            {% else %}
-                                <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
-                            {% endif %}
-                            <div class="card-body">
-                                <h5 class="card-title fancy-font">{{ event.title }}</h5>
-                                
-                                <p class="venue">
-                                    <i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}
-                                </p>
-                                
-                                <p class="creator">
-                                    <i class="bi bi-person-fill"></i> Created by {{ event.creator }}
-                                </p>
-                                
-                                <p class="price">
-                                    <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
-                                    <span class="sale-price">{{ event.sale_price|floatformat:0 }}</span>
-                                </p>
-                                
-                                <p class="date">
-                                    {% if event.end_date %}
-                                        From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
-                                    {% else %}
-                                        {{ event.start_date|date:"F jS, Y" }}
-                                    {% endif %}
-                                </p>
-                                
-                                {% if event.remaining_tickets == 0 %}
-                                    <p class="status text-danger"><strong>Sold Out</strong></p>
+        <div id="other-events-container">
+            {% if other_events %}
+                <div class="row">
+                    {% for event in other_events %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card event-card text-center">
+                                {% if event.poster %}
+                                    <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
                                 {% else %}
-                                    <div class="d-flex justify-content-between mt-3">
-                                        <form method="post" action="{% url 'add_to_cart' event.id %}">
-                                            {% csrf_token %}
-                                            <button type="submit" class="btn btn-outline-secondary">Add to Cart</button>
-                                        </form>
-                                        <a href="{% url 'buy_ticket' event.id %}" class="btn btn-outline-danger">Get Tickets</a>
-                                    </div>
+                                    <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
                                 {% endif %}
+                                <div class="card-body">
+                                    <h5 class="card-title fancy-font">{{ event.title }}</h5>
+                                    
+                                    <p class="venue">
+                                        <i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}
+                                    </p>
+                                    
+                                    <p class="creator">
+                                        <i class="bi bi-person-fill"></i> Created by {{ event.creator }}
+                                    </p>
+                                    
+                                    <p class="price">
+                                        <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
+                                        <span class="sale-price">{{ event.sale_price|floatformat:0 }}</span>
+                                    </p>
+                                    
+                                    <p class="date">
+                                        {% if event.end_date %}
+                                            From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
+                                        {% else %}
+                                            {{ event.start_date|date:"F jS, Y" }}
+                                        {% endif %}
+                                    </p>
+                                    
+                                    {% if event.remaining_tickets == 0 %}
+                                        <p class="status text-danger"><strong>Sold Out</strong></p>
+                                    {% else %}
+                                        <div class="d-flex justify-content-between mt-3">
+                                            <form method="post" action="{% url 'add_to_cart' event.id %}">
+                                                {% csrf_token %}
+                                                <button type="submit" class="btn btn-outline-secondary">Add to Cart</button>
+                                            </form>
+                                            <a href="{% url 'buy_ticket' event.id %}" class="btn btn-outline-danger">Get Tickets</a>
+                                        </div>
+                                    {% endif %}
+                                </div>
                             </div>
                         </div>
-                    </div>
-                {% endfor %}
-            </div>
-        {% else %}
-            <p class="text-center">No other events available.</p>
-        {% endif %}
+                    {% endfor %}
+                </div>
+            {% else %}
+                <p class="text-center">No other events available.</p>
+            {% endif %}
+        </div>
     </div>
-{% endblock %}
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const searchInput = document.getElementById('search-input');
+            const resultsContainer = document.getElementById('results-container');
+    
+            searchInput.addEventListener('input', function() {
+                const query = searchInput.value;
+    
+                if (query.length > 0) {
+                    fetch(`/events?q=${encodeURIComponent(query)}`, {
+                        headers: {
+                            'X-Requested-With': 'XMLHttpRequest'
+                        }
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        resultsContainer.innerHTML = '';  // Clear previous results
+    
+                        // Render upcoming events
+                        if (data.upcoming_events.length > 0) {
+                            resultsContainer.innerHTML += '<h2>Upcoming Events</h2>';
+                            data.upcoming_events.forEach(event => {
+                                resultsContainer.innerHTML += `
+                                    <div>
+                                        <h3>${event.title}</h3>
+                                        <p>${event.venue_name} - ${event.vendor_name}</p>
+                                        <p>Remaining Tickets: ${event.remaining_tickets}</p>
+                                        <a href="${event.event_url}">View Details</a>
+                                    </div>
+                                `;
+                            });
+                        }
+    
+                        // Render other events
+                        if (data.other_events.length > 0) {
+                            resultsContainer.innerHTML += '<h2>Other Events</h2>';
+                            data.other_events.forEach(event => {
+                                resultsContainer.innerHTML += `
+                                    <div>
+                                        <h3>${event.title}</h3>
+                                        <p>${event.venue_name} - ${event.vendor_name}</p>
+                                        <p>Remaining Tickets: ${event.remaining_tickets}</p>
+                                        <a href="${event.event_url}">View Details</a>
+                                    </div>
+                                `;
+                            });
+                        }
+                    })
+                    .catch(error => console.error('Error:', error));
+                } else {
+                    resultsContainer.innerHTML = '';  // Clear results if search input is empty
+                }
+            });
+        });
+    </script>
+    {% endblock %}

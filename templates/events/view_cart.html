@@ -1,16 +1,37 @@
-<!-- events/templates/events/cart.html -->
+{% extends 'frontend/base.html' %}
 
-{% if cart_items %}
-    <ul>
+{% block content %}
+<div class="container mt-5">
+    <!-- Cart Title -->
+    <h2 class="mb-4" style="font-style: italic; font-family: 'Poppins', sans-serif; font-size: 1.5rem;">
+        Your Cart
+    </h2>
+
+    <!-- Cart Items -->
+    {% if cart_items %}
+    <div class="row">
         {% for cart_item in cart_items %}
-            <li>
-                <h3>{{ cart_item.event.title }}</h3>
-                <p><strong>Vendor:</strong> {{ cart_item.event.vendor.first_name }} from {{ cart_item.event.vendor.storename }}</p>
-                <a href="{% url 'event_detail' event_id=cart_item.event.id %}">View Details</a> | 
-                <a href="{% url 'remove_from_cart' cart_item.id %}">Remove from Cart</a>
-            </li>
+        <div class="col-lg-4 col-md-6 col-sm-12 mb-4">
+            <div class="card shadow-sm" style="background-color: #f8f9fa; border-radius: 15px; border: 1px solid #ddd;">
+                <!-- Clickable card body to go to event details -->
+                <a href="{% url 'event_detail' event_id=cart_item.event.id %}" class="text-decoration-none" style="color: inherit;">
+                    <div class="card-body">
+                        <h4 class="card-title" style="font-weight: bold; font-family: 'Poppins', sans-serif;">{{ cart_item.event.title }}</h4>
+                        <p class="card-text"><strong>Vendor:</strong> <em>{{ cart_item.event.vendor.first_name }} from {{ cart_item.event.vendor.storename }}</em></p>
+                    </div>
+                </a>
+                <div class="card-footer text-end bg-white">
+                    <!-- Remove from cart button -->
+                    <a href="{% url 'remove_from_cart' cart_item.id %}" class="btn btn-link text-danger" aria-label="Remove from cart">
+                        <i class="bi bi-trash-fill fs-4"></i> <!-- Ensure this class name is correct -->
+                    </a>
+                </div>
+            </div>
+        </div>
         {% endfor %}
-    </ul>
-{% else %}
-    <p>Your cart is empty.</p>
-{% endif %}
+    </div>
+    {% else %}
+    <p class="text-center">Your cart is empty.</p>
+    {% endif %}
+</div>
+{% endblock %}

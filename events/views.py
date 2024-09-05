@@ -7,6 +7,8 @@ from vendors.models import *
 from django.contrib import messages
 from vendors.decorators import vendor_required
 from datetime import timedelta
+from django.db.models import Q
+from django.http import JsonResponse
 
 
 @login_required
@@ -56,33 +58,65 @@ def vendor_events(request):
 
 
 def all_events(request):
-    # Retrieve all events and prefetch related ticket categories
     events = Event.objects.prefetch_related('ticket_categories').all()
-
-    # Define the threshold for upcoming events (e.g., events happening within the next 7 days)
     upcoming_threshold = timezone.now() + timedelta(days=7)
+    query = request.GET.get('q', '')
     
-    # Separate events into upcoming and other categories
+    if query:
+        events = events.filter(
+            Q(title__icontains=query) |
+            Q(venue_name__icontains=query) |
+            Q(vendor__first_name__icontains=query) |
+            Q(vendor__storename__icontains=query)
+        )
+
     upcoming_events = []
     other_events = []
 
     for event in events:
-        # Handle None values by providing a default value of 0
         tickets_available = event.tickets_available or 0
         tickets_sold = event.tickets_sold or 0
         event.remaining_tickets = tickets_available - tickets_sold
 
-        # Calculate remaining tickets for each category
         for category in event.ticket_categories.all():
             category_tickets_available = category.category_tickets_available or 0
             category_tickets_sold = category.category_tickets_sold or 0
             category.remaining_tickets = category_tickets_available - category_tickets_sold
         
-        # Categorize the event
         if event.start_date <= upcoming_threshold:
             upcoming_events.append(event)
         else:
             other_events.append(event)
+
+    # Use headers to check for an AJAX request
+    if request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        events_data = {
+            'upcoming_events': [
+                {
+                    'title': event.title,
+                    'venue_name': event.venue_name,
+                    'vendor_name': event.vendor.first_name,
+                    'vendor_store': event.vendor.storename,
+                    'remaining_tickets': event.remaining_tickets,
+                    'poster_url': event.poster.url if event.poster else '',
+                    'event_url': event.get_absolute_url(),
+                }
+                for event in upcoming_events
+            ],
+            'other_events': [
+                {
+                    'title': event.title,
+                    'venue_name': event.venue_name,
+                    'vendor_name': event.vendor.first_name,
+                    'vendor_store': event.vendor.storename,
+                    'remaining_tickets': event.remaining_tickets,
+                    'poster_url': event.poster.url if event.poster else '',
+                    'event_url': event.get_absolute_url(),
+                }
+                for event in other_events
+            ]
+        }
+        return JsonResponse(events_data)
 
     context = {
         'upcoming_events': upcoming_events,
