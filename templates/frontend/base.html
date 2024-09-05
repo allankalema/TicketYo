@@ -18,11 +18,10 @@
 <header id="main-header" class="header p-3 d-flex justify-content-between align-items-center">
     <div class="d-flex align-items-center">
         <div class="logo">
-            <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
+            <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 80px; width: 100px;">
         </div>
-        <h1 class="ms-3" style="color:black">Ticket Yo</h1>
     </div>
-
+    
     <nav>
         <ul class="nav">
             {% if user.is_authenticated %}
@@ -45,9 +44,8 @@
 <div class="sidebar" id="sidebar">
     <button class="close-btn" id="closeSidebar">&times;</button>
     <div class="logo mb-3">
-        <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 40px;">
+        <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 80px; width: 100px;">
     </div>
-    <h2 style="color:black">Ticket Yo</h2>
     <ul class="nav flex-column mt-3">
         
         {% if user.is_authenticated %}
