@@ -1,80 +1,228 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block content %}
 <!DOCTYPE html>
 <html>
 <head>
     <title>Vendor Dashboard</title>
+    <!-- Add Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}"> <!-- Custom Styles if needed -->
+    <style>
+        .btn-outline {
+            border: 2px solid;
+            background-color: transparent;
+            color: inherit;
+        }
+        .btn-outline-profile {
+            border-color: grey;
+        }
+        .btn-outline-event {
+            border-color: #f8d7da;
+        }
+        .card-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .search-bar {
+            margin-bottom: 1rem;
+        }
+        .btn-icon {
+            margin-right: 10px;
+        }
+        .dropdown-menu {
+            left: auto;
+            right: 0;
+        }
+    </style>
 </head>
 <body>
-    <h2>Welcome, {{ user.username }}</h2>
-    <a href="{% url 'logout' %}">Logout</a>
-    <a href="{% url 'update_vendor' %}">Update</a>
-    <a href="{% url 'delete_vendor' %}">Delete</a>
-    <a href="{% url 'change_password' %}">Change Password</a>
-    <a href="{% url 'create_event' %}">Create Event</a> 
-    <a href="{% url 'vendor_events' %}">View Events</a>
-    <a href="{% url 'view_cart' %}">View Cart</a>
-    <a href="{% url 'all_events' %}">Home</a>
-    <a href="{% url 'verifiable_events'%}">Event Verification</a>
+    <div class="container mt-4">
+        <div class="d-flex justify-content-between mb-4">
+            <!-- Navigation Buttons on the Left -->
+            <div class="btn-group">
+                <a href="{% url 'create_event' %}" class="btn btn-outline-event btn-icon"><i class="fa fa-plus"></i> Create Event</a>
+                <a href="{% url 'vendor_events' %}" class="btn btn-outline-event btn-icon">View Events</a>
+                <a href="{% url 'verifiable_events' %}" class="btn btn-outline-event btn-icon">Event Verification</a>
+                <a href="{% url 'view_inventory' %}" class="btn btn-outline-event btn-icon">View Inventory</a>
+            </div>
+            
+            <!-- Profile Dropdown on the Right -->
+            <div class="dropdown">
+                <button class="btn btn-outline-profile dropdown-toggle" type="button" id="profileDropdown" aria-haspopup="true" aria-expanded="false">
+                    Profile
+                </button>
+                <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                    <a class="dropdown-item" href="{% url 'update_vendor' %}">Update Profile</a>
+                    <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
+                    <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                </div>
+            </div>
+        </div>
 
+        <div class="row">
+            <!-- Past Events Card -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Past Events</h5>
+                        <input type="text" id="past-events-search" class="form-control search-bar" placeholder="Search Past Events">
+                        <div class="card-container">
+                            <ul id="past-events-list" class="list-unstyled">
+                                {% if past_events %}
+                                    {% for event in past_events %}
+                                        <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No past events.</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <h3>Past Events</h3>
-    {% if past_events %}
-        <ul>
-            {% for event in past_events %}
-                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No past events.</p>
-    {% endif %}
+            <!-- Upcoming Events Card -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Upcoming Events</h5>
+                        <input type="text" id="upcoming-events-search" class="form-control search-bar" placeholder="Search Upcoming Events">
+                        <div class="card-container">
+                            <ul id="upcoming-events-list" class="list-unstyled">
+                                {% if upcoming_events %}
+                                    {% for event in upcoming_events %}
+                                        <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No upcoming events.</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-    <h3>Upcoming Events</h3>
-    {% if upcoming_events %}
-        <ul>
-            {% for event in upcoming_events %}
-                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No upcoming events.</p>
-    {% endif %}
+            <!-- Sold Out Events Card -->
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Sold Out Events</h5>
+                        <h6 class="card-subtitle mb-2 text-muted">Past Sold Out Events</h6>
+                        <input type="text" id="sold-out-past-events-search" class="form-control search-bar" placeholder="Search Sold Out Past Events">
+                        <div class="card-container">
+                            <ul id="sold-out-past-events-list" class="list-unstyled">
+                                {% if sold_out_past_events %}
+                                    {% for event in sold_out_past_events %}
+                                        <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No past sold out events.</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                        <h6 class="card-subtitle mb-2 text-muted">Upcoming Sold Out Events</h6>
+                        <input type="text" id="sold-out-upcoming-events-search" class="form-control search-bar" placeholder="Search Sold Out Upcoming Events">
+                        <div class="card-container">
+                            <ul id="sold-out-upcoming-events-list" class="list-unstyled">
+                                {% if sold_out_upcoming_events %}
+                                    {% for event in sold_out_upcoming_events %}
+                                        <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No upcoming sold out events.</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    <h3>Sold Out Events</h3>
-    <h4>Past Sold Out Events</h4>
-    {% if sold_out_past_events %}
-        <ul>
-            {% for event in sold_out_past_events %}
-                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No past sold out events.</p>
-    {% endif %}
+        <div class="row">
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Total Tickets Sold</h5>
+                        <p class="card-text" id="total-tickets-sold">{{ total_tickets_sold }}</p>
+                    </div>
+                </div>
+            </div>
 
-    <h4>Upcoming Sold Out Events</h4>
-    {% if sold_out_upcoming_events %}
-        <ul>
-            {% for event in sold_out_upcoming_events %}
-                <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No upcoming sold out events.</p>
-    {% endif %}
+            <div class="col-md-6 col-lg-8 mb-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Top 5 Events by Ticket Sales</h5>
+                        <div class="card-container">
+                            <ul id="top-5-events-list" class="list-unstyled">
+                                {% if top_5_events %}
+                                    {% for event, tickets_sold in top_5_events %}
+                                        <li>{{ event.title }}: {{ tickets_sold }} tickets sold</li>
+                                    {% endfor %}
+                                {% else %}
+                                    <p>No top events data available.</p>
+                                {% endif %}
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
-    <h3>Total Tickets Sold: {{ total_tickets_sold }}</h3>
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="{% static 'frontend/scripts.js' %}"></script>
+    
+    <script>
+      
+// Dropdown functionality
+document.addEventListener('DOMContentLoaded', function() {
+    const dropdownButton = document.getElementById('profileDropdown');
+    const dropdownMenu = document.querySelector('.dropdown-menu');
 
-    <h3>Top 5 Events by Ticket Sales</h3>
-    {% if top_5_events %}
-        <ul>
-            {% for event, tickets_sold in top_5_events %}
-                <li>{{ event.title }}: {{ tickets_sold }} tickets sold</li>
-            {% endfor %}
-        </ul>
-    {% else %}
-        <p>No events available.</p>
-    {% endif %}
+    if (dropdownButton && dropdownMenu) {
+        dropdownButton.addEventListener('click', function(event) {
+            dropdownMenu.classList.toggle('show');
+            event.stopPropagation(); // Prevent event from bubbling up
+        });
 
-    <h3>Inventory</h3>
-    <a href="{% url 'view_inventory' %}">View Inventory</a>
+        document.addEventListener('click', function(event) {
+            if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
+                dropdownMenu.classList.remove('show');
+            }
+        });
+    }
+});
+
+// Search functionality for events
+function filterEvents(inputId, listId) {
+    const input = document.getElementById(inputId);
+    const filter = input.value.toLowerCase();
+    const ul = document.getElementById(listId);
+    const items = ul.getElementsByTagName('li');
+
+    for (let i = 0; i < items.length; i++) {
+        const item = items[i];
+        if (item.textContent.toLowerCase().indexOf(filter) > -1) {
+            item.style.display = '';
+        } else {
+            item.style.display = 'none';
+        }
+    }
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('past-events-search')?.addEventListener('input', () => filterEvents('past-events-search', 'past-events-list'));
+    document.getElementById('upcoming-events-search')?.addEventListener('input', () => filterEvents('upcoming-events-search', 'upcoming-events-list'));
+    document.getElementById('sold-out-past-events-search')?.addEventListener('input', () => filterEvents('sold-out-past-events-search', 'sold-out-past-events-list'));
+    document.getElementById('sold-out-upcoming-events-search')?.addEventListener('input', () => filterEvents('sold-out-upcoming-events-search', 'sold-out-upcoming-events-list'));
+});
+
+    </script>
 </body>
 </html>
+{% endblock %}

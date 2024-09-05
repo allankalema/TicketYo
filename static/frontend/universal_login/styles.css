@@ -1,10 +1,7 @@
 /* Base styles for the page */
 body {
     font-family: 'Roboto', sans-serif;
-    margin: 0;
-    padding: 0;
-    background: url('{% static "background.jpg" %}') no-repeat center center fixed; /* Background image */
-    background-size: cover; /* Cover the whole background */
+    
 }
 
 /* Main container with blur effect applied behind the content */
@@ -13,20 +10,7 @@ body {
     z-index: 1; /* Ensure content stays above the background */
 }
 
-/* Add a blur effect only around the content, not inside */
-.container.main-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100vw;
-    height: 100vh;
-    background: inherit; /* Use the background image */
-    background-size: cover;
-    filter: blur(8px); /* Apply blur effect */
-    z-index: -1; /* Position the blur behind the content */
-    opacity: 0.8; /* Optional: Adjust opacity if needed */
-}
+
 
 /* Styling for the card */
 .card.login-card {

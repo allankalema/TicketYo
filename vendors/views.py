@@ -19,6 +19,7 @@ from django.utils.encoding import force_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from tickets.models import Ticket
 from events.models import Event
+from django.db.models import Q
 
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
@@ -114,11 +115,18 @@ def logout_view(request):
     logout(request)
     return redirect('login')
 
+
 @login_required
 @vendor_required
 def vendor_dashboard(request):
-    vendor = request.user  # Assuming the user is a vendor
+    vendor = request.user
     events = Event.objects.filter(vendor=vendor)
+
+    # Handling search queries
+    search_query = request.GET.get('search', '')
+    
+    if search_query:
+        events = events.filter(Q(title__icontains=search_query))
 
     # Categorize events
     past_events = []
@@ -156,9 +164,11 @@ def vendor_dashboard(request):
         'total_tickets_sold': total_tickets_sold,
         'top_5_events': top_5_events,
         'inventory': Ticket.objects.filter(customer_username=vendor.username, entity_type='vendor'),
+        'search_query': search_query,
     }
 
     return render(request, 'vendors/dashboard.html', context)
+
 @login_required
 @vendor_required
 def update_vendor(request):
