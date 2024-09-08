@@ -1,61 +1,43 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>My Events</title>
-</head>
-<body>
-    <h2>Your Events</h2>
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="d-flex justify-content-between mb-4">
+        <!-- Create New Event Button -->
+        <a href="{% url 'create_event' %}" class="btn btn-outline-primary" style="height: 45px; font-size: 16px;">Create Event</a>
+
+        <!-- Search Bar -->
+        <form method="GET" class="d-flex justify-content-center" style="width: 600px;">
+            <div class="input-group">
+                <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ request.GET.search }}" style="border-radius: 5px; height: 45px; font-size: 16px;">
+            </div>
+        </form>
+    </div>
 
     {% if events %}
-        <ul>
+        <div class="row">
             {% for event in events %}
-                <li>
-                    <h3>{{ event.title }}</h3>
-                    <p><strong>Vendor:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
-                    <p><strong>Description:</strong> {{ event.description }}</p>
-                    <p><strong>Category:</strong> {{ event.category }}</p>
-                    <p><strong>Start Date:</strong> {{ event.start_date|date:"F d, Y" }}</p>
-                    <p><strong>End Date:</strong> {{ event.end_date|date:"F d, Y" }}</p>
-                    <p><strong>Venue:</strong> {{ event.venue_name }}</p>
-                    <p><strong>Regular Price:</strong> {{ event.regular_price }}</p>
-                    <p><strong>Sale Price:</strong> {{ event.sale_price }}</p>
-                    <p><strong>Tickets Available:</strong> {{ event.tickets_available }}</p>
-
-                    {% if event.ticket_categories.all %}
-                        <h4>Ticket Categories:</h4>
-                        <ul>
-                            {% for category in event.ticket_categories.all %}
-                                <li>
-                                    <p><strong>Category Title:</strong> {{ category.category_title }}</p>
-                                    <p><strong>Price:</strong> {{ category.category_price }}</p>
-                                    <p><strong>Tickets Available:</strong> {{ category.category_tickets_available }}</p>
-                                </li>
-                            {% endfor %}
-                        </ul>
-                    {% else %}
-                        <p>No ticket categories available.</p>
-                    {% endif %}
-
-                    {% if event.poster %}
-                        <p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>
-                    {% else %}
-                        <p>No image available</p>
-                    {% endif %}
-
-                    <!-- Update Button -->
-                    <a href="{% url 'update_event' event.id %}" class="btn btn-primary">Update</a>
-
-                    <!-- Delete Button -->
-                    <form action="{% url 'delete_event' event.id %}" method="POST" style="display:inline;">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete</button>
-                    </form>
-                </li>
+            <div class="col-lg-4 col-md-6 mb-4">
+                <div class="card" style="border-radius: 15px;">
+                    <a href="{% url 'vendor_event_detail' event.id %}" style="text-decoration: none;">
+                        <!-- Event Poster -->
+                        {% if event.poster %}
+                        <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="border-radius: 15px 15px 0 0; height: 250px; object-fit: cover;">
+                        {% else %}
+                        <img src="{% static 'default-poster.jpg' %}" class="card-img-top" alt="No poster available" style="border-radius: 15px 15px 0 0; height: 250px; object-fit: cover;">
+                        {% endif %}
+                        
+                        <div class="card-body text-center">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                        </div>
+                    </a>
+                </div>
+            </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
-        <p>No events available.</p>
+        <p class="text-center">No events available.</p>
     {% endif %}
-    <a href="{% url 'create_event' %}">Create New Event</a>
-</body>
-</html>
+</div>
+{% endblock %}

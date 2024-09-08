@@ -47,7 +47,31 @@ def create_event(request):
 @vendor_required
 def vendor_events(request):
     if isinstance(request.user, Vendor):
-        events = Event.objects.filter(vendor=request.user)  # Retrieve all events by the logged-in vendor
+        search_query = request.GET.get('search', '')  # Get the search query from URL parameters
+        
+        # Filter events based on the search query
+        events = Event.objects.filter(
+            Q(title__icontains=search_query) |
+            Q(category__icontains=search_query) |
+            Q(start_date__icontains=search_query) |
+            Q(venue_name__icontains=search_query) |
+            Q(regular_price__icontains=search_query) |
+            Q(sale_price__icontains=search_query)
+        ).filter(vendor=request.user)
+        
+        # Calculate tickets remaining and attach it to each event
+        for event in events:
+            event.tickets_remaining = event.tickets_available - event.tickets_sold
+        
+        # Sort events based on the number of matches
+        events = sorted(events, key=lambda e: sum([
+            search_query.lower() in e.title.lower(),
+            search_query.lower() in e.category.lower(),
+            search_query.lower() in str(e.start_date).lower(),
+            search_query.lower() in e.venue_name.lower(),
+            search_query.lower() in str(e.regular_price).lower(),
+            search_query.lower() in str(e.sale_price).lower()
+        ]), reverse=True)
     else:
         return redirect('login')
 
@@ -55,7 +79,6 @@ def vendor_events(request):
         'events': events
     }
     return render(request, 'events/vendor_events.html', context)
-
 
 def all_events(request):
     events = Event.objects.prefetch_related('ticket_categories').all()
@@ -243,3 +266,14 @@ def event_detail(request, event_id):
         'event': event
     }
     return render(request, 'events/event_detail.html', context)
+
+
+def event_detail_view(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    # Calculate tickets remaining
+    event.tickets_remaining = event.tickets_available - event.tickets_sold
+    
+    context = {
+        'event': event
+    }
+    return render(request, 'events/personal_event.html', context)

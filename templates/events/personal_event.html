@@ -1,0 +1,110 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card" style="border-radius: 15px;">
+                <!-- Event Poster -->
+                {% if event.poster %}
+                <img src="{{ event.poster.url }}" class="card-img-top" alt="{{ event.title }}" style="border-radius: 15px; height: 400px; object-fit: cover;">
+                {% else %}
+                <img src="{% static 'default-poster.jpg' %}" class="card-img-top" alt="No poster available" style="border-radius: 15px; height: 400px; object-fit: cover;">
+                {% endif %}
+                
+                <div class="card-body">
+                    <h3 class="card-title text-center">{{ event.title }}</h3>
+                    <p class="card-text text-center">{{ event.description }}</p>
+
+                    <!-- Event Category -->
+                    <p><strong>Category:</strong> {{ event.category }}</p>
+                    <p><strong> Venue: </strong>{{event.venue_name }}</p>
+
+                    <!-- Date Table -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Start Date</th>
+                                <th>End Date</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ event.start_date|date:"F d, Y" }}</td>
+                                <td>{{ event.end_date|date:"F d, Y" }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Price Table -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Regular Price</th>
+                                <th>Sale Price</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ event.regular_price }}</td>
+                                <td>{{ event.sale_price }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Tickets Table -->
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Tickets Available</th>
+                                <th>Tickets Sold</th>
+                                <th>Tickets Remaining</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>{{ event.tickets_available }}</td>
+                                <td>{{ event.tickets_sold }}</td>
+                                <td>{{ event.tickets_remaining }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <!-- Ticket Categories Table -->
+                    {% if event.ticket_categories.all %}
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th>Category Title</th>
+                                <th>Price</th>
+                                <th>Tickets Available</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for category in event.ticket_categories.all %}
+                            <tr>
+                                <td>{{ category.category_title }}</td>
+                                <td>{{ category.category_price }}</td>
+                                <td>{{ category.category_tickets_available }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    {% endif %}
+                </div>
+
+                <div class="card-footer d-flex justify-content-between">
+                    <!-- Update Button -->
+                    <a href="{% url 'update_event' event.id %}" class="btn btn-outline-primary">Update</a>
+                    <!-- Delete Button -->
+                    <form action="{% url 'delete_event' event.id %}" method="POST">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-outline-danger">Delete</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
