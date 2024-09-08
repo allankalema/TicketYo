@@ -1,5 +1,5 @@
 from django import forms
-from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory,HiddenInput
 from .models import Event, TicketCategory, Cart
 
 class EventForm(forms.ModelForm):
@@ -25,7 +25,7 @@ class TicketCategoryForm(forms.ModelForm):
         fields = ['category_title', 'category_price', 'category_tickets_available']
 
 TicketCategoryFormSet = inlineformset_factory(
-    Event, TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True
+    Event, TicketCategory, form=TicketCategoryForm, extra=1, can_delete=True, widgets={'DELETE': HiddenInput()}
 )
 
 

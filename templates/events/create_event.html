@@ -1,56 +1,147 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Create Event</title>
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-</head>
-<body>
-    <h2>Create Event</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ event_form.as_p }}
+{% extends 'frontend/base.html' %}
 
-        <h3>Ticket Categories</h3>
-        <div id="ticket-categories">
-            {{ formset.management_form }}
-            {% for form in formset %}
-                <div class="ticket-form">
-                    {{ form.as_p }}
-                    <button type="button" class="remove-form">Remove</button>
-                </div>
-            {% endfor %}
-        </div>
+{% block content %}
+<title>Create Event</title>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
 
-        <button type="button" id="add-more">Add Another Category</button>
-        <br><br>
-        <button type="submit">Create Event</button>
-    </form>
+<h2 class="text-center">Create Event</h2>
+<form method="post" enctype="multipart/form-data" class="container">
+    {% csrf_token %}
 
-    <!-- Template for a new form, hidden by default -->
-    <div id="empty-form" style="display: none;">
-        {{ formset.empty_form.as_p }}
-        <button type="button" class="remove-form">Remove</button>
+    <!-- Event Form Fields -->
+    <div class="form-group">
+        <label for="id_poster">Poster:</label>
+        {{ event_form.poster }}
+        <small class="text-danger">{{ event_form.poster.errors }}</small>
     </div>
 
-    <script>
-        $(document).ready(function() {
-            let formCount = {{ formset.total_form_count|default:0|add:0 }};
-            const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
+    <div class="form-group">
+        <label for="id_title">Title:</label>
+        {{ event_form.title }}
+        <small class="text-danger">{{ event_form.title.errors }}</small>
+    </div>
 
-            $('#add-more').click(function() {
-                // Replace the prefix in the empty form HTML with the new form count
-                const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
-                $('#ticket-categories').append('<div class="ticket-form">' + newFormHtml + '</div>');
-                formCount++;
-                $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-            });
+    <div class="form-group">
+        <label for="id_description">Description:</label>
+        {{ event_form.description }}
+        <small class="text-danger">{{ event_form.description.errors }}</small>
+    </div>
 
-            $(document).on('click', '.remove-form', function() {
-                $(this).closest('.ticket-form').remove();
-                formCount--;
-                $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-            });
+    <div class="form-group">
+        <label for="id_category">Category:</label>
+        {{ event_form.category }}
+        <small class="text-danger">{{ event_form.category.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_start_date">Start Date:</label>
+        {{ event_form.start_date }}
+        <small class="text-danger">{{ event_form.start_date.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_end_date">End Date (Optional):</label>
+        {{ event_form.end_date }}
+        <small class="text-danger">{{ event_form.end_date.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_venue_name">Venue Name:</label>
+        {{ event_form.venue_name }}
+        <small class="text-danger">{{ event_form.venue_name.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_regular_price">Regular Price:</label>
+        {{ event_form.regular_price }}
+        <small class="text-danger">{{ event_form.regular_price.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_sale_price">Sale Price:</label>
+        {{ event_form.sale_price }}
+        <small class="text-danger">{{ event_form.sale_price.errors }}</small>
+    </div>
+
+    <div class="form-group">
+        <label for="id_tickets_available">Tickets Available:</label>
+        {{ event_form.tickets_available }}
+        <small class="text-danger">{{ event_form.tickets_available.errors }}</small>
+    </div>
+
+    <h3>Ticket Categories</h3>
+    <div id="ticket-categories">
+        {{ formset.management_form }}
+        {% for form in formset %}
+        <div class="ticket-form">
+            <div class="row mb-3">
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Category Title</label>
+                    {{ form.category_title }}
+                </div>
+                <div class="col-12 col-md-4">
+                    <label class="form-label">Price</label>
+                    {{ form.category_price }}
+                </div>
+                <div class="col-12 col-md-3">
+                    <label class="form-label">Tickets Available</label>
+                    {{ form.category_tickets_available }}
+                </div>
+                <div class="col-12 col-md-1 d-flex align-items-center">
+                    <button type="button" class="btn btn-outline-danger remove-form">Remove</button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <button type="button" id="add-more" class="btn btn-outline-primary mb-4">Add Another Category</button>
+
+    <!-- Submit button aligned to the left -->
+    <div class="text-left">
+        <button type="submit" class="btn btn-outline-success">Create Event</button>
+    </div>
+</form>
+
+<!-- Hidden template for a new form -->
+<div id="empty-form" style="display: none;">
+    <div class="row mb-3">
+        <div class="col-12 col-md-4">
+            <label class="form-label">Category Title</label>
+            {{ formset.empty_form.category_title }}
+        </div>
+        <div class="col-12 col-md-4">
+            <label class="form-label">Price</label>
+            {{ formset.empty_form.category_price }}
+        </div>
+        <div class="col-12 col-md-3">
+            <label class="form-label">Tickets Available</label>
+            {{ formset.empty_form.category_tickets_available }}
+        </div>
+        <div class="col-12 col-md-1 d-flex align-items-center">
+            <button type="button" class="btn btn-outline-danger remove-form">Remove</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(document).ready(function() {
+        let formCount = {{ formset.total_form_count|default:0|add:0 }};
+        const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
+
+        $('#add-more').click(function() {
+            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
+            $('#ticket-categories').append('<div class="ticket-form">' + newFormHtml + '</div>');
+            formCount++;
+            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
         });
-    </script>
-</body>
-</html>
+
+        $(document).on('click', '.remove-form', function() {
+            $(this).closest('.ticket-form').remove();
+            formCount--;
+            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
+        });
+    });
+</script>
+{% endblock %}
