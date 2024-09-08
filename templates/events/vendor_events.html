@@ -3,9 +3,9 @@
 
 {% block content %}
 <div class="container mt-5">
-    <div class="d-flex justify-content-between mb-4">
+    <div class="d-flex justify-content-between flex-wrap mb-4">
         <!-- Create New Event Button -->
-        <a href="{% url 'create_event' %}" class="btn btn-outline-primary" style="height: 45px; font-size: 16px;">Create Event</a>
+        <a href="{% url 'create_event' %}" class="btn btn-outline-primary mb-2 mb-md-0" style="height: 45px; font-size: 16px; white-space: nowrap;">Add Event</a>
 
         <!-- Search Bar -->
         <form method="GET" class="d-flex justify-content-center" style="width: 600px;">
@@ -13,6 +13,19 @@
                 <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ request.GET.search }}" style="border-radius: 5px; height: 45px; font-size: 16px;">
             </div>
         </form>
+    </div>
+
+    <!-- Event Filter Links -->
+    <div class="d-flex justify-content-center mb-4">
+        <span class="mx-3">
+            <a href="?filter=all" class="{% if filter_type == 'all' %}text-primary{% else %}text-secondary{% endif %}" style="font-size: 16px; cursor: pointer; text-decoration: none;">All</a>
+        </span>
+        <span class="mx-3">
+            <a href="?filter=upcoming" class="{% if filter_type == 'upcoming' %}text-primary{% else %}text-secondary{% endif %}" style="font-size: 16px; cursor: pointer; text-decoration: none;">Upcoming</a>
+        </span>
+        <span class="mx-3">
+            <a href="?filter=past" class="{% if filter_type == 'past' %}text-primary{% else %}text-secondary{% endif %}" style="font-size: 16px; cursor: pointer; text-decoration: none;">Past</a>
+        </span>
     </div>
 
     {% if events %}
@@ -40,4 +53,5 @@
         <p class="text-center">No events available.</p>
     {% endif %}
 </div>
+
 {% endblock %}

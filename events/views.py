@@ -46,39 +46,38 @@ def create_event(request):
 @login_required
 @vendor_required
 def vendor_events(request):
-    if isinstance(request.user, Vendor):
-        search_query = request.GET.get('search', '')  # Get the search query from URL parameters
-        
-        # Filter events based on the search query
-        events = Event.objects.filter(
-            Q(title__icontains=search_query) |
-            Q(category__icontains=search_query) |
-            Q(start_date__icontains=search_query) |
-            Q(venue_name__icontains=search_query) |
-            Q(regular_price__icontains=search_query) |
-            Q(sale_price__icontains=search_query)
-        ).filter(vendor=request.user)
-        
-        # Calculate tickets remaining and attach it to each event
-        for event in events:
-            event.tickets_remaining = event.tickets_available - event.tickets_sold
-        
-        # Sort events based on the number of matches
-        events = sorted(events, key=lambda e: sum([
-            search_query.lower() in e.title.lower(),
-            search_query.lower() in e.category.lower(),
-            search_query.lower() in str(e.start_date).lower(),
-            search_query.lower() in e.venue_name.lower(),
-            search_query.lower() in str(e.regular_price).lower(),
-            search_query.lower() in str(e.sale_price).lower()
-        ]), reverse=True)
-    else:
-        return redirect('login')
+    search_query = request.GET.get('search', '')  # Get search query
+    filter_type = request.GET.get('filter', '')   # Get filter type ('upcoming' or 'past')
+
+    # Base query for filtering based on the search query
+    events = Event.objects.filter(
+        Q(title__icontains=search_query) |
+        Q(category__icontains=search_query) |
+        Q(start_date__icontains=search_query) |
+        Q(venue_name__icontains=search_query) |
+        Q(regular_price__icontains=search_query) |
+        Q(sale_price__icontains=search_query)
+    ).filter(vendor=request.user)
+
+    # Get current date
+    current_date = timezone.now().date()
+
+    # Filter based on upcoming or past events
+    if filter_type == 'upcoming':
+        events = events.filter(start_date__gte=current_date).order_by('start_date')
+    elif filter_type == 'past':
+        events = events.filter(start_date__lt=current_date).order_by('-start_date')
+
+    # Calculate tickets remaining and attach it to each event
+    for event in events:
+        event.tickets_remaining = event.tickets_available - event.tickets_sold
 
     context = {
-        'events': events
+        'events': events,
+        'filter_type': filter_type  # Pass the filter type to the template
     }
     return render(request, 'events/vendor_events.html', context)
+
 
 def all_events(request):
     events = Event.objects.prefetch_related('ticket_categories').all()
@@ -267,7 +266,8 @@ def event_detail(request, event_id):
     }
     return render(request, 'events/event_detail.html', context)
 
-
+@login_required
+@vendor_required
 def event_detail_view(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     # Calculate tickets remaining
