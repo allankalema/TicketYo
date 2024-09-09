@@ -58,7 +58,7 @@ body {
 
 /* Sidebar button styles */
 .sidebar-btn {
-    background-color: white; /* White background */
+    background-color: transparent; /* White background */
     color: #e70000; /* Red text color */
     border: 1px solid #e70000; /* Red border */
     font-size: 24px;
