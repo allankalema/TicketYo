@@ -1,9 +1,10 @@
 {% extends 'frontend/base.html' %}
-
+ {%load static %}
 {% block content %}
 <title>Create Event</title>
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+<!-- Load CSS -->
+<link rel="stylesheet" href="{% static 'events/create.css' %}">
 
 <h2 class="text-center">Create Event</h2>
 <form method="post" enctype="multipart/form-data" class="container">
@@ -125,9 +126,11 @@
     </div>
 </div>
 
+<!-- JavaScript included directly -->
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
     $(document).ready(function() {
-        let formCount = {{ formset.total_form_count|default:0|add:0 }};
+        let formCount = $('#id_tickets-TOTAL_FORMS').val(); // Adjusted form count based on management form
         const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
 
         $('#add-more').click(function() {
@@ -144,4 +147,5 @@
         });
     });
 </script>
+
 {% endblock %}
