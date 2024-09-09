@@ -1,39 +1,119 @@
-/* Center the heading */
-h2.text-center {
-    margin-top: 20px;
-    font-weight: bold;
+/* General Styles */
+.container {
+    display: grid;
+    grid-template-rows: auto 40% 30% auto; /* Define rows */
+    gap: 0; /* Remove any gaps between rows */
+    max-width: 1200px;
+    margin: 0 auto; /* Center horizontally */
+    padding: 0; /* Remove padding to ensure no extra space */
+    min-height: 100vh; /* Ensure container takes at least full viewport height */
+    position: relative; /* Position relative for better control */
+    padding-bottom: 60px; /* Add bottom padding to ensure content stays above footer */
 }
 
-/* Add some padding and border to the form groups */
-.form-group {
-    margin-bottom: 15px;
+/* Section A */
+.section-a {
+    display: flex;
+    justify-content: space-between; /* Space out heading and button */
+    align-items: center; /* Align items vertically center */
+    margin: 0; /* Remove default margin */
+    padding: 0 20px; /* Add horizontal padding */
+    height: 60px; /* Set a fixed height */
+    border: 1px solid red; /* For visibility during testing */
 }
 
-/* Customize the ticket-form appearance */
-.ticket-form {
-    padding: 15px;
-    border: 1px solid #ccc;
-    margin-bottom: 10px;
-    border-radius: 5px;
+/* Section A Heading */
+.section-a h2 {
+    margin: 0; /* Remove default margin */
+    padding: 0; /* Remove default padding */
+    line-height: 1.2; /* Adjust line height to reduce vertical space */
 }
 
-/* Buttons styling */
-.btn {
-    margin-top: 10px;
+/* Cancel Button */
+.cancel-btn {
+    margin: 0; /* Ensure no extra margin */
 }
 
-/* Add hover effects to buttons */
-.btn-outline-danger:hover {
-    background-color: #dc3545;
-    color: #fff;
+/* Section B */
+.section-b {
+    background-color: #f8f9fa;
+    padding: 20px; /* Padding inside the section */
+    border-radius: 8px;
+    border: 1px solid red; /* For visibility during testing */
+    margin-top: 0; /* Remove margin above the section */
 }
 
-.btn-outline-primary:hover {
+/* Reset any global margin or padding for sections if needed */
+section {
+    margin: 0;
+    padding: 0;
+}
+
+/* Section C */
+.section-c {
+    background-color: #ffffff;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid red;
+}
+
+/* Section D */
+.section-d {
+    background-color: #f8f9fa;
+    padding: 20px;
+    border-radius: 8px;
+    border: 1px solid red;
+    overflow-y: auto; /* Allows scrolling if content overflows */
+}
+
+/* Button container to ensure it stays within content and does not overlap footer */
+.button-container {
+    text-align: center;
+    padding-top: 20px; /* Add space between content and button */
+    margin-bottom: 0; /* Remove any additional margins */
+}
+
+/* Adjust button to make sure it fits */
+button {
+    padding: 10px 20px;
     background-color: #007bff;
-    color: #fff;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
 }
 
-.btn-outline-success:hover {
-    background-color: #28a745;
-    color: #fff;
+/* Ensure last section has some padding at the bottom to avoid overlap */
+.section-d {
+    padding-bottom: 40px; /* Ensure space below the button */
+}
+
+.ticket-form {
+    background-color: #ffffff;
+    padding: 15px;
+    border-radius: 8px;
+    margin-bottom: 10px;
+}
+
+.remove-form {
+    cursor: pointer;
+}
+
+.text-right {
+    text-align: right;
+}
+
+.btn-outline-danger {
+    color: #dc3545;
+    border-color: #dc3545;
+}
+
+.btn-outline-primary {
+    color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-outline-success {
+    color: #28a745;
+    border-color: #28a745;
 }
