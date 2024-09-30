@@ -81,10 +81,12 @@ def vendor_events(request):
 
 
 def all_events(request):
-    events = Event.objects.prefetch_related('ticket_categories').all()
-    upcoming_threshold = timezone.now() + timedelta(days=7)
+    current_date = timezone.now()
+    upcoming_threshold = current_date + timedelta(days=7)
     query = request.GET.get('q', '')
-    
+
+    events = Event.objects.prefetch_related('ticket_categories').all()
+
     if query:
         events = events.filter(
             Q(title__icontains=query) |
@@ -94,8 +96,9 @@ def all_events(request):
         )
 
     upcoming_events = []
-    other_events = []
+    sold_out_events = []
 
+    # Filter events
     for event in events:
         tickets_available = event.tickets_available or 0
         tickets_sold = event.tickets_sold or 0
@@ -106,12 +109,29 @@ def all_events(request):
             category_tickets_sold = category.category_tickets_sold or 0
             category.remaining_tickets = category_tickets_available - category_tickets_sold
         
-        if event.start_date <= upcoming_threshold:
-            upcoming_events.append(event)
-        else:
-            other_events.append(event)
+        # Condition for upcoming events
+        if (event.start_date and event.start_date >= current_date) or (event.end_date and event.end_date >= current_date):
+            # Move to sold-out category if tickets are sold out
+            if event.remaining_tickets == 0:
+                sold_out_events.append(event)
+            else:
+                upcoming_events.append(event)
 
-    # Use headers to check for an AJAX request
+    # Sort upcoming and sold-out events by the nearest date
+    upcoming_events = sorted(upcoming_events, key=lambda e: e.start_date or e.end_date)
+    sold_out_events = sorted(sold_out_events, key=lambda e: e.start_date or e.end_date)
+
+    # Pagination for upcoming events (12 per page) and sold-out events (6 per page)
+    upcoming_paginator = Paginator(upcoming_events, 12)
+    sold_out_paginator = Paginator(sold_out_events, 6)
+
+    page_number_upcoming = request.GET.get('upcoming_page')
+    page_number_sold_out = request.GET.get('sold_out_page')
+
+    page_obj_upcoming = upcoming_paginator.get_page(page_number_upcoming)
+    page_obj_sold_out = sold_out_paginator.get_page(page_number_sold_out)
+
+    # AJAX handling for search requests
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
         events_data = {
             'upcoming_events': [
@@ -126,7 +146,7 @@ def all_events(request):
                 }
                 for event in upcoming_events
             ],
-            'other_events': [
+            'sold_out_events': [
                 {
                     'title': event.title,
                     'venue_name': event.venue_name,
@@ -136,17 +156,19 @@ def all_events(request):
                     'poster_url': event.poster.url if event.poster else '',
                     'event_url': event.get_absolute_url(),
                 }
-                for event in other_events
+                for event in sold_out_events
             ]
         }
         return JsonResponse(events_data)
 
     context = {
-        'upcoming_events': upcoming_events,
-        'other_events': other_events,
+        'page_obj_upcoming': page_obj_upcoming,
+        'page_obj_sold_out': page_obj_sold_out,
+        'query': query,
     }
     return render(request, 'events/all_events.html', context)
 
+    
 @login_required
 @vendor_required
 def delete_event(request, event_id):
