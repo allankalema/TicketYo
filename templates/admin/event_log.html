@@ -1,0 +1,28 @@
+{% extends "admin/base_site.html" %}
+{% block content %}
+<h1>{{ title }}</h1>
+<table class="table">
+    <thead>
+        <tr>
+            <th>Event Title</th>
+            <th>Vendor</th>
+            <th>Confirmed By</th>
+            <th>Confirmation Date</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for event in event_logs %}
+        <tr>
+            <td>{{ event.title }}</td>
+            <td>{{ event.vendor.storename }}</td>
+            <td>{{ event.get_confirmed_by }}</td>
+            <td>{{ event.confirmation_date }}</td>  <!-- You can add this field in the model -->
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="4">No confirmed events available.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

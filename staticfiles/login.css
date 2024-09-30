@@ -1,0 +1,43 @@
+/* General styles for login card */
+.login-card {
+    width: 100%;
+    max-width: 500px;
+    margin: 20px;
+}
+
+.card-body {
+    padding: 20px;
+}
+
+.btn-group .btn {
+    flex: 1;
+}
+
+/* Styles for form fields and labels */
+form div {
+    margin-bottom: 15px;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+
+input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+}
+
+.error {
+    color: red;
+    font-size: 0.875em;
+    margin-top: 5px;
+}
+
+/* Responsive styles */
+@media (max-width: 768px) {
+    .card {
+        width: 100%;
+    }
+}

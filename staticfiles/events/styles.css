@@ -1,0 +1,136 @@
+.container {
+    max-width: 1200px;
+    margin: auto;
+}
+
+h2 {
+    font-family: 'Poppins', sans-serif;
+    color: #4a90e2;
+    font-weight: 700;
+}
+
+h3 {
+    font-family: 'Poppins', sans-serif;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.event-card {
+    border: none;
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s ease-in-out;
+}
+
+.event-card:hover {
+    transform: scale(1.05);
+}
+
+.event-poster {
+    height: 200px;
+    object-fit: cover;
+}
+
+.card-title {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 600;
+    color: #333;
+}
+
+.venue, .creator, .date, .price, .status {
+    font-family: 'Poppins', sans-serif;
+    font-size: 14px;
+    margin: 5px 0;
+    color: #555;
+}
+
+.date {
+    font-style: italic;
+}
+
+.regular-price {
+    font-weight: 400;
+}
+
+.sale-price {
+    font-weight: 600;
+    color: #d9534f;
+}
+
+.text-danger {
+    color: #d9534f !important;
+}
+
+.btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+}
+
+.btn-outline-secondary:hover {
+    background-color: #6c757d;
+    color: #fff;
+}
+
+.btn-outline-danger {
+    border-color: #d9534f;
+    color: #d9534f;
+}
+
+.btn-outline-danger:hover {
+    background-color: #d9534f;
+    color: #fff;
+}
+
+/* Container for centering the search bar */
+.search-bar-container {
+    text-align: center; /* Centers the content horizontally */
+    margin-bottom: 20px; /* Space below the search bar */
+}
+
+/* Styling the form */
+#search-form {
+    display: inline-block; /* Allows form to be centered */
+    width: 100%; /* Takes full width of its container */
+    max-width: 600px; /* Ensures the form doesn’t exceed 600px */
+    margin: 0 auto; /* Centers the form horizontally */
+}
+
+/* Styling the input field */
+#search-input {
+    width: calc(100% - 42px); /* Adjusts width to account for the icon and padding */
+    padding: 10px;
+    border: 2px solid #ccc; /* Border color and thickness */
+    border-radius: 25px; /* Rounded borders */
+    box-sizing: border-box; /* Includes padding and border in the element’s total width and height */
+    outline: none; /* Removes default focus outline */
+    display: inline-block; /* Keeps the input field inline with the icon */
+}
+
+/* Styling the input group icon */
+#search-icon {
+    background-color: #fff; /* White background for the icon */
+    border: 2px solid #ccc; /* Border to match the input field */
+    border-left: none; /* Removes border between input and icon */
+    border-radius: 0 25px 25px 0; /* Rounds the right side of the icon */
+    padding: 10px; /* Padding inside the icon */
+    display: inline-block; /* Keeps the icon inline with the input field */
+}
+
+/* Ensure the input group text is aligned properly */
+.input-group-text {
+    border-radius: 0 25px 25px 0; /* Consistent border radius */
+    padding: 10px; /* Adjust padding for alignment */
+    background-color: #fff; /* White background for the icon */
+    border: 2px solid #ccc; /* Border to match input field */
+    border-left: none; /* Removes border between input and icon */
+}
+
+/* Responsive styling */
+@media (max-width: 600px) {
+    #search-form {
+        width: 90%; /* Adjusts form width on smaller screens */
+    }
+    #search-input {
+        width: calc(100% - 42px); /* Keeps the input width consistent with the icon */
+    }
+}

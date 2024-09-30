@@ -4,6 +4,7 @@ from pathlib import Path
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Custom user model
 AUTH_USER_MODEL = 'vendors.Vendor'
 
 # SECURITY WARNING: keep the secret key used in production secret!
@@ -14,9 +15,9 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
-
 # Application definition
 INSTALLED_APPS = [
+    'jazzmin',  # Jazzmin for custom admin interface
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -34,7 +35,6 @@ INSTALLED_APPS = [
     'frontend',
 ]
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -50,7 +50,7 @@ ROOT_URLCONF = 'TicketYo.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR / 'templates'],  # Add this line to specify the main templates directory
+        'DIRS': [BASE_DIR / 'templates'],  # Specify templates directory
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -65,8 +65,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'TicketYo.wsgi.application'
 
-
-
+# Database
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
@@ -74,8 +73,7 @@ DATABASES = {
     }
 }
 
-
-
+# Password validation
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -91,59 +89,56 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+# Media files (uploads)
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-
-
-
-LANGUAGE_CODE = 'en-us'
-
-TIME_ZONE = 'UTC'
-
-USE_I18N = True
-
-USE_TZ = True
-
-AUTHENTICATION_BACKENDS = [
-    'vendors.backends.VendorOrCustomerModelBackend',
-    'django.contrib.auth.backends.ModelBackend',  # Keep this as a fallback for the default User model
-]
-
-# LOGGING = {
-#     'version': 1,
-#     'disable_existing_loggers': False,
-#     'handlers': {
-#         'console': {
-#             'level': 'DEBUG',
-#             'class': 'logging.StreamHandler',
-#         },
-#     },
-#     'loggers': {
-#         'django': {
-#             'handlers': ['console'],
-#             'level': 'DEBUG',
-#             'propagate': True,
-#         },
-#     },
-# }
-
-
-STATIC_URL = 'static/'
-
+# Static files (CSS, JavaScript, Images)
+STATIC_URL = '/static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# Language and time zone
+LANGUAGE_CODE = 'en-us'
+TIME_ZONE = 'UTC'
+USE_I18N = True
+USE_TZ = True
 
-DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+# Custom authentication backends
+AUTHENTICATION_BACKENDS = [
+    'vendors.backends.VendorOrCustomerModelBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
 
+## Jazzmin settings for customizing the admin interface
+JAZZMIN_SETTINGS = {
+    "site_title": "TicketYo Admin",
+    "site_header": "TicketYo Admin Panel",
+    "custom_css": "css/admin.css",
+    "welcome_sign": "Welcome to TicketYo's Admin Dashboard 😊",
+    "site_logo": "frontend/logo.jpg",  # Correct path to your logo in the static folder
+    "login_logo": "frontend/logo.jpg",  # Logo on the login page
+    "login_logo_dark": "frontend/logo.jpg",  # Dark version of the logo on the login page
+    "site_brand": "TicketYo",  # Brand name shown on the sidebar
+    "show_sidebar": True,  # Display the sidebar
+    "navigation_expanded": True,  # Expand navigation menu by default
+    "topmenu_links": [
+        {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+    ],
+    "user_avatar": None,  # Option to use an avatar field for users
+}
+
+
+# Email settings
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-LOGIN_URL = '/'  # Update this to the correct path
-
-
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'code911ug@gmail.com ' 
-EMAIL_HOST_PASSWORD = 'gmfq isst mnst kxpk'  
+EMAIL_HOST_USER = 'code911ug@gmail.com'
+EMAIL_HOST_PASSWORD = 'gmfq isst mnst kxpk'
+
+# Default primary key field type
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# LOGIN URL
+LOGIN_URL = '/'  # Update to the correct path if needed

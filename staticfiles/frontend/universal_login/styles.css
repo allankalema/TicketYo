@@ -1,0 +1,64 @@
+/* Base styles for the page */
+body {
+    font-family: 'Roboto', sans-serif;
+    
+}
+
+/* Main container with blur effect applied behind the content */
+.container.main-content {
+    position: relative;
+    z-index: 1; /* Ensure content stays above the background */
+}
+
+
+
+/* Styling for the card */
+.card.login-card {
+    width: 100%;
+    max-width: 500px;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    background-color: #fff;
+    padding: 20px;
+    z-index: 2; /* Ensure the card content is on top of everything */
+}
+
+.card-body {
+    padding: 20px;
+}
+
+@media (max-width: 768px) {
+    .card.login-card {
+        max-width: 90%;
+    }
+}
+
+/* Button styles with transparent background and red border */
+.btn-group .btn-login {
+    background-color: transparent !important; /* Transparent background */
+    color: red !important; /* Text color red */
+    border: 2px solid red; /* Red border */
+    border-radius: 0; /* Sharp edges */
+    width: 150px; /* Uniform width */
+    height: 50px; /* Uniform height */
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-decoration: none; /* Remove underline */
+    margin-right: 10px; /* Separation between buttons */
+    padding-left: 10px; /* Add padding inside the button */
+    padding-right: 10px; /* Add padding inside the button */
+}
+
+.btn-group .btn-login:last-child {
+    margin-right: 0;
+}
+
+/* Hover effect with red background */
+.btn-login:hover {
+    background-color: #d60000 !important;
+    color: black !important;
+}

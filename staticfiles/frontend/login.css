@@ -1,0 +1,140 @@
+/* frontend/login.css */
+
+/* General Styles */
+body {
+    font-family: 'Roboto', sans-serif;
+    background-color: #f5f5f5;
+    margin: 0;
+    padding: 0;
+}
+
+/* Heading Styles */
+.login-heading {
+    font-size: 28px;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 30px;
+    color: #e70000;
+}
+
+/* Form Container */
+.login-form {
+    max-width: 400px;
+    margin: 0 auto;
+}
+
+/* Form Group */
+.form-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    position: relative;
+}
+
+/* Labels */
+.form-group label {
+    width: 30%;
+    font-weight: 500;
+    color: #333;
+    margin-right: 10px;
+    text-align: right;
+}
+
+/* Input Fields */
+.form-group input {
+    width: 70%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    outline: none;
+    transition: border-color 0.3s ease;
+}
+
+.form-group input:focus {
+    border-color: #e70000;
+}
+
+/* Show Password Toggle */
+.show-password {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    color: #e70000;
+    font-size: 14px;
+}
+
+/* Error Messages */
+.error-message {
+    color: #d60000;
+    font-size: 14px;
+    margin-top: 5px;
+    margin-left: 40%;
+}
+
+/* Submit Button with transparent background and red border */
+.login-button {
+    width: 100%;
+    padding: 12px;
+    background-color: transparent; /* Transparent background */
+    border: 2px solid #d9534f; /* Red border */
+    color: #d9534f; /* Red text color */
+    border-radius: 4px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.3s ease, color 0.3s ease; /* Smooth transition for background and color */
+    margin-top: 10px;
+}
+
+.login-button:hover {
+    background-color: #cc0000; /* Red background on hover */
+    color: white; /* Change text color to white on hover */
+}
+
+
+/* Links */
+.login-links {
+    text-align: center;
+    margin-top: 20px;
+}
+
+.login-links p {
+    margin: 10px 0;
+    font-size: 14px;
+    color: #555;
+}
+
+.login-links a {
+    color: #e70000;
+    text-decoration: none;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+
+.login-links a:hover {
+    color: #cc0000;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 576px) {
+    .form-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .form-group label {
+        width: 100%;
+        text-align: left;
+        margin-bottom: 5px;
+    }
+    
+    .form-group input {
+        width: 100%;
+        margin: 0;
+    }
+    
+    .error-message {
+        margin-left: 0;
+    }
+}

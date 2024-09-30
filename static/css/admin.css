@@ -1,0 +1,5 @@
+/* admin.css */
+.login-logo img {
+    max-width: 50%; /* Adjust this percentage as needed */
+    height: auto; /* Maintain aspect ratio */
+}

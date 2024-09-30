@@ -1,0 +1,5 @@
+/* admin.css */
+.login-logo {
+    max-width: 150px; /* Set the desired maximum width */
+    height: auto;     /* Maintain aspect ratio */
+}

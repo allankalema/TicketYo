@@ -1,0 +1,106 @@
+/* Apply a font to the entire document */
+body {
+    font-family: 'Roboto', sans-serif;
+
+}
+
+/* Header styles */
+.header {
+    background-color: white;
+    color: white;
+}
+
+
+
+
+/* Sidebar styles */
+.sidebar {
+    background-color: white;
+    color: black;
+    width: 30%;
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100%;
+    display: none;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.sidebar.show {
+    display: block;
+}
+
+.sidebar .close-btn {
+    background-color: white;
+    border: none;
+    color: black;
+    font-size: 30px;
+    cursor: pointer;
+    position: absolute;
+    top: 10px;
+    right: 20px;
+}
+
+/* Sidebar link styles */
+.sidebar .nav-link {
+    color: black; /* Black text color */
+    text-decoration: none; /* Remove underline */
+    padding: 10px;
+    display: block; /* Ensure buttons take full width */
+}
+
+.sidebar .nav-link:hover {
+    background-color: #f9a1a1; /* Lighter red background on hover */
+    color: black; /* Keep the text color black on hover */
+    border-radius: 4px; /* Rounded corners for better appearance */
+}
+
+/* Sidebar button styles */
+.sidebar-btn {
+    background-color: transparent; /* White background */
+    color: #e70000; /* Red text color */
+    border: 1px solid #e70000; /* Red border */
+    font-size: 24px;
+    padding: 10px 20px;
+    border-radius: 4px; /* Slightly smooth edges */
+}
+
+/* Footer styles */
+.footer {
+    background-color: #333;
+    color: white;
+    padding: 20px 0;
+    text-align: center;
+}
+
+.footer a {
+    color: white;
+    text-decoration: none;
+    margin: 0 10px;
+}
+
+.footer a:hover {
+    text-decoration: underline;
+}
+
+/* Media queries */
+@media (max-width: 768px) {
+    #main-header {
+        display: none !important;
+    }
+
+    .main-content {
+        margin-left: 0;
+    }
+
+    .sidebar-btn {
+        display: block;
+    }
+}
+
+@media (min-width: 769px) {
+    .sidebar-btn {
+        display: none;
+    }
+}

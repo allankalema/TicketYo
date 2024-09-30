@@ -1,0 +1,142 @@
+/* General Styles */
+.container {
+    display: grid;
+    grid-template-rows: auto 40% 30% auto; /* Define rows */
+    gap: 0; /* Remove any gaps between rows */
+    max-width: 1200px;
+    margin: 0 auto; /* Center horizontally */
+    padding: 0; /* Remove padding to ensure no extra space */
+    min-height: 100vh; /* Ensure container takes at least full viewport height */
+    position: relative; /* Position relative for better control */
+    padding-bottom: 60px; /* Add bottom padding to ensure content stays above footer */
+}
+
+/* Section B */
+.section-b {
+    background-color: #f8f9fa;
+    padding: 20px; /* Padding inside the section */
+    border-radius: 8px;
+    /* For visibility during testing */
+    margin-top: 0; /* Remove margin above the section */
+}
+
+/* Poster Upload and Form Layout */
+.form-container {
+    display: grid;
+    grid-template-columns: 60% 40%; /* Title/Description/Category on left, Poster on right */
+    gap: 20px;
+    align-items: start; /* Align items at the start */
+}
+
+/* Form Group Styling */
+.form-group {
+    display: flex;
+    flex-direction: column;
+}
+
+/* Poster Upload Styling */
+.poster-upload {
+    position: relative;
+    width: 100%; /* Make it responsive in width */
+    height: calc(100% - 20px); /* Match height with form fields on the left */
+    max-height: 300px; /* Add a max height for large screens */
+    min-height: 200px; /* Ensure a minimum height for smaller screens */
+    background-color: #e9ecef;
+    border: 2px dashed #ccc;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background-color 0.3s, height 0.3s;
+}
+
+.poster-upload:hover {
+    background-color: #f1f1f1; /* Slight hover effect */
+}
+
+.upload-icon {
+    font-size: 80px; /* Adjust the icon size to cover 80% of the square */
+    color: #6c757d;
+}
+
+.poster-placeholder span {
+    font-size: 16px;
+    margin-top: 10px;
+}
+
+/* Input and Select Styles */
+.form-label {
+    font-weight: bold;
+    margin-bottom: 5px;
+    color: #333;
+}
+
+input[type="text"], textarea, select {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow */
+    transition: border-color 0.3s, box-shadow 0.3s;
+    width: 100%; /* Ensure inputs take up full width */
+}
+
+input[type="text"]:focus, textarea:focus, select:focus {
+    border-color: lightgreen;
+    box-shadow: 0px 0px 8px rgba(0, 128, 0, 0.5); /* Green shadow on focus */
+}
+
+/* Textarea Resizing */
+textarea {
+    resize: both; /* Allows both horizontal and vertical resizing */
+    min-height: 100px; /* Set a minimum height */
+    max-height: 300px; /* Set a maximum height */
+    width: 100%; /* Ensure it takes full width */
+}
+
+/* Category Container Styling */
+.category-container {
+    position: relative;
+}
+
+/* Mobile Responsiveness */
+@media (max-width: 768px) {
+    .form-container {
+        grid-template-columns: 1fr; /* Stack vertically on small screens */
+    }
+
+    .form-right {
+        margin-top: 20px; /* Add space on small screens */
+        max-width: 100%; /* Make the upload square responsive */
+    }
+
+    .poster-upload {
+        width: 100%; /* Take full width on small screens */
+        height: 200px; /* Set a reasonable fixed height */
+    }
+}
+
+/* Large Screens */
+@media (min-width: 1200px) {
+    .poster-upload {
+        height: 400px; /* Increase the height for larger screens */
+    }
+}
+
+input[type="text"]#category {
+    width: 100%; /* Ensure full width */
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.1); /* Add shadow */
+}
+
+input[type="text"]#category:focus {
+    border-color: lightgreen;
+    box-shadow: 0px 0px 8px rgba(0, 128, 0, 0.5); /* Green shadow on focus */
+}
+
+/* Datalist Styling */
+datalist {
+    display: none; /* Hidden by default, handled by input field */
+}
