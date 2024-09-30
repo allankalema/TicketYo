@@ -24,20 +24,54 @@
     
     <nav>
         <ul class="nav">
+            <!-- Authenticated User's Dashboard -->
             {% if user.is_authenticated %}
-            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black"> {{ user.username }}'s Dashboard</a></li>
-            {%else%}
-            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black">  Dashboard</a></li>
+                <li class="nav-item">
+                    <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
+                </li>
+            {% else %}
+                <li class="nav-item">
+                    <a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a>
+                </li>
             {% endif %}
-            <li class="nav-item"><a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a></li>
-            <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a></li>
-            <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a></li>
-            <li class="nav-item"><a href="#" class="nav-link text-black">Sign Up</a></li>
-            <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a></li>
-            <li class="nav-item"><a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center"><i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i>
-                Cart</a></li>
+    
+            <!-- Past Events Link -->
+            <li class="nav-item">
+                <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
+            </li>
+    
+            <!-- Conditional Dashboards Based on User Type -->
+            {% if user.is_authenticated and user.is_customer %}
+                <li class="nav-item">
+                    <a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a>
+                </li>
+            {% endif %}
+            
+            {% if user.is_authenticated and user.is_vendor %}
+                <li class="nav-item">
+                    <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
+                </li>
+            {% endif %}
+    
+            <!-- Sign Up and Login for Unauthenticated Users Only -->
+            {% if not user.is_authenticated %}
+                <li class="nav-item">
+                    <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
+                </li>
+                <li class="nav-item">
+                    <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
+                </li>
+            {% endif %}
+    
+            <!-- Cart Button (Always Visible) -->
+            <li class="nav-item">
+                <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
+                    <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
+                </a>
+            </li>
         </ul>
     </nav>
+    
 </header>
 
 <!-- Sidebar -->
@@ -48,18 +82,51 @@
     </div>
     <ul class="nav flex-column mt-3">
         
+        <!-- Authenticated User's Dashboard -->
         {% if user.is_authenticated %}
-        <li class="nav-item"><a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center"><i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i>
-            Cart</a></li>
-            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black"> {{ user.username }}'s Dashboard</a></li>
-        {%else%}
-            <li class="nav-item"><a href="{% url 'all_events' %}" class="nav-link text-black">  Dashboard</a></li>
+            <li class="nav-item">
+                <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
+            </li>
+        {% else %}
+            <li class="nav-item">
+                <a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a>
+            </li>
         {% endif %}
-        <li class="nav-item"><a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a></li>
-        <li class="nav-item"><a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a></li>
-        <li class="nav-item"><a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a></li>
-        <li class="nav-item"><a href="#" class="nav-link text-black">Sign Up</a></li>
-        <li class="nav-item"><a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a></li>
+
+        <!-- Past Events Link -->
+        <li class="nav-item">
+            <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
+        </li>
+
+        <!-- Conditional Dashboards Based on User Type -->
+        {% if user.is_authenticated and user.is_customer %}
+            <li class="nav-item">
+                <a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a>
+            </li>
+        {% endif %}
+        
+        {% if user.is_authenticated and user.is_vendor %}
+            <li class="nav-item">
+                <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
+            </li>
+        {% endif %}
+
+        <!-- Sign Up and Login for Unauthenticated Users Only -->
+        {% if not user.is_authenticated %}
+            <li class="nav-item">
+                <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
+            </li>
+            <li class="nav-item">
+                <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
+            </li>
+        {% endif %}
+
+        <!-- Cart Button (Always Visible) -->
+        <li class="nav-item">
+            <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
+                <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
+            </a>
+        </li>
     </ul>
 </div>
 
