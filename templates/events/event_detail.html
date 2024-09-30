@@ -104,111 +104,119 @@
         }
     </style>
 </head>
+
 <body>
 
-<div class="container mt-5 event-details">
-    <!-- Event Poster -->
-    {% if event.poster %}
-        <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
-    {% else %}
-        <p>No image available</p>
-    {% endif %}
-
-    <!-- Event Title -->
-    <h1 class="event-title">{{ event.title }}</h1>
-
-    <!-- Sold By -->
-    <p class="sold-by"><strong> <i class="bi bi-person-fill"></i>Sold by:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
-
-    <!-- Event Description -->
-    <p class="event-description"><i class="bi bi-file-text-fill"></i>
-        {{ event.description }}</p>
-
-    <!-- Event Category -->
-    <p class="event-icons">
-        <i class="bi bi-tags-fill"></i>
-        <strong>Category:</strong> {{ event.category }}
-    </p>
-
-    <!-- Event Date with Icon -->
-    <!-- Event Date with Icon -->
-<p class="event-icons">
-    <i class="bi bi-calendar-fill"></i>
-    {% if event.end_date %}
-        {{ event.start_date|date:"F d, Y" }} - {{ event.end_date|date:"F d, Y" }}
-    {% else %}
-        {{ event.start_date|date:"F d, Y" }}
-    {% endif %}
-</p>
-
-
-    <!-- Event Location with Icon -->
-    <p class="event-icons">
-        <i class="bi bi-geo-alt-fill"></i>
-        {{ event.venue_name }}
-    </p>
-
-    <!-- Event Prices -->
-    <p class="event-price">
-        <span class="regular-price">(UGX {{ event.regular_price|floatformat:0 }})</span> 
-        UGX {{ event.sale_price|floatformat:0 }}
-    </p>
-
-    <!-- Tickets Availability -->
-    <p class="availability">
-        {% if event.remaining_tickets >= 4 %}
-            <span class="text-success">Available</span>
-        {% elif event.remaining_tickets <= 3 and event.remaining_tickets > 0 %}
-            <span class="text-warning">Almost Sold Out</span>
+    <div class="container mt-5 event-details">
+        <!-- Event Poster -->
+        {% if event.poster %}
+            <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
         {% else %}
-            <span class="text-danger">Sold Out</span>
+            <p>No image available</p>
         {% endif %}
-    </p>
-
-    <!-- Ticket Categories Table -->
-    {% if event.ticket_categories.all %}
-        <table class="table table-hover table-ticket-categories">
-            <thead class="thead-dark">
-                <tr>
-                    <th>Category Title</th>
-                    <th>Price</th>
-                    <th>Status</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for category in event.ticket_categories.all %}
-                    <tr>
-                        <td>{{ category.category_title }}</td>
-                        <td>UGX {{ category.category_price|floatformat:0 }}</td>
-                        <td>
-                            {% if category.remaining_tickets >= 4 %}
-                                <span class="text-success">Available</span>
-                            {% elif category.remaining_tickets <= 3 and category.remaining_tickets > 0 %}
-                                <span class="text-warning">Almost Sold Out</span>
-                            {% else %}
-                                <span class="text-danger">Sold Out</span>
-                            {% endif %}
-                        </td>
-                    </tr>
-                {% endfor %}
-            </tbody>
-        </table>
     
-    {% endif %}
-    {% if event.remaining_tickets > 0 %}
-    <!-- Get Tickets Button -->
-    <div class="text-center">
-        <a href="{% url 'buy_ticket' event.id %}" class="get-tickets-btn">Get Tickets</a>
+        <!-- Event Title -->
+        <h1 class="event-title">{{ event.title }}</h1>
+    
+        <!-- Sold By -->
+        <p class="sold-by"><strong> <i class="bi bi-person-fill"></i>Sold by:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
+    
+        <!-- Event Description -->
+        <p class="event-description"><i class="bi bi-file-text-fill"></i>
+            {{ event.description }}</p>
+    
+        <!-- Event Category -->
+        <p class="event-icons">
+            <i class="bi bi-tags-fill"></i>
+            <strong>Category:</strong> {{ event.category }}
+        </p>
+    
+        <!-- Event Date with Icon -->
+        <p class="event-icons">
+            <i class="bi bi-calendar-fill"></i>
+            {% if event.end_date %}
+                {{ event.start_date|date:"F d, Y" }} - {{ event.end_date|date:"F d, Y" }}
+            {% else %}
+                {{ event.start_date|date:"F d, Y" }}
+            {% endif %}
+        </p>
+    
+        <!-- Event Location with Icon -->
+        <p class="event-icons">
+            <i class="bi bi-geo-alt-fill"></i>
+            {{ event.venue_name }}
+        </p>
+    
+        <!-- Event Prices -->
+        <p class="event-price">
+            <span class="regular-price">(UGX {{ event.regular_price|floatformat:0 }})</span> 
+            UGX {{ event.sale_price|floatformat:0 }}
+        </p>
+    
+        <!-- Tickets Availability -->
+        <p class="availability">
+            {% if event.remaining_tickets >= 4 %}
+                <span class="text-success">Available</span>
+            {% elif event.remaining_tickets <= 3 and event.remaining_tickets > 0 %}
+                <span class="text-warning">Almost Sold Out</span>
+            {% else %}
+                <span class="text-danger">Sold Out</span>
+            {% endif %}
+        </p>
+    
+        <!-- Ticket Categories Table -->
+        {% if event.ticket_categories.all %}
+            <table class="table table-hover table-ticket-categories">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>Category Title</th>
+                        <th>Price</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for category in event.ticket_categories.all %}
+                        <tr>
+                            <td>{{ category.category_title }}</td>
+                            <td>UGX {{ category.category_price|floatformat:0 }}</td>
+                            <td>
+                                {% if category.remaining_tickets >= 4 %}
+                                    <span class="text-success">Available</span>
+                                {% elif category.remaining_tickets <= 3 and category.remaining_tickets > 0 %}
+                                    <span class="text-warning">Almost Sold Out</span>
+                                {% else %}
+                                    <span class="text-danger">Sold Out</span>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% endif %}
+    
+        <!-- Event Button Logic -->
+        {% if event.has_passed %}
+            <div class="text-center">
+                <span class="text-muted">Event Passed</span>
+            </div>
+        {% elif event.remaining_tickets == 0 %}
+            <div class="text-center">
+                <span class="text-danger">Sold Out</span>
+            </div>
+        {% else %}
+            <div class="text-center">
+                <a href="{% url 'buy_ticket' event.id %}" class="get-tickets-btn">Get Tickets</a>
+            </div>
+        {% endif %}
+    
     </div>
-</div>
-
-{% endif %}
-<!-- Bootstrap JS, FontAwesome -->
-<script src="https://kit.fontawesome.com/a076d05399.js"></script>
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-
-</body>
-</html>
-{% endblock %}
+    
+    <!-- Bootstrap JS, FontAwesome -->
+    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    
+    </body>
+    </html>
+    {% endblock %}

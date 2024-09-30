@@ -168,7 +168,7 @@ def all_events(request):
     }
     return render(request, 'events/all_events.html', context)
 
-    
+
 @login_required
 @vendor_required
 def delete_event(request, event_id):
@@ -284,10 +284,19 @@ def event_detail(request, event_id):
         category_tickets_sold = category.category_tickets_sold or 0
         category.remaining_tickets = category_tickets_available - category_tickets_sold
 
+    # Check if the event has passed
+    current_date = timezone.now()
+    event.has_passed = False
+
+    # If the event's end date is in the past or if the start date is in the past and there's no end date
+    if (event.end_date and event.end_date < current_date) or (event.start_date and event.start_date < current_date and not event.end_date):
+        event.has_passed = True
+
     context = {
         'event': event
     }
     return render(request, 'events/event_detail.html', context)
+
 
 @login_required
 @vendor_required

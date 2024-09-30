@@ -76,7 +76,7 @@
                     {% for event in page_obj_sold_out %}
                         <div class="col-md-4 mb-4">
                             <div class="card event-card text-center">
-                                <a href="{{ event.get_absolute_url }}">
+                                <a href="{% url 'event_detail' event.id %}">
                                     {% if event.poster %}
                                         <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
                                     {% else %}
