@@ -9,6 +9,7 @@ from vendors.decorators import vendor_required
 from datetime import timedelta
 from django.db.models import Q
 from django.http import JsonResponse
+from django.core.paginator import Paginator
 
 
 @login_required
@@ -277,3 +278,27 @@ def event_detail_view(request, event_id):
         'event': event
     }
     return render(request, 'events/personal_event.html', context)
+
+
+def past_events_view(request):
+    current_date = timezone.now()
+    query = request.GET.get('q', '')
+
+    # Filter events based on the past event criteria and search query
+    past_events = Event.objects.filter(
+        (Q(end_date__lte=current_date) | Q(start_date__lte=current_date, end_date__isnull=True))
+    ).filter(
+        Q(title__icontains=query) | Q(venue_name__icontains=query) | Q(vendor__storename__icontains=query)
+    ).order_by('-start_date')  # Sort by recently completed
+
+    # Pagination: 12 events per page
+    paginator = Paginator(past_events, 12)
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'past_events': page_obj,
+        'query': query,  # To retain the search term in the search box
+        'page_obj': page_obj  # For pagination
+    }
+    return render(request, 'events/past_events.html', context)

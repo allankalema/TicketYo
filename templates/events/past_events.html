@@ -1,0 +1,66 @@
+{% extends "frontend/base.html" %}
+{% load static %}
+{% block title %}Past Events{% endblock %}
+
+{% block content %}
+    <link rel="stylesheet" href="{% static 'events/styles.css' %}">
+
+    <div class="container">
+        <!-- Search Bar -->
+        <div class="search-bar-container">
+            <form method="get" action="{% url 'past_events' %}" id="search-form">
+                <div class="input-group mb-4">
+                    <input type="text" name="q" value="{{ query }}" class="form-control" id="search-input" placeholder="Search past events">
+                </div>
+            </form>
+        </div>
+
+        <h3 class="text-center">Past Events</h3>
+
+        <div id="past-events-container">
+            {% if past_events %}
+                <div class="row">
+                    {% for event in past_events %}
+                        <div class="col-md-4 mb-4">
+                            <a href="{% url 'event_detail' event.id %}" class="event-card-link text-decoration-none">  <!-- Remove underline -->
+                                <div class="card event-card text-center">
+                                    {% if event.poster %}
+                                        <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
+                                    {% else %}
+                                        <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
+                                    {% endif %}
+                                    <div class="card-body">
+                                        <h5 class="card-title fancy-font">{{ event.title }}</h5>
+                                        <p class="venue"><i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}</p>
+                                        <p class="creator"><i class="bi bi-person-fill"></i> Created by {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
+                                        <p class="price">
+                                            <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
+                                            <span class="sale-price">UGX {{ event.sale_price|floatformat:0 }}</span>
+                                        </p>
+                                        <p class="date">
+                                            {% if event.end_date %}
+                                                From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
+                                            {% else %}
+                                                {{ event.start_date|date:"F jS, Y" }}
+                                            {% endif %}
+                                        </p>
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                    {% endfor %}
+                </div>
+
+                <!-- More Button -->
+                {% if page_obj.has_next %}
+                    <div class="text-center">
+                        <a href="?page={{ page_obj.next_page_number }}{% if query %}&q={{ query }}{% endif %}" class="btn btn-secondary">More</a>
+                    </div>
+                {% endif %}
+
+            {% else %}
+                <p class="text-center">No past events available.</p>
+            {% endif %}
+        </div>
+    </div>
+{% endblock %}
