@@ -10,7 +10,7 @@ from datetime import timedelta
 from django.db.models import Q
 from django.http import JsonResponse
 from django.core.paginator import Paginator
-
+from django.urls import reverse 
 
 @login_required
 @vendor_required
@@ -333,3 +333,31 @@ def past_events_view(request):
         'page_obj': page_obj  # For pagination
     }
     return render(request, 'events/past_events.html', context)
+
+@vendor_required
+@login_required
+def approve_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if event.status == 'pending':
+        event.status = 'approved'
+        event.adminaction = request.user  # Automatically set the admin user who approved
+        event.save()
+        messages.success(request, f"Event '{event.title}' has been approved.")
+    else:
+        messages.warning(request, f"Event '{event.title}' is already {event.status}.")
+    
+    return redirect(reverse('admin:events_event_changelist'))  # Update: Dynamically resolves the event change list in admin
+
+@vendor_required
+@login_required
+def reject_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+    if event.status == 'pending':
+        event.status = 'rejected'
+        event.adminaction = request.user  # Automatically set the admin user who rejected
+        event.save()
+        messages.success(request, f"Event '{event.title}' has been rejected.")
+    else:
+        messages.warning(request, f"Event '{event.title}' is already {event.status}.")
+    
+    return redirect(reverse('admin:events_event_changelist'))  # Update: Dynamically resolves the event change list in admin

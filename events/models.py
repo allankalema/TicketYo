@@ -1,22 +1,32 @@
 from django.db import models
-from vendors.models import Vendor
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from vendors.models import Vendor  # This remains as is
+from django.contrib.auth import get_user_model
+from django.utils import timezone
 
 class Event(models.Model):
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='events')  # Mandatory, linked to Vendor
-    poster = models.ImageField(upload_to='event_posters/')  # Required field
-    title = models.CharField(max_length=200)  # Required field
-    description = models.TextField()  # Required field
-    category = models.CharField(max_length=100)  # Required field (e.g., "conference", "concert")
-    start_date = models.DateTimeField()  # Required field
-    end_date = models.DateTimeField(null=True, blank=True)  # Optional field
-    venue_name = models.CharField(max_length=100)  # Required field
-    regular_price = models.DecimalField(max_digits=10, decimal_places=2)  # Required field
-    sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)  # Optional field
-    tickets_available = models.PositiveIntegerField(null=True, blank=True)  # Optional field
-    tickets_sold = models.PositiveIntegerField(default=0)  # New field to track tickets sold
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='events')
+    poster = models.ImageField(upload_to='event_posters/')
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+    category = models.CharField(max_length=100)
+    start_date = models.DateTimeField()
+    end_date = models.DateTimeField(null=True, blank=True)
+    venue_name = models.CharField(max_length=100)
+    regular_price = models.DecimalField(max_digits=10, decimal_places=2)
+    sale_price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    tickets_available = models.PositiveIntegerField(null=True, blank=True)
+    tickets_sold = models.PositiveIntegerField(default=0)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    adminaction = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, editable=False)  # Stores the admin who approved/rejected
 
     def is_sold_out(self):
         return self.tickets_available is not None and self.tickets_sold >= self.tickets_available
@@ -37,7 +47,6 @@ class TicketCategory(models.Model):
     def __str__(self):
         return f'{self.category_title} - {self.event.title}'
 
-
 class Cart(models.Model):
     vendor = models.ForeignKey('vendors.Vendor', on_delete=models.CASCADE, null=True, blank=True)
     customer = models.ForeignKey('customers.Customer', on_delete=models.CASCADE, null=True, blank=True)
@@ -49,3 +58,13 @@ class Cart(models.Model):
     
     def get_user(self):
         return self.vendor if self.vendor else self.customer
+
+
+class ActionLog(models.Model):
+    admin_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)  # Link to the user who performed the action
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)  # Direct reference to Event model
+    action = models.CharField(max_length=50)  # E.g., 'approved' or 'rejected'
+    timestamp = models.DateTimeField(default=timezone.now)  # Time of the action
+
+    def __str__(self):
+        return f"{self.admin_user} {self.action} {self.event.title} at {self.timestamp}"

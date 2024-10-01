@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.utils import timezone
+from django.contrib.auth import get_user_model 
 
 class VendorManager(BaseUserManager):
     def create_user(self, username, email, first_name, last_name, storename, store_phone, password=None):
