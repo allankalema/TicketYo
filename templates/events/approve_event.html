@@ -1,0 +1,31 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <!-- Event form -->
+    <h2>Event Details</h2>
+    {{ event_form.as_p }}
+
+    <!-- Ticket categories formset -->
+    <h2>Ticket Categories</h2>
+    {{ ticket_formset.management_form }}
+    {% for form in ticket_formset %}
+        {{ form.as_p }}
+    {% endfor %}
+
+    <!-- Status selection for approval/rejection -->
+    <div class="form-group">
+        <label for="status">Event Status</label>
+        <select name="status" id="status" class="form-control">
+            <option value="pending" {% if event.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="approved" {% if event.status == 'approved' %}selected{% endif %}>Approved</option>
+            <option value="rejected" {% if event.status == 'rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Authorize Event</button>
+    <a href="{% url 'pending_events' %}" class="btn btn-secondary">Cancel</a>
+</form>
+{% endblock %}

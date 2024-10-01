@@ -11,6 +11,9 @@ from django.db.models import Q
 from django.http import JsonResponse
 from django.core.paginator import Paginator
 from django.urls import reverse 
+from django.core.mail import send_mail
+from django.forms import inlineformset_factory
+from django.forms import inlineformset_factory
 
 @login_required
 @vendor_required
@@ -268,7 +271,7 @@ def remove_from_cart(request, cart_item_id):
     return redirect('view_cart')
 
 
-@login_required
+
 def event_detail(request, event_id):
     # Retrieve the event with prefetching related ticket categories
     event = Event.objects.prefetch_related('ticket_categories').get(id=event_id)
@@ -361,3 +364,51 @@ def reject_event(request, event_id):
         messages.warning(request, f"Event '{event.title}' is already {event.status}.")
     
     return redirect(reverse('admin:events_event_changelist'))  # Update: Dynamically resolves the event change list in admin
+
+
+
+@login_required
+@vendor_required
+def dash_approve_event(request, event_id):
+    event = get_object_or_404(Event, id=event_id)
+
+    # Create the form and formset for editing the event and its ticket categories
+    if request.method == 'POST':
+        event_form = EventForm(request.POST, request.FILES, instance=event)
+        ticket_formset = TicketCategoryFormSet(request.POST, instance=event)
+
+        if event_form.is_valid() and ticket_formset.is_valid():
+            event_form.save()
+            ticket_formset.save()
+
+            # Get the selected status from the form
+            status = request.POST.get('status')
+            # Update event status and log admin action
+            event.status = status
+            event.adminaction = request.user  # Set the admin who made the action
+
+            # Log the action
+            ActionLog.objects.create(admin_user=request.user, event=event, action=status)
+
+            # Prepare email details
+            subject = f"Your Event '{event.title}' Status Update"
+            message = f"Your event has been {status}. Please contact management for further information."
+            recipient_list = [event.vendor.email]  # Assuming the vendor has an email field
+
+            # Send email notification
+            send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, recipient_list)
+
+            # Save the event and show success message
+            event.save()
+            messages.success(request, 'Event status updated, and the vendor has been notified.')
+            return redirect('pending_events')  # Redirect to the pending events page
+    else:
+        event_form = EventForm(instance=event)
+        ticket_formset = TicketCategoryFormSet(instance=event)
+
+    context = {
+        'event': event,
+        'event_form': event_form,
+        'ticket_formset': ticket_formset,
+    }
+    return render(request, 'events/approve_event.html', context)

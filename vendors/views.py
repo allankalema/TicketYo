@@ -352,8 +352,8 @@ def ticket_receipt(request, ticket_id):
 @login_required
 @vendor_required
 def pending_events(request):
-    # Retrieve events with pending status
-    pending_events_list = Event.objects.filter(status='pending')  # Adjust 'pending' as per your model's status field
+    # Retrieve and sort events with pending status by start date (closest first)
+    pending_events_list = Event.objects.filter(status='pending').order_by('start_date')
 
     context = {
         'pending_events': pending_events_list,
