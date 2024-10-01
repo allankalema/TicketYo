@@ -120,7 +120,7 @@ def logout_view(request):
 @vendor_required
 def vendor_dashboard(request):
     vendor = request.user
-    events = Event.objects.filter(vendor=vendor)
+    events = Event.objects.filter(vendor=vendor, status='approved')
 
     # Handling search queries
     search_query = request.GET.get('search', '')

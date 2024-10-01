@@ -88,7 +88,7 @@ def all_events(request):
     upcoming_threshold = current_date + timedelta(days=7)
     query = request.GET.get('q', '')
 
-    events = Event.objects.prefetch_related('ticket_categories').all()
+    events = Event.objects.prefetch_related('ticket_categories').filter(status='approved')
 
     if query:
         events = events.filter(
@@ -274,7 +274,7 @@ def remove_from_cart(request, cart_item_id):
 
 def event_detail(request, event_id):
     # Retrieve the event with prefetching related ticket categories
-    event = Event.objects.prefetch_related('ticket_categories').get(id=event_id)
+    event = Event.objects.prefetch_related('ticket_categories').get(id=event_id, status='approved' )
 
     # Calculate remaining tickets for the event
     tickets_available = event.tickets_available or 0
@@ -304,7 +304,7 @@ def event_detail(request, event_id):
 @login_required
 @vendor_required
 def event_detail_view(request, event_id):
-    event = get_object_or_404(Event, id=event_id)
+    event = get_object_or_404(Event, id=event_id, status='approved')
     # Calculate tickets remaining
     event.tickets_remaining = event.tickets_available - event.tickets_sold
     
@@ -320,10 +320,11 @@ def past_events_view(request):
 
     # Filter events based on the past event criteria and search query
     past_events = Event.objects.filter(
-        (Q(end_date__lte=current_date) | Q(start_date__lte=current_date, end_date__isnull=True))
+        (Q(end_date__lte=current_date) | Q(start_date__lte=current_date, end_date__isnull=True)),
+        status='approved'
     ).filter(
         Q(title__icontains=query) | Q(venue_name__icontains=query) | Q(vendor__storename__icontains=query)
-    ).order_by('-start_date')  # Sort by recently completed
+    ).order_by('-start_date') # Sort by recently completed
 
     # Pagination: 12 events per page
     paginator = Paginator(past_events, 12)
