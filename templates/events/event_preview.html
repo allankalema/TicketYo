@@ -1,0 +1,25 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container mt-4">
+    <h1>Event Preview: {{ event.title }}</h1>
+    <div class="card">
+        <div class="card-body">
+            <h5 class="card-title">{{ event.title }}</h5>
+            <p class="card-text"><strong>Location:</strong> {{ event.venue_name }}</p>
+            <p class="card-text"><strong>Start Date:</strong> {{ event.start_date }}</p>
+            <p class="card-text"><strong>Description:</strong> {{ event.description }}</p>
+            <p class="card-text"><strong>Created By:</strong> {{ event.vendor.storename }}</p>
+        </div>
+    </div>
+
+    <form method="post" class="mt-4">
+        {% csrf_token %}
+        <button type="submit" name="status" value="approved" class="btn btn-success">Approve</button>
+        <button type="submit" name="status" value="rejected" class="btn btn-danger">Reject</button>
+    </form>
+
+    <a href="{% url 'pending_events' %}" class="btn btn-secondary mt-3">Back to Pending Events</a>
+</div>
+{% endblock %}

@@ -46,6 +46,14 @@
                 <a href="{% url 'vendor_events' %}" class="btn btn-outline-event btn-icon">View Events</a>
                 <a href="{% url 'verifiable_events' %}" class="btn btn-outline-event btn-icon">Event Verification</a>
                 <a href="{% url 'view_inventory' %}" class="btn btn-outline-event btn-icon">View Inventory</a>
+
+                {% if user.is_superuser %}
+                <a href="{% url 'pending_events' %}" class="btn btn-outline-event btn-icon">
+                    Pending Events <span class="badge badge-danger">{{ pending_count }}</span>
+                </a>
+                
+                <a href="#" class="btn btn-outline-event btn-icon">Events Confirmed</a>
+                {% endif %}
             </div>
             
             <!-- Profile Dropdown on the Right -->

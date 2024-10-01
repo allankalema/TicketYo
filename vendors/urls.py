@@ -15,4 +15,5 @@ urlpatterns = [
     path('password-reset/confirm/<uidb64>/', views.vendor_password_reset_confirm, name='vendor_password_reset_confirm'),
     path('inventory/', views.view_inventory, name='view_inventory'),
     path('receipt/<int:ticket_id>/', views.ticket_receipt, name='ticket_receipt'),
+    path('vendor/pending-events/', views.pending_events, name='pending_events'),
 ]

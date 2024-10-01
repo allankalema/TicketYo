@@ -148,6 +148,9 @@ def vendor_dashboard(request):
             else:
                 upcoming_events.append(event)
 
+    # Count pending events
+    pending_events_count = Event.objects.filter(status='pending').count()
+
     # Total tickets sold and top 5 events by ticket sales
     tickets_sold_per_event = {}
     for event in events:
@@ -165,6 +168,7 @@ def vendor_dashboard(request):
         'top_5_events': top_5_events,
         'inventory': Ticket.objects.filter(customer_username=vendor.username, entity_type='vendor'),
         'search_query': search_query,
+        'pending_count': pending_events_count,  # Add pending events count to context
     }
 
     return render(request, 'vendors/dashboard.html', context)
@@ -343,3 +347,16 @@ def view_inventory(request):
 def ticket_receipt(request, ticket_id):
     ticket = get_object_or_404(Ticket, id=ticket_id)
     return render(request, 'vendors/receipt.html', {'ticket': ticket})
+
+
+@login_required
+@vendor_required
+def pending_events(request):
+    # Retrieve events with pending status
+    pending_events_list = Event.objects.filter(status='pending')  # Adjust 'pending' as per your model's status field
+
+    context = {
+        'pending_events': pending_events_list,
+    }
+
+    return render(request, 'events/pending_events.html', context)
