@@ -124,8 +124,16 @@ def buy_ticket(request, event_id):
 @login_required
 def download_ticket_pdf(request, ticket_number):
     ticket = get_object_or_404(Ticket, ticket_number=ticket_number)
+    event = ticket.event  # Get the associated event
+    vendor = event.vendor  # Get the associated vendor
+
+    context = {
+        'ticket': ticket,
+        'event': event,
+        'vendor': vendor,
+    }
+
     template_path = 'tickets/ticket_pdf.html'
-    context = {'ticket': ticket}
     
     response = HttpResponse(content_type='application/pdf')
     response['Content-Disposition'] = f'attachment; filename="{ticket.ticket_number}_ticket.pdf"'

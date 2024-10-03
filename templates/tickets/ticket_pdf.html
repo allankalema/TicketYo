@@ -1,6 +1,14 @@
-<h1>Ticket for {{ ticket.event.title }}</h1>
+<h1>Ticket for {{ event.title }}</h1>
 <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
 <p><strong>Category:</strong> {{ ticket.ticket_category.category_title }}</p>
+<p><strong>Price:</strong> UGX {{ ticket.price }}</p>
+<p><strong>Event Description:</strong> {{ event.description }}</p>
+<p><strong>Event Start Date:</strong> {{ event.start_date }}</p>
+<p><strong>Event Location:</strong> {{ event.venue_name }}</p>
+
+<h2>Vendor Information:</h2>
+<p><strong>Store Name:</strong> {{ vendor.storename }}</p>
+<p><strong>Contact Email:</strong> {{ vendor.email }}</p>
+<p><strong>Phone Number:</strong> {{ vendor.store_phone }}</p>
+
 <p><img src="{{ ticket.qr_code.url }}" alt="QR Code"></p>
-<li><img src="{{ ticket.qr_code_url }}" alt="QR Code"></li>
-<li><strong>Price:</strong> UGX {{ ticket.price }}</li>
