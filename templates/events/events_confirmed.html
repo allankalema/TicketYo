@@ -18,21 +18,21 @@
         <table class="table table-hover">
             <thead class="thead-light">
                 <tr>
-                    <th>Title</th>
-                    <th>Vendor</th>
-                    <th>Status</th>
-                    <th class="d-none d-md-table-cell">Start Date</th>
-                    <th>Action Timestamp</th>
+                    <th class="title-column">Title</th> <!-- Adjusted width -->
+                    <th class="vendor-column d-none d-md-table-cell">Vendor</th> <!-- Hidden on small screens -->
+                    <th class="status-column">Status</th> <!-- Fixed width -->
+                    <th class="date-column">Action Date</th> <!-- Adjusted width -->
+                    <th class="time-column">Action Time</th> <!-- Adjusted width -->
                 </tr>
             </thead>
             <tbody>
                 {% for log in action_logs %}
                 <tr class="event-row" data-event-id="{{ log.event.id }}">
                     <td class="clickable">{{ log.event.title }}</td>
-                    <td>{{ log.event.vendor.storename }}</td>
-                    <td>{{ log.event.status }}</td>
-                    <td class="d-none d-md-table-cell">{{ log.event.start_date }}</td>
-                    <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td> <!-- Use log.timestamp here -->
+                    <td  class="vendor-column d-none d-md-table-cell"> {{ log.event.vendor.storename }}</td>
+                    <td>{{ log.action }}</td>
+                    <td>{{ log.timestamp|date:"Y-m-d" }}</td>  <!-- Displaying only the date -->
+                    <td>{{ log.timestamp|date:"H:i:s" }}</td>  <!-- Displaying only the time -->
                 </tr>
                 {% empty %}
                 <tr>
@@ -80,13 +80,30 @@
         background-color: #4e555b;
     }
 
-    /* Responsive table */
-    @media (max-width: 767.98px) {
-        .d-md-table-cell {
-            display: none;
-        }
+    /* Fixed width for columns */
+    .title-column {
+        width: 120px; /* Adjust width for Title column */
     }
-    
+
+    .vendor-column {
+        width: 120px; /* Adjust width for Vendor column */
+    }
+
+    .status-column {
+        width: 150px; /* Adjust width for Status column */
+        white-space: nowrap; /* Prevent wrapping */
+        overflow: hidden; /* Hide overflow */
+        text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    }
+
+    .date-column {
+        width: 100px; /* Adjust width for Action Date column */
+    }
+
+    .time-column {
+        width: 100px; /* Adjust width for Action Time column */
+    }
+
     /* Remove underline and style clickable spans */
     .clickable-option {
         display: block;
@@ -99,6 +116,26 @@
         background-color: #f0f0f0;
         text-decoration: none;
         color: #0056b3;
+    }
+
+    /* Table styling */
+    table {
+        width: 100%; /* Make the table responsive */
+        border-collapse: collapse; /* Collapse borders */
+    }
+
+    th, td {
+        text-align: left; /* Align text to the left */
+        vertical-align: middle; /* Align vertically to the middle */
+        padding: 10px; /* Add padding for cells */
+        border: 1px solid #ddd; /* Add borders to table cells */
+    }
+
+    /* Responsive table */
+    @media (max-width: 767.98px) {
+        .vendor-column {
+            display: none; /* Hide Vendor column on small screens */
+        }
     }
 </style>
 
@@ -144,7 +181,6 @@
             }
         });
     });
-
 </script>
 
 {% endblock %}

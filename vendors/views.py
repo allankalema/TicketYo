@@ -368,19 +368,20 @@ def pending_events(request):
 def events_confirmed_view(request):
     admin_user = request.user
 
-    # Get all action logs for the logged-in admin, sorted by the latest action first
+    # Get all action logs for the admin user, sorted by the latest action first
     action_logs = ActionLog.objects.filter(admin_user=admin_user).select_related('event').order_by('-timestamp')
 
     # Search functionality
     search_query = request.GET.get('search', '')
     if search_query:
         search_query = search_query.lower()
-        action_logs = [log for log in action_logs if 
-                       search_query in log.event.title.lower() or
-                       search_query in log.event.vendor.storename.lower() or
-                       search_query in log.event.status.lower() or
-                       search_query in log.event.venue_name.lower() or
-                       search_query in str(log.event.start_date)]
+        action_logs = action_logs.filter(
+            Q(event__title__icontains=search_query) |
+            Q(event__vendor__storename__icontains=search_query) |
+            Q(event__status__icontains=search_query) |
+            Q(event__venue_name__icontains=search_query) |
+            Q(timestamp__icontains=search_query)
+        )
 
     context = {
         'action_logs': action_logs,
