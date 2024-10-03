@@ -38,6 +38,14 @@ def buy_ticket(request, event_id):
             'category': category,
             'tickets_remaining': remaining_tickets
         })
+        
+    # Handle ordinary tickets if no categories are available
+    if not categories.exists():
+        ordinary_remaining = event.tickets_available - event.tickets_sold
+        ordinary_ticket_data = {
+            'price': event.sale_price,
+            'tickets_remaining': ordinary_remaining
+        }
 
     if request.method == 'POST':
         tickets_info = request.POST
