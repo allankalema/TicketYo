@@ -5,6 +5,7 @@ from django.contrib.auth import authenticate, login, logout, update_session_auth
 from django.contrib.auth.forms import UserCreationForm, AuthenticationForm,PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from .models import Vendor
+from events.models import *
 from django.conf import settings
 from django.utils import timezone
 from .forms import *
@@ -360,3 +361,29 @@ def pending_events(request):
     }
 
     return render(request, 'events/pending_events.html', context)
+
+
+@login_required
+@vendor_required
+def events_confirmed_view(request):
+    admin_user = request.user
+
+    # Get all action logs for the logged-in admin, sorted by the latest action first
+    action_logs = ActionLog.objects.filter(admin_user=admin_user).select_related('event').order_by('-timestamp')
+
+    # Search functionality
+    search_query = request.GET.get('search', '')
+    if search_query:
+        search_query = search_query.lower()
+        action_logs = [log for log in action_logs if 
+                       search_query in log.event.title.lower() or
+                       search_query in log.event.vendor.storename.lower() or
+                       search_query in log.event.status.lower() or
+                       search_query in log.event.venue_name.lower() or
+                       search_query in str(log.event.start_date)]
+
+    context = {
+        'action_logs': action_logs,
+        'search_query': search_query,
+    }
+    return render(request, 'events/events_confirmed.html', context)

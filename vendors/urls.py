@@ -16,4 +16,5 @@ urlpatterns = [
     path('inventory/', views.view_inventory, name='view_inventory'),
     path('receipt/<int:ticket_id>/', views.ticket_receipt, name='ticket_receipt'),
     path('vendor/pending-events/', views.pending_events, name='pending_events'),
+    path('events-confirmed/', views.events_confirmed_view, name='events_confirmed'),
 ]

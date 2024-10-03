@@ -274,7 +274,7 @@ def remove_from_cart(request, cart_item_id):
 
 def event_detail(request, event_id):
     # Retrieve the event with prefetching related ticket categories
-    event = Event.objects.prefetch_related('ticket_categories').get(id=event_id, status='approved' )
+    event = Event.objects.prefetch_related('ticket_categories').get(id=event_id)
 
     # Calculate remaining tickets for the event
     tickets_available = event.tickets_available or 0

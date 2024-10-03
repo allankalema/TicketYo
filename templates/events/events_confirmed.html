@@ -1,0 +1,150 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2 class="mb-4">Events Confirmed by You</h2>
+    
+    <!-- Search Bar -->
+    <form method="GET" class="mb-4">
+        <div class="input-group">
+            <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ search_query }}">
+            <div class="input-group-append">
+                <button class="btn btn-secondary" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+
+    <div class="table-responsive">
+        <table class="table table-hover">
+            <thead class="thead-light">
+                <tr>
+                    <th>Title</th>
+                    <th>Vendor</th>
+                    <th>Status</th>
+                    <th class="d-none d-md-table-cell">Start Date</th>
+                    <th>Action Timestamp</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for log in action_logs %}
+                <tr class="event-row" data-event-id="{{ log.event.id }}">
+                    <td class="clickable">{{ log.event.title }}</td>
+                    <td>{{ log.event.vendor.storename }}</td>
+                    <td>{{ log.event.status }}</td>
+                    <td class="d-none d-md-table-cell">{{ log.event.start_date }}</td>
+                    <td>{{ log.timestamp|date:"Y-m-d H:i" }}</td> <!-- Use log.timestamp here -->
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center">No events found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Dropdown Card for Options -->
+    <div id="options-card" class="card position-absolute d-none" style="z-index: 1000; width: 200px;">
+        <div class="card-body p-2">
+            <span id="view-option" class="clickable-option">View Event</span>
+            <span id="edit-option" class="clickable-option">Edit Approval</span>
+        </div>
+    </div>
+
+</div>
+
+<!-- Inline CSS for Simplicity -->
+<style>
+    /* Styling for hover effect and dropdown card */
+    .event-row:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    /* Card styling */
+    #options-card {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Search bar styling */
+    .input-group .form-control {
+        max-width: 400px;
+    }
+
+    .btn-secondary {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4e555b;
+    }
+
+    /* Responsive table */
+    @media (max-width: 767.98px) {
+        .d-md-table-cell {
+            display: none;
+        }
+    }
+    
+    /* Remove underline and style clickable spans */
+    .clickable-option {
+        display: block;
+        padding: 10px;
+        color: #007bff;
+        cursor: pointer;
+    }
+
+    .clickable-option:hover {
+        background-color: #f0f0f0;
+        text-decoration: none;
+        color: #0056b3;
+    }
+</style>
+
+<!-- JavaScript for toggling the dropdown card -->
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        let optionsCard = document.getElementById('options-card');
+        let viewOption = document.getElementById('view-option');
+        let editOption = document.getElementById('edit-option');
+        let selectedEventId = null;
+
+        document.querySelectorAll('.event-row').forEach(row => {
+            row.addEventListener('click', function () {
+                let eventId = this.getAttribute('data-event-id');
+                let rect = this.getBoundingClientRect();
+                selectedEventId = eventId;
+
+                // Position the options card next to the clicked row
+                optionsCard.style.top = `${rect.bottom + window.scrollY}px`;
+                optionsCard.style.left = `${rect.left + window.scrollX}px`;
+                optionsCard.classList.remove('d-none');
+            });
+        });
+
+        // Handle View Event click
+        viewOption.addEventListener('click', function () {
+            if (selectedEventId) {
+                window.location.href = `{% url 'event_detail' 0 %}`.replace(0, selectedEventId);
+            }
+        });
+
+        // Handle Edit Approval click
+        editOption.addEventListener('click', function () {
+            if (selectedEventId) {
+                window.location.href = `{% url 'dash_approve_event' 0 %}`.replace(0, selectedEventId);
+            }
+        });
+
+        // Hide the options card when clicking anywhere else
+        document.addEventListener('click', function (event) {
+            if (!event.target.closest('.event-row') && !event.target.closest('#options-card')) {
+                optionsCard.classList.add('d-none');
+            }
+        });
+    });
+
+</script>
+
+{% endblock %}
