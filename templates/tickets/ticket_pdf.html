@@ -1,9 +1,14 @@
 <h1>Ticket for {{ event.title }}</h1>
 <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
 <p><strong>Category:</strong> {{ ticket.ticket_category.category_title }}</p>
-<p><strong>Price:</strong> UGX {{ ticket.price }}</p>
+<p><strong>Price:</strong> UGX {{ ticket.sale_price }}</p>
 <p><strong>Event Description:</strong> {{ event.description }}</p>
 <p><strong>Event Start Date:</strong> {{ event.start_date }}</p>
+
+{% if event.end_date %}
+    <p><strong>Event End Date:</strong> {{ event.end_date }}</p>
+{% endif %}
+
 <p><strong>Event Location:</strong> {{ event.venue_name }}</p>
 
 <h2>Vendor Information:</h2>

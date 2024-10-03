@@ -3,10 +3,16 @@
 <p>Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
 
 <h2>Event Details:</h2>
+<p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>
 <ul>
     <li><strong>Event Title:</strong> {{ event.title }}</li>
     <li><strong>Event Description:</strong> {{ event.description }}</li>
     <li><strong>Event Start Date:</strong> {{ event.start_date }}</li>
+
+    {% if event.end_date %}
+        <li><strong>Event End Date:</strong> {{ event.end_date }}</li>
+    {% endif %}
+
     <li><strong>Event Location:</strong> {{ event.venue_name }}</li>
 </ul>
 
