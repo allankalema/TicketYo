@@ -10,6 +10,10 @@ from vendors.decorators import *
 from django.http import JsonResponse
 from django.utils.timezone import now
 from datetime import timedelta
+from xhtml2pdf import pisa
+from django.http import HttpResponse
+from django.template.loader import get_template
+from django.core.mail import EmailMessage
 
 
 @login_required
@@ -23,9 +27,11 @@ def buy_ticket(request, event_id):
 
     # Initialize variables to store ticket data
     ticket_data = []
+    ticket_details = []
     ordinary_ticket_data = None
+    total_price = 0
+    total_tickets = 0
 
-    # Calculate remaining tickets for each category
     for category in categories:
         remaining_tickets = category.category_tickets_available - category.category_tickets_sold
         ticket_data.append({
@@ -33,49 +39,31 @@ def buy_ticket(request, event_id):
             'tickets_remaining': remaining_tickets
         })
 
-    # Handle ordinary tickets if no categories are available
-    if not categories.exists():
-        ordinary_remaining = event.tickets_available - event.tickets_sold
-        ordinary_ticket_data = {
-            'price': event.sale_price,
-            'tickets_remaining': ordinary_remaining
-        }
-
     if request.method == 'POST':
         tickets_info = request.POST
-        total_tickets = 0
-        total_price = 0
-        ticket_details = []
-
-        # Determine if the logged-in user is a Customer or Vendor
         if hasattr(request.user, 'is_vendor') and request.user.is_vendor:
             entity_type = 'vendor'
             entity = request.user
-            
         elif hasattr(request.user, 'is_customer') and request.user.is_customer:
             entity_type = 'customer'
             entity = request.user
         else:
-            # Handle cases where the user is neither a Customer nor a Vendor
             return render(request, 'tickets/error.html', {'message': 'User is not authorized to buy tickets.'})
 
         for data in ticket_data:
             category = data['category']
             quantity = int(tickets_info.get(f'quantity_{category.id}', 0))
             if quantity > 0:
-                if category.is_category_sold_out() or category.category_tickets_sold + quantity > category.category_tickets_available:
-                    return render(request, 'events/sold_out.html', {'event': event})
-
                 for _ in range(quantity):
                     ticket_number = Ticket.generate_ticket_number(
-                                    event=event,
-                                    vendor=event.vendor,
-                                    category=category,
-                                    entity=entity,  # Pass the determined entity here
-                                    entity_type=entity_type  # Pass the determined entity type here
-                                )
+                        event=event,
+                        vendor=event.vendor,
+                        category=category,
+                        entity=entity,
+                        entity_type=entity_type
+                    )
 
-                    # Create a QR code for the ticket number
+                    # Create QR code
                     qr = qrcode.QRCode(
                         version=1,
                         error_correction=qrcode.constants.ERROR_CORRECT_L,
@@ -90,115 +78,37 @@ def buy_ticket(request, event_id):
                     img.save(buffer)
                     qr_image = File(buffer, name=f'{ticket_number}_qr.png')
 
-                    # Create the ticket based on the entity type
-                    if entity_type == 'customer':
-                        ticket = Ticket.objects.create(
-                            event=event,
-                            ticket_category=category,
-                            customer_username=entity.username,  # Assign entity as customer
-                            vendor=event.vendor,
-                            ticket_number=ticket_number,
-                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
-                            entity_type='customer'
-                        )
-                    elif entity_type == 'vendor':
-                        ticket = Ticket.objects.create(
-                            event=event,
-                            ticket_category=category,
-                            customer_username=entity.username,  
-                            vendor=event.vendor,  # Assign entity as vendor
-                            ticket_number=ticket_number,
-                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
-                            entity_type='vendor'
-                        )
+                    ticket = Ticket.objects.create(
+                        event=event,
+                        ticket_category=category,
+                        customer_username=entity.username,
+                        vendor=event.vendor,
+                        ticket_number=ticket_number,
+                        qr_code=qr_image,
+                        entity_type=entity_type
+                    )
 
                     ticket_details.append({
                         'ticket_number': ticket_number,
                         'category': category.category_title,
                         'price': category.category_price,
-                        'qr_code_url': ticket.qr_code.url  # Add the QR code URL to the ticket details
+                        'qr_code_url': ticket.qr_code.url,
                     })
                 total_tickets += quantity
                 total_price += quantity * category.category_price
-
                 category.category_tickets_sold += quantity
                 category.save()
-
-        if not categories.exists() and ordinary_ticket_data:
-            quantity = int(tickets_info.get('quantity_ordinary', 0))
-            if quantity > 0:
-                if event.is_sold_out() or event.tickets_sold + quantity > event.tickets_available:
-                    return render(request, 'events/sold_out.html', {'event': event})
-
-                for _ in range(quantity):
-                    ticket_number = Ticket.generate_ticket_number(
-                        event=event,
-                        vendor=event.vendor,
-                        category=None,
-                        entity=entity,  # Pass the determined entity here
-                        entity_type=entity_type  # Pass the determined entity type here
-                    )
-
-                    # Create a QR code for the ticket number
-                    qr = qrcode.QRCode(
-                        version=1,
-                        error_correction=qrcode.constants.ERROR_CORRECT_L,
-                        box_size=10,
-                        border=4,
-                    )
-                    qr.add_data(ticket_number)
-                    qr.make(fit=True)
-
-                    img = qr.make_image(fill_color="black", back_color="white")
-                    buffer = BytesIO()
-                    img.save(buffer)
-                    qr_image = File(buffer, name=f'{ticket_number}_qr.png')
-
-                    # Create the ticket based on the entity type
-                    if entity_type == 'customer':
-                        ticket = Ticket.objects.create(
-                            event=event,
-                            ticket_category=None,
-                            customer_username=entity.username,  # Assign entity as customer
-                            vendor=event.vendor,
-                            ticket_number=ticket_number,
-                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
-                            entity_type='customer'
-                        )
-                    elif entity_type == 'vendor':
-                        ticket = Ticket.objects.create(
-                            event=event,
-                            ticket_category=None,
-                            customer_username=entity.username,  
-                            vendor=event.vendor,  
-                            ticket_number=ticket_number,
-                            qr_code=qr_image,  # assuming you have a `qr_code` field in your Ticket model
-                            entity_type='vendor'
-                        )
-
-                    ticket_details.append({
-                        'ticket_number': ticket_number,
-                        'category': 'Ordinary',
-                        'price': event.sale_price,
-                        'qr_code_url': ticket.qr_code.url  # Add the QR code URL to the ticket details
-                    })
-                total_tickets += quantity
-                total_price += quantity * event.sale_price
-
-        event.tickets_sold += total_tickets
-        event.save()
 
         context = {
             'event': event,
             'vendor': event.vendor,
-            'ticket_details': ticket_details,
+            'ticket_details': ticket_details,  # List of individual ticket details
             'total_price': total_price,
             'total_tickets': total_tickets,
             'customer': entity,
-            'ticket_data': ticket_data,
-            'ordinary_ticket_data': ordinary_ticket_data
         }
 
+        # Render separate sections for each ticket
         return render(request, 'tickets/ticket_success.html', context)
 
     context = {
@@ -208,6 +118,51 @@ def buy_ticket(request, event_id):
     }
     return render(request, 'tickets/buy_ticket.html', context)
 
+
+
+
+@login_required
+def download_ticket_pdf(request, ticket_number):
+    ticket = get_object_or_404(Ticket, ticket_number=ticket_number)
+    template_path = 'tickets/ticket_pdf.html'
+    context = {'ticket': ticket}
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="{ticket.ticket_number}_ticket.pdf"'
+
+    template = get_template(template_path)
+    html = template.render(context)
+
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    return response
+
+
+def send_ticket_receipts(request, ticket_details):
+    email = EmailMessage(
+        'Your Ticket Receipts',
+        'Thank you for your purchase! Attached are your tickets.',
+        'from@example.com',
+        [request.user.email]
+    )
+
+    # Attach each ticket as a PDF
+    for detail in ticket_details:
+        pdf_content = generate_pdf_for_ticket(detail)  # Function to generate PDF
+        email.attach(f"{detail['ticket_number']}_ticket.pdf", pdf_content, 'application/pdf')
+
+    email.send()
+
+def generate_pdf_for_ticket(template_src, context_dict):
+    template = get_template(template_src)
+    html = template.render(context_dict)
+    result = BytesIO()
+
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return HttpResponse(result.getvalue(), content_type='application/pdf')
+    return None
 
 
 @login_required
