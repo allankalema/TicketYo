@@ -11,4 +11,10 @@
 <p><strong>Contact Email:</strong> {{ vendor.email }}</p>
 <p><strong>Phone Number:</strong> {{ vendor.store_phone }}</p>
 
-<p><img src="{{ ticket.qr_code.url }}" alt="QR Code"></p>
+<p><strong>QR Code:</strong></p>
+<p><img src="{{ qr_code_url }}" alt="QR Code"></p>
+
+{% if poster_url %}
+    <p><strong>Event Poster:</strong></p>
+    <p><img src="{{ poster_url }}" alt="Event Poster"></p>
+{% endif %}

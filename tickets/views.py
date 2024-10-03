@@ -127,10 +127,16 @@ def download_ticket_pdf(request, ticket_number):
     event = ticket.event  # Get the associated event
     vendor = event.vendor  # Get the associated vendor
 
+    # Create absolute URLs for QR code and poster
+    qr_code_url = request.build_absolute_uri(ticket.qr_code.url)
+    poster_url = request.build_absolute_uri(event.poster.url)  # Ensure you use 'event.poster.url'
+
     context = {
         'ticket': ticket,
         'event': event,
         'vendor': vendor,
+        'qr_code_url': qr_code_url,  # Add absolute URL for QR code
+        'poster_url': poster_url,  # Add absolute URL for poster
     }
 
     template_path = 'tickets/ticket_pdf.html'
