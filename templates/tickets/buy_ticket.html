@@ -82,7 +82,7 @@
                     <td>Ordinary</td>
                     <td>{{ ordinary_ticket_data.price }}</td>
                     {% if ordinary_ticket_data.tickets_remaining > 0 %}
-                        <td><input type="number" name="quantity_ordinary" value="1" min="1" max="{{ ordinary_ticket_data.tickets_remaining }}"></td>
+                        <td><input type="number" name="quantity_ordinary" value="0" min="0" max="{{ ordinary_ticket_data.tickets_remaining }}"></td>
                         <td class="total_price">{{ ordinary_ticket_data.price }}</td>
                     {% else %}
                         <td colspan="2" style="color: red;"><strong>Sold Out</strong></td>
