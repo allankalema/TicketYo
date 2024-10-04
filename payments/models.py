@@ -14,7 +14,6 @@ class Payment(models.Model):
     user_type = models.CharField(max_length=10, choices=USER_TYPE_CHOICES)  # Track if customer or vendor
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)  # Link to Customer or Vendor
     event = models.ForeignKey(Event, on_delete=models.CASCADE)  # Link to the event
-    ticket_category = models.CharField(max_length=100)  # To store the category of the ticket
     msisdn = models.CharField(max_length=15)  # Mobile Money Number
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)  # Total amount paid
     reference = models.CharField(max_length=100)  # Transaction reference
