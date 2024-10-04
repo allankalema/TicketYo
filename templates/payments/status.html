@@ -1,0 +1,7 @@
+<!-- templates/payments/status.html -->
+<form method="GET" action="{% url 'check_status' %}">
+    <label for="reference_code">Transaction Reference Code:</label>
+    <input type="text" name="reference_code" required>
+
+    <button type="submit">Check Status</button>
+</form>

@@ -1,0 +1,14 @@
+<!-- templates/payments/deposit.html -->
+<form method="POST" action="{% url 'make_deposit' %}">
+    {% csrf_token %}
+    <label for="msisdn">Phone Number (MSISDN):</label>
+    <input type="text" name="msisdn" required>
+
+    <label for="amount">Amount:</label>
+    <input type="number" name="amount" required>
+
+    <label for="narration">Narration:</label>
+    <input type="text" name="narration" value="Deposit to account">
+
+    <button type="submit">Deposit</button>
+</form>
