@@ -1,10 +1,11 @@
 # payments/services.py
 import requests
 import json
+from django.conf import settings
 
-BLINK_API_URL = "https://payments.blink.co.ug/api/"  # Live URL
-USERNAME = "4627252e-909cdfae-abc09f56-3497cca4"
-PASSWORD = "gf3rx57lMxCG3i243dFWNlTKYjpGou9PuRUy"
+BLINK_API_URL = settings.BLINK_API_URL  # Now using the environment variable
+USERNAME = settings.BLINK_API_USERNAME
+PASSWORD = settings.BLINK_API_PASSWORD
 
 # Function to make deposit
 def deposit_mobile_money(msisdn, amount, narration, reference, status_notification_url=""):

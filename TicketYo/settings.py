@@ -1,5 +1,6 @@
 import os
 from pathlib import Path
+from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -142,3 +143,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN URL
 LOGIN_URL = '/'  # Update to the correct path if needed
+
+
+
+
+BLINK_API_URL = config('BLINK_API_URL')
+BLINK_API_USERNAME = config('BLINK_API_USERNAME')
+BLINK_API_PASSWORD = config('BLINK_API_PASSWORD')
