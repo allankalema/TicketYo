@@ -116,6 +116,8 @@ def buy_ticket(request, event_id):
         return render(request, error['template'], error['context'])
     
     if request.method == 'POST':
+
+        msisdn = request.POST.get('msisdn')
         entity_type, entity = get_user_entity(request)
         if not entity:
             return render(request, 'tickets/error.html', {'message': 'User is not authorized to buy tickets.'})
@@ -134,7 +136,8 @@ def buy_ticket(request, event_id):
             'total_tickets': purchase_data['total_tickets'],
             'customer': entity,
             'ticket_data': event_data['ticket_data'],
-            'ordinary_ticket_data': event_data['ordinary_ticket_data']
+            'ordinary_ticket_data': event_data['ordinary_ticket_data'],
+            'msisdn': msisdn
         }
         return render(request, 'tickets/ticket_success.html', context)
 
@@ -143,7 +146,6 @@ def buy_ticket(request, event_id):
 
 
 @login_required
-
 def download_ticket_pdf(request, ticket_number):
     ticket = get_object_or_404(Ticket, ticket_number=ticket_number)
     event = ticket.event  # Get the associated event
