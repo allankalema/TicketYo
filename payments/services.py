@@ -1,86 +1,55 @@
 # payments/services.py
 import requests
-import json
 from django.conf import settings
+from datetime import datetime
 
-BLINK_API_URL = settings.BLINK_API_URL  # Now using the environment variable
-USERNAME = settings.BLINK_API_USERNAME
-PASSWORD = settings.BLINK_API_PASSWORD
+# Function to process a deposit request to the Blink API
+def deposit_money(msisdn, amount, narration, reference=None):
+    # Set the Blink API URL and status notification URL from settings
+    url = settings.BLINK_API_URL
+    status_notification_url = settings.BLINK_STATUS_NOTIFICATION_URL
 
-# Function to make deposit
-def deposit_mobile_money(msisdn, amount, narration, reference, status_notification_url=""):
-    url = BLINK_API_URL
+    # Prepare the payload for the Blink API request
     payload = {
-        "username": USERNAME,
-        "password": PASSWORD,
+        "username": settings.BLINK_API_USERNAME,
+        "password": settings.BLINK_API_PASSWORD,
         "api": "depositmobilemoney",
         "msisdn": msisdn,
         "amount": amount,
         "narration": narration,
         "reference": reference,
-        "status_notification_url": status_notification_url or "https://example.com/status-handler/"  # Provide a default URL
+        "status_notification_url": status_notification_url
     }
-    
-    headers = {"Content-Type": "application/json"}
-    
+
+    # Define headers for the request
+    headers = {
+        "Content-Type": "application/json"
+    }
+
+    # Send the POST request to the Blink API
     response = requests.post(url, json=payload, headers=headers)
-    
-    return response.json()
 
-def withdraw_mobile_money(msisdn, amount, narration, reference, status_notification_url=""):
-    url = BLINK_API_URL
-    payload = {
-        "username": USERNAME,
-        "password": PASSWORD,
-        "api": "withdrawmobilemoney",
-        "msisdn": msisdn,
-        "amount": amount,
-        "narration": narration,
-        "reference": reference,
-        "status_notification_url": status_notification_url or "https://example.com/status-handler/"  # Default URL
-    }
-    
-    headers = {"Content-Type": "application/json"}
-    
-    # Send the request to the API
-    response = requests.post(url, json=payload, headers=headers)  # Use 'json=' instead of 'data=json.dumps(payload)'
+    # Check if the request to Blink API was successful
+    if response.status_code == 200:
+        response_data = response.json()
+        
+        # Create a dictionary with expected output format
+        result = {
+            "status": response_data.get("status"),
+            "msisdn": msisdn,
+            "initiation_date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            "completion_date": datetime.now().strftime('%Y-%m-%d %H:%M:%S'),  # To be updated via notification
+            "amount": amount,
+            "receipt_number": response_data.get("receipt_number"),
+            "reference_code": response_data.get("reference_code")
+        }
 
-    return response.json()
+        return result  # Return the preliminary result
 
-
-# Function to check transaction status
-def check_transaction_status(reference_code):
-    url = BLINK_API_URL
-    payload = {
-        "username": USERNAME,
-        "password": PASSWORD,
-        "api": "checktransactionstatus",
-        "reference_code": reference_code,
-    }
-
-    headers = {"Content-Type": "application/json"}
-    
-    response = requests.post(url, data=json.dumps(payload), headers=headers)
-    
-    return response.json()
-
-def check_network_status(msisdn):
-    url = BLINK_API_URL
-    payload = {
-        "username": USERNAME,
-        "password": PASSWORD,
-        "api": "checknetworkstatus",
-        "msisdn": msisdn,
-        "service": "MOBILE MONEY"
-    }
-    headers = {"Content-Type": "application/json"}
-    
-    try:
-        response = requests.post(url, json=payload, headers=headers)
-        response.raise_for_status()  # Raise an exception for any HTTP errors
-        return response.json()
-    except requests.exceptions.HTTPError as e:
-        return {"message": str(e), "error": True}
-    except requests.exceptions.RequestException as e:
-        return {"message": "Network error occurred", "error": True}
-
+    else:
+        # Handle error responses from the Blink API
+        return {
+            "error": "Failed to process the deposit request",
+            "status_code": response.status_code,
+            "details": response.text
+        }

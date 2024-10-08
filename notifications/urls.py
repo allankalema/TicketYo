@@ -1,5 +1,7 @@
+# notifications/urls.py
 from django.urls import path
+from . import views
 
 urlpatterns = [
-    # Define vendor-related URL patterns here in the future.
+    path('status-notification/', views.blink_status_notification, name='blink_status_notification'),
 ]
