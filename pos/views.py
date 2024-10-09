@@ -9,6 +9,7 @@ from django.db.models import Q
 from datetime import datetime
 import random
 from django.contrib import messages
+from django.utils import timezone
 
 @login_required
 def manage_pos_agents(request):
@@ -107,8 +108,8 @@ def create_pos_agent(request):
 @login_required
 def agent_detail(request, agent_id):
     agent = POSAgent.objects.get(id=agent_id)
-    
-    # Example placeholders for statistics (you can replace these with actual logic)
+
+    # Example placeholders for statistics
     total_tickets_sold = 0  # Replace with actual logic to calculate total tickets sold
     total_tickets_verified = 0  # Replace with actual logic
     total_amount_made = 0.00  # Replace with actual logic
@@ -121,6 +122,25 @@ def agent_detail(request, agent_id):
     if search_query:
         assigned_events = assigned_events.filter(title__icontains=search_query)
 
+    # Get the vendor associated with the agent
+    vendor = agent.vendor
+
+    # Fetch all events for this vendor that are active (start date or end date is in the future)
+    all_events = vendor.events.filter(
+        (Q(start_date__gte=timezone.now()) | Q(end_date__gte=timezone.now())),
+        status='approved'
+    )
+
+    # Handle form submission for reallocating events
+    if request.method == 'POST':
+        selected_event_ids = request.POST.getlist('events')  # Get selected event IDs
+        selected_events = Event.objects.filter(id__in=selected_event_ids)
+
+        # Add the selected events to the agent's assigned events
+        agent.assigned_events.add(*selected_events)  # This will add new events without removing existing ones
+        messages.success(request, "Events have been successfully added to the agent.")
+        return redirect('agent_detail', agent_id=agent.id)
+
     context = {
         'agent': agent,
         'assigned_events': assigned_events,
@@ -128,6 +148,7 @@ def agent_detail(request, agent_id):
         'total_tickets_sold': total_tickets_sold,
         'total_tickets_verified': total_tickets_verified,
         'total_amount_made': total_amount_made,
+        'all_events': all_events,  # Include all events for selection
     }
     
     return render(request, 'pos/agent_detail.html', context)
