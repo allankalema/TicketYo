@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     'analytics',
     'api',
     'frontend',
+    'pos',
 ]
 
 MIDDLEWARE = [
