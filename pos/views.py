@@ -134,12 +134,17 @@ def agent_detail(request, agent_id):
     # Handle form submission for reallocating events
     if request.method == 'POST':
         selected_event_ids = request.POST.getlist('events')  # Get selected event IDs
-        selected_events = Event.objects.filter(id__in=selected_event_ids)
+        
+        # Check if at least one event is selected
+        if not selected_event_ids:
+            messages.error(request, "At least one event must be allocated to the agent.")
+        else:
+            selected_events = Event.objects.filter(id__in=selected_event_ids)
 
-        # Update the assigned events based on selected events
-        agent.assigned_events.set(selected_events)  # This will replace the assigned events
-        messages.success(request, "Events have been successfully updated.")
-        return redirect('agent_detail', agent_id=agent.id)
+            # Update the assigned events based on selected events
+            agent.assigned_events.set(selected_events)  # This will replace the assigned events
+            messages.success(request, "Events have been successfully updated.")
+            return redirect('agent_detail', agent_id=agent.id)
 
     context = {
         'agent': agent,
