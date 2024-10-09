@@ -136,9 +136,9 @@ def agent_detail(request, agent_id):
         selected_event_ids = request.POST.getlist('events')  # Get selected event IDs
         selected_events = Event.objects.filter(id__in=selected_event_ids)
 
-        # Add the selected events to the agent's assigned events
-        agent.assigned_events.add(*selected_events)  # This will add new events without removing existing ones
-        messages.success(request, "Events have been successfully added to the agent.")
+        # Update the assigned events based on selected events
+        agent.assigned_events.set(selected_events)  # This will replace the assigned events
+        messages.success(request, "Events have been successfully updated.")
         return redirect('agent_detail', agent_id=agent.id)
 
     context = {

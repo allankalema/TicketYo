@@ -28,6 +28,7 @@
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="events">Select Events:</label>
+                    <input type="text" id="eventSearch" class="form-control mb-2" placeholder="Search events..." onkeyup="filterEvents()">
                     <div id="events">
                         {% for event in all_events %}
                         <div class="form-check">
@@ -39,9 +40,9 @@
                         </div>
                         {% endfor %}
                     </div>
-                    <small class="form-text text-muted">Select events to reallocate.</small>
+                    <small class="form-text text-muted">Select events to allocate or deallocate.</small>
                 </div>
-                <button type="submit" class="btn btn-outline-primary mt-2">Reallocate Events</button>
+                <button type="submit" class="btn btn-outline-primary mt-2">Update Events</button>
             </form>
         </div>
 
@@ -84,4 +85,26 @@
         </form>
     </div>
 </div>
+
+<script>
+    // Function to filter events in the dropdown based on the search input
+    function filterEvents() {
+        const input = document.getElementById("eventSearch").value.toLowerCase();
+        const checkboxes = document.querySelectorAll("#events .form-check");
+
+        checkboxes.forEach(checkbox => {
+            const label = checkbox.querySelector("label").textContent.toLowerCase();
+            if (label.includes(input)) {
+                checkbox.style.display = "";  // Show matching checkbox
+            } else {
+                checkbox.style.display = "none";  // Hide non-matching checkbox
+            }
+        });
+    }
+
+    // Print function (you can customize it as needed)
+    function printPage() {
+        window.print();
+    }
+</script>
 {% endblock %}
