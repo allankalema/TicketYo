@@ -1,0 +1,62 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Create POS Agent</h2>
+    <form method="POST">
+        {% csrf_token %}
+        
+        <div class="form-group">
+            <label for="first_name">First Name</label>
+            <input type="text" id="first_name" name="first_name" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="last_name">Last Name</label>
+            <input type="text" id="last_name" name="last_name" class="form-control" required>
+        </div>
+        
+        <div class="form-group">
+            <label for="email">Email</label>
+            <input type="email" id="email" name="email" class="form-control" required>
+        </div>
+
+        <!-- Event selection -->
+        <div class="form-group">
+            <label for="event_search">Search Events by Title</label>
+            <input type="text" id="event_search" class="form-control" placeholder="Search for events...">
+        </div>
+
+        <div class="form-group">
+            <label for="events">Select Events to Assign</label>
+            <ul class="list-group" id="event_list">
+                {% for event in events %}
+                <li class="list-group-item">
+                    <input type="checkbox" name="events" value="{{ event.id }}">
+                    {{ event.title }}
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+
+        <button type="submit" class="btn btn-primary mt-3">Create POS Agent</button>
+    </form>
+</div>
+
+<script>
+    // Simple search filter for events
+    document.getElementById('event_search').addEventListener('input', function() {
+        const searchTerm = this.value.toLowerCase();
+        const eventList = document.getElementById('event_list').getElementsByTagName('li');
+
+        for (let i = 0; i < eventList.length; i++) {
+            const eventText = eventList[i].textContent.toLowerCase();
+            if (eventText.includes(searchTerm)) {
+                eventList[i].style.display = '';
+            } else {
+                eventList[i].style.display = 'none';
+            }
+        }
+    });
+</script>
+{% endblock %}
