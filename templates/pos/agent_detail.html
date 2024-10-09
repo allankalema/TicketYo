@@ -14,7 +14,9 @@
             </form>
             <ul class="list-group">
                 {% for event in assigned_events %}
-                <li class="list-group-item">{{ event.title }}</li>
+                <li class="list-group-item">
+                    <a href="{% url 'pos_event_detail' event.id %}">{{ event.title }}</a>
+                </li>
                 {% empty %}
                 <li class="list-group-item">No events assigned</li>
                 {% endfor %}

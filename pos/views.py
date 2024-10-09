@@ -153,3 +153,32 @@ def agent_action(request, agent_id):
 
     # In case of GET request or other issues, redirect to agent detail
     return redirect('agent_detail', agent_id=agent.id)
+
+
+@login_required
+def pos_event_detail(request, event_id):
+    # Retrieve the event based on the ID
+    event = Event.objects.get(id=event_id)
+
+    # Get tickets created and verified (Placeholder logic, replace with actual logic)
+    tickets_created = []  # Should eventually contain tickets created by the agent
+    tickets_verified = []  # Should eventually contain tickets verified for this event
+
+    # Get the ticket categories related to the event
+    event_categories = event.ticket_categories.all()  # Get all ticket categories for this event
+
+    # Calculate total tickets sold and the total amount for each category
+    total_amount = 0
+    for category in event_categories:
+        category.total_amount = category.category_tickets_sold * category.category_price  # Calculate total amount for each category
+        total_amount += category.total_amount  # Accumulate total amount for the event
+
+    context = {
+        'event': event,
+        'tickets_created': tickets_created,
+        'tickets_verified': tickets_verified,
+        'event_categories': event_categories,
+        'total_amount': total_amount,
+    }
+    
+    return render(request, 'pos/event_detail.html', context)
