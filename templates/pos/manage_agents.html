@@ -13,6 +13,8 @@
                         <a href="{% url 'create_pos_agent' %}" class="btn btn-outline-primary">Create POS Agent</a>
                     </div>
                     <hr>
+
+                    
                 </div>
             </div>
         </div>
@@ -21,18 +23,16 @@
         <div class="col-md-4">
             <!-- Section for active POS agents -->
             <h3>Active POS Agents</h3>
+            
             <ul class="list-group mb-3">
+                <!-- Search Bar -->
+            <form method="GET" class="mb-3">
+                <input type="text" name="search" class="form-control" placeholder="Search Active agents..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
                 {% for agent in active_agents %}
                 <li class="list-group-item">
-                    {{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}<br>
-                    <strong>Assigned Events:</strong>
-                    <ul>
-                        {% for event in agent.assigned_events.all %}
-                        <li>{{ event.title }}</li>
-                        {% empty %}
-                        <li>No events assigned</li>
-                        {% endfor %}
-                    </ul>
+                    <a href="{% url 'agent_detail' agent.id %}">{{ agent.first_name }} {{ agent.last_name }}</a><br>
                 </li>
                 {% empty %}
                 <li class="list-group-item">No active agents available</li>
@@ -44,7 +44,7 @@
             <ul class="list-group">
                 {% for agent in inactive_agents %}
                 <li class="list-group-item">
-                    {{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}<br>
+                    <a href="{% url 'agent_detail' agent.id %}">{{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}</a><br>
                     <strong>Assigned Events:</strong>
                     <ul>
                         {% for event in agent.assigned_events.all %}

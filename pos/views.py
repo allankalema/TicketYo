@@ -13,14 +13,34 @@ import random
 def manage_pos_agents(request):
     vendor = Vendor.objects.get(username=request.user.username)
 
+    # Get the search query from GET parameters
+    search_query = request.GET.get('search', '')
+
     # Retrieve active and inactive agents associated with the vendor
     active_agents = vendor.pos_agents.filter(is_active=True)
     inactive_agents = vendor.pos_agents.filter(is_active=False)
+
+    # If a search query exists, filter the agents accordingly
+    if search_query:
+        active_agents = active_agents.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query) | 
+            Q(username__icontains=search_query) | 
+            Q(assigned_events__title__icontains=search_query)
+        ).distinct()
+
+        inactive_agents = inactive_agents.filter(
+            Q(first_name__icontains=search_query) | 
+            Q(last_name__icontains=search_query) | 
+            Q(username__icontains=search_query) | 
+            Q(assigned_events__title__icontains=search_query)
+        ).distinct()
 
     context = {
         'vendor': vendor,
         'active_agents': active_agents,
         'inactive_agents': inactive_agents,
+        'search_query': search_query,
     }
 
     return render(request, 'pos/manage_agents.html', context)
@@ -82,3 +102,13 @@ def create_pos_agent(request):
         'events': events,
         'vendor': vendor,
     })
+
+@login_required
+def agent_detail(request, agent_id):
+    agent = POSAgent.objects.get(id=agent_id)
+    
+    context = {
+        'agent': agent,
+    }
+    
+    return render(request, 'pos/agent_detail.html', context)
