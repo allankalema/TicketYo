@@ -8,6 +8,7 @@ from events.models import Event
 from django.db.models import Q
 from datetime import datetime
 import random
+from django.contrib import messages
 
 @login_required
 def manage_pos_agents(request):
@@ -85,9 +86,9 @@ def create_pos_agent(request):
         event_titles = ', '.join([event.title for event in selected_events])
         send_mail(
             'POS Agent Credentials',
-            f'Hello {first_name},\n\nYou have been selected as a POS Agent for the vendor {vendor.storename}.'
-            f'\n\nThe following events have been assigned to you: {event_titles}.'
-            f'\n\nYour credentials are:\nUsername: {username}\nPassword: {password}\n'
+            f'Hello {first_name},\n\nYou have been selected as a POS Agent for the vendor {vendor.storename}.' 
+            f'\n\nThe following events have been assigned to you: {event_titles}.' 
+            f'\n\nYour credentials are:\nUsername: {username}\nPassword: {password}\n' 
             'Please login to access your dashboard.',
             settings.DEFAULT_FROM_EMAIL,
             [email],
@@ -107,8 +108,48 @@ def create_pos_agent(request):
 def agent_detail(request, agent_id):
     agent = POSAgent.objects.get(id=agent_id)
     
+    # Example placeholders for statistics (you can replace these with actual logic)
+    total_tickets_sold = 0  # Replace with actual logic to calculate total tickets sold
+    total_tickets_verified = 0  # Replace with actual logic
+    total_amount_made = 0.00  # Replace with actual logic
+
+    # Get the search query for events
+    search_query = request.GET.get('search_events', '')
+
+    # Filter assigned events if a search query is provided
+    assigned_events = agent.assigned_events.all()
+    if search_query:
+        assigned_events = assigned_events.filter(title__icontains=search_query)
+
     context = {
         'agent': agent,
+        'assigned_events': assigned_events,
+        'search_query': search_query,
+        'total_tickets_sold': total_tickets_sold,
+        'total_tickets_verified': total_tickets_verified,
+        'total_amount_made': total_amount_made,
     }
     
     return render(request, 'pos/agent_detail.html', context)
+
+
+@login_required
+def agent_action(request, agent_id):
+    agent = POSAgent.objects.get(id=agent_id)
+
+    if request.method == 'POST':
+        action = request.POST.get('action')
+
+        if action == 'deactivate':
+            agent.is_active = False
+            agent.save()
+            messages.success(request, f"{agent.first_name} has been deactivated.")
+            return redirect('manage_pos_agents')
+
+        elif action == 'delete':
+            agent.delete()
+            messages.success(request, f"{agent.first_name} has been deleted.")
+            return redirect('manage_pos_agents')
+
+    # In case of GET request or other issues, redirect to agent detail
+    return redirect('agent_detail', agent_id=agent.id)

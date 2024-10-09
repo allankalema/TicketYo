@@ -4,16 +4,60 @@
 <div class="container mt-5">
     <h2>{{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}</h2>
     
-    <h3>Assigned Events:</h3>
-    <ul class="list-group">
-        {% for event in agent.assigned_events.all %}
-        <li class="list-group-item">{{ event.title }}</li>
-        {% empty %}
-        <li class="list-group-item">No events assigned</li>
-        {% endfor %}
-    </ul>
+    <div class="row">
+        <!-- Left side: Assigned Events and Search Bar -->
+        <div class="col-md-8">
+            <h3>Assigned Events</h3>
+            <form method="GET" class="mb-3">
+                <input type="text" name="search_events" class="form-control" placeholder="Search events..." value="{{ search_query }}">
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
+            <ul class="list-group">
+                {% for event in assigned_events %}
+                <li class="list-group-item">{{ event.title }}</li>
+                {% empty %}
+                <li class="list-group-item">No events assigned</li>
+                {% endfor %}
+            </ul>
+        </div>
 
-    <a href="#" class="btn btn-primary mt-3">Edit</a>
-    <!-- Replace '#' with the actual URL when you implement the edit functionality -->
+        <!-- Right side: Statistics Boxes -->
+        <div class="col-md-4">
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Total Tickets Sold</h4>
+                    <p class="card-text">{{ total_tickets_sold }}</p>  <!-- Placeholder for actual data -->
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Total Tickets Verified</h4>
+                    <p class="card-text">{{ total_tickets_verified }}</p>  <!-- Placeholder for actual data -->
+                </div>
+            </div>
+
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h4>Total Amount Made</h4>
+                    <p class="card-text">${{ total_amount_made }}</p>  <!-- Placeholder for actual data -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Action Dropdown -->
+    <div class="mt-4">
+        <label for="actionSelect">Select an action:</label>
+        <form method="POST" action="{% url 'agent_action' agent.id %}">
+            {% csrf_token %}
+            <select name="action" id="actionSelect" class="form-select" aria-label="Default select example">
+                <option selected>Choose action...</option>
+                <option value="deactivate">Deactivate Agent</option>
+                <option value="delete">Delete Agent</option>
+            </select>
+            <button type="submit" class="btn btn-danger mt-2">Submit</button>
+        </form>
+    </div>
 </div>
 {% endblock %}
