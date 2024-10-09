@@ -46,6 +46,7 @@
                 <a href="{% url 'vendor_events' %}" class="btn btn-outline-event btn-icon">View Events</a>
                 <a href="{% url 'verifiable_events' %}" class="btn btn-outline-event btn-icon">Event Verification</a>
                 <a href="{% url 'view_inventory' %}" class="btn btn-outline-event btn-icon">View Inventory</a>
+                <a href="{% url 'manage_pos_agents'%}" class="btn btn-outline-event btn-icon">POS</a>
 
                 {% if user.is_superuser %}
                 <a href="{% url 'pending_events' %}" class="btn btn-outline-event btn-icon">
