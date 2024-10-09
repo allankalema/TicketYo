@@ -3,7 +3,7 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Right side: Buttons for actions (previously on the left) -->
+        <!-- Right side: Buttons for actions -->
         <div class="col-md-8">
             <div class="card">
                 <div class="card-body">
@@ -17,12 +17,11 @@
             </div>
         </div>
 
-        <!-- Left side: Active/Inactive POS Agents (previously on the right) -->
+        <!-- Left side: Active/Inactive POS Agents -->
         <div class="col-md-4">
             <!-- Section for active POS agents -->
             <h3>Active POS Agents</h3>
             <ul class="list-group mb-3">
-                <!-- For now, this is empty, but will list active agents -->
                 {% for agent in active_agents %}
                 <li class="list-group-item">{{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}</li>
                 {% empty %}
@@ -33,7 +32,6 @@
             <!-- Section for inactive POS agents -->
             <h3>Inactive POS Agents</h3>
             <ul class="list-group">
-                <!-- For now, this is empty, but will list inactive agents -->
                 {% for agent in inactive_agents %}
                 <li class="list-group-item">{{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}</li>
                 {% empty %}

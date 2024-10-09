@@ -12,14 +12,17 @@ import random
 @login_required
 def manage_pos_agents(request):
     vendor = Vendor.objects.get(username=request.user.username)
-    
-    # This context will pass information for rendering (empty for now)
+
+    # Retrieve active and inactive agents associated with the vendor
+    active_agents = vendor.pos_agents.filter(is_active=True)
+    inactive_agents = vendor.pos_agents.filter(is_active=False)
+
     context = {
         'vendor': vendor,
-        'active_agents': [],  # Empty for now
-        'inactive_agents': []  # Empty for now
+        'active_agents': active_agents,
+        'inactive_agents': inactive_agents,
     }
-    
+
     return render(request, 'pos/manage_agents.html', context)
 
 
