@@ -11,6 +11,9 @@ import random
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
+from django.contrib.auth import authenticate, login
+# from vendors.backends import *
+
 
 @login_required
 def manage_pos_agents(request):
@@ -266,3 +269,27 @@ def pos_event_detail(request, event_id):
     }
     
     return render(request, 'pos/event_detail.html', context)
+
+def pos_agent_login(request):
+    if request.method == 'POST':
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        
+        pos_agent = authenticate(request, username=username, password=password,  is_posagent_login=True)
+        
+        
+        if pos_agent is not None:
+            login(request, pos_agent, backend='vendors.backends.VendorOrCustomerModelBackend')
+            
+            messages.error(request, 'logged in.')
+            return redirect('pos_dashboard')  # Redirect to the POS dashboard
+            
+        else:
+                 messages.error(request, 'Invalid username or password.')
+    
+    return render(request, 'pos/pos_agent_login.html')  # Create this template
+
+
+@login_required
+def pos_dashboard(request):
+    return render(request, 'pos/pos_dashboard.html')  # Create this template
