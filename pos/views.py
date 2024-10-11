@@ -10,6 +10,7 @@ from datetime import datetime
 import random
 from django.contrib import messages
 from django.utils import timezone
+from django.contrib.auth.hashers import make_password
 
 @login_required
 def manage_pos_agents(request):
@@ -63,20 +64,12 @@ def create_pos_agent(request):
         email = request.POST.get('email')
         selected_event_ids = request.POST.getlist('events')
 
-        # Create a 6-digit random password
-        password = ''.join([str(random.randint(0, 9)) for _ in range(6)])
-        
-        # Create a unique username based on email
-        username = email.split('@')[0]
-
         # Create and save the POS agent
         agent = POSAgent.objects.create(
-            username=username,
             first_name=first_name,
             last_name=last_name,
             email=email,
-            vendor=vendor,
-            password=password,  # Save the generated password
+            vendor=vendor,  # Save the generated password
         )
         
         # Assign selected events to the POS agent
@@ -89,8 +82,8 @@ def create_pos_agent(request):
             'POS Agent Credentials',
             f'Hello {first_name},\n\nYou have been selected as a POS Agent for the vendor {vendor.storename}.' 
             f'\n\nThe following events have been assigned to you: {event_titles}.' 
-            f'\n\nYour credentials are:\nUsername: {username}\nPassword: {password}\n' 
-            'Please login to access your dashboard.',
+            f'\n\nYour credentials are:\n\nemail: {email}' 
+            '\n\n Please login to access your dashboard.',
             settings.DEFAULT_FROM_EMAIL,
             [email],
             fail_silently=False,
@@ -103,6 +96,71 @@ def create_pos_agent(request):
     return render(request, 'pos/create_agent.html', {
         'events': events,
         'vendor': vendor,
+    })
+
+def verify_email(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        try:
+            agent = POSAgent.objects.get(email=email)
+            # Redirect to the signup page if the email is found
+            return redirect('signup_pos_agent', email=email)
+        except POSAgent.DoesNotExist:
+            messages.error(request, "You are not invited to become a POS Agent. Please contact the vendor.")
+            return redirect('verify_email')  # Redirect back to the verification page
+
+    return render(request, 'pos/verify_email.html')
+
+def signup_pos_agent(request, email):
+    try:
+        agent = POSAgent.objects.get(email=email)
+    except POSAgent.DoesNotExist:
+        messages.error(request, "Invalid email. Please verify your email again.")
+        return redirect('verify_email')
+
+    if request.method == 'POST':
+        first_name = request.POST.get('first_name')
+        last_name = request.POST.get('last_name')
+        username = request.POST.get('username')
+        password = request.POST.get('password')
+        confirm_password = request.POST.get('confirm_password')
+
+        if password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect('signup_pos_agent', email=email)
+
+        # Update agent information
+        agent.first_name = first_name
+        agent.last_name = last_name
+        agent.username = username
+        agent.password = make_password(password)  # Hash the password
+        agent.save()
+
+        # Send confirmation emails
+        send_mail(
+            'POS Agent Registration Complete',
+            f'Hello {first_name},\n\nYou have successfully registered as a POS Agent.',
+            settings.DEFAULT_FROM_EMAIL,
+            [email],
+            fail_silently=False,
+        )
+        
+        send_mail(
+            'POS Agent Registered',
+            f'The POS Agent {first_name} {last_name} has successfully registered.',
+            settings.DEFAULT_FROM_EMAIL,
+            [agent.vendor.email],  # Notify the vendor
+            fail_silently=False,
+        )
+
+        messages.success(request, "You have successfully registered as a POS Agent.")
+        return redirect('all_events')
+
+    return render(request, 'pos/signup_agent.html', {
+        'first_name': agent.first_name,
+        'last_name': agent.last_name,
+        'email': agent.email,
+        'assigned_events': agent.assigned_events.all(),
     })
 
 @login_required

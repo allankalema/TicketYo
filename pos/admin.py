@@ -1,15 +1,21 @@
 from django.contrib import admin
 from .models import POSAgent
-from django.db.models import Q
-
-class AssignedEventsInline(admin.TabularInline):
-    model = POSAgent.assigned_events.through  # This allows displaying assigned events in the admin interface
 
 class POSAgentAdmin(admin.ModelAdmin):
-    list_display = ('username', 'first_name', 'last_name', 'email', 'vendor', 'is_active')  # Fields to display
-    list_filter = ('vendor', 'is_active')  # Filter options
-    search_fields = ('username', 'email', 'first_name', 'last_name')  # Search functionality
-    inlines = [AssignedEventsInline]  # Inline for managing assigned events
+    list_display = ('first_name', 'last_name', 'email', 'username', 'is_active')
+    list_filter = ('is_active', 'vendor')
+    search_fields = ('first_name', 'last_name', 'email', 'username')
+    
+    fieldsets = (
+        (None, {
+            'fields': ('first_name', 'last_name', 'email', 'username', 'vendor', 'assigned_events', 'is_active')
+        }),
+    )
 
-# Register the POSAgent model with its custom admin interface
+    # Hide the password field in the admin interface
+    def get_form(self, request, obj=None, **kwargs):
+        form = super().get_form(request, obj, **kwargs)
+        form.base_fields['password'].widget = admin.widgets.HiddenInput()
+        return form
+
 admin.site.register(POSAgent, POSAgentAdmin)
