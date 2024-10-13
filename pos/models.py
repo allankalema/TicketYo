@@ -39,7 +39,7 @@ class POSAgent(AbstractBaseUser):
 
     objects = POSAgentManager()
 
-    USERNAME_FIELD = 'email'
+    USERNAME_FIELD = 'username'
     REQUIRED_FIELDS = ['username', 'first_name', 'last_name']
 
     def __str__(self):
