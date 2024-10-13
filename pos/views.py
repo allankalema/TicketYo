@@ -8,6 +8,7 @@ from events.models import Event
 from django.db.models import Q
 from datetime import datetime
 import random
+from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
@@ -279,7 +280,12 @@ def pos_agent_login(request):
         
         
         if pos_agent is not None:
+            print("Is authenticated:", pos_agent.is_authenticated)
             login(request, pos_agent, backend='vendors.backends.VendorOrCustomerModelBackend')
+            print("Session Key:", request.session.session_key)  # Session key should not be None
+            print("User ID in session:", request.session.get('_auth_user_id'))
+            request.user = pos_agent
+            print("Login function called successfully")
             
             messages.error(request, 'logged in.')
             return redirect('pos_dashboard')  # Redirect to the POS dashboard
@@ -290,6 +296,6 @@ def pos_agent_login(request):
     return render(request, 'pos/pos_agent_login.html')  # Create this template
 
 
-@login_required
+@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
 def pos_dashboard(request):
     return render(request, 'pos/pos_dashboard.html')  # Create this template

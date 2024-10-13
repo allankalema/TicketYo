@@ -36,6 +36,6 @@ class VendorOrCustomerModelBackend(ModelBackend):
                 return Customer.objects.get(pk=user_id)
             except Customer.DoesNotExist:
                 try:
-                    return POSAgent.objects.get(pk=user_id)  # Get POS Agent here
+                    return POSAgent.objects.get(pk=user_id)  # Ensure this returns a valid POSAgent instance
                 except POSAgent.DoesNotExist:
                     return None
