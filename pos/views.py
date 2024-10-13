@@ -285,7 +285,7 @@ def pos_agent_login(request):
             return redirect('pos_dashboard')  # Redirect to the POS dashboard
             
         else:
-                 messages.error(request, 'Invalid username or password.')
+                 messages.error(request, 'Invalid username or password. or you are not authorized as a POS agent.')
     
     return render(request, 'pos/pos_agent_login.html')  # Create this template
 

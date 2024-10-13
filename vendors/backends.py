@@ -25,7 +25,7 @@ class VendorOrCustomerModelBackend(ModelBackend):
                 customer = Customer.objects.get(username=username)
                 if customer.check_password(password) and customer.is_customer:
                     return customer
-        except (Vendor.DoesNotExist, Customer.DoesNotExist):
+        except (Vendor.DoesNotExist, Customer.DoesNotExist, POSAgent.DoesNotExist):
             return None
 
     def get_user(self, user_id):
