@@ -135,35 +135,23 @@ def all_events(request):
     page_obj_sold_out = sold_out_paginator.get_page(page_number_sold_out)
 
     # AJAX handling for search requests
+    
+    # AJAX handling for search requests
     if request.headers.get('x-requested-with') == 'XMLHttpRequest':
-        events_data = {
-            'upcoming_events': [
-                {
-                    'title': event.title,
-                    'venue_name': event.venue_name,
-                    'vendor_name': event.vendor.first_name,
-                    'vendor_store': event.vendor.storename,
-                    'remaining_tickets': event.remaining_tickets,
-                    'poster_url': event.poster.url if event.poster else '',
-                    'event_url': event.get_absolute_url(),
-                }
-                for event in upcoming_events
-            ],
-            'sold_out_events': [
-                {
-                    'title': event.title,
-                    'venue_name': event.venue_name,
-                    'vendor_name': event.vendor.first_name,
-                    'vendor_store': event.vendor.storename,
-                    'remaining_tickets': event.remaining_tickets,
-                    'poster_url': event.poster.url if event.poster else '',
-                    'event_url': event.get_absolute_url(),
-                }
-                for event in sold_out_events
-            ]
-        }
-        return JsonResponse(events_data)
-
+        events_data = [
+            {
+                'title': event.title,
+                'venue_name': event.venue_name,
+                'vendor_name': event.vendor.first_name,
+                'vendor_store': event.vendor.storename,
+                'remaining_tickets': event.tickets_available - event.tickets_sold,
+                'poster_url': event.poster.url if event.poster else '',
+                'event_url': event.get_absolute_url(),
+            }
+            for event in events
+        ]
+        return JsonResponse({'events': events_data})
+    
     context = {
         'page_obj_upcoming': page_obj_upcoming,
         'page_obj_sold_out': page_obj_sold_out,
