@@ -413,3 +413,16 @@ def dash_approve_event(request, event_id):
         'ticket_formset': ticket_formset,
     }
     return render(request, 'events/approve_event.html', context)
+
+def homepage(request):
+        all_events = Event.objects.filter # Modify filter as needed for sliding events
+        upcoming_events = Event.objects.filter(start_date__gte=timezone.now()).order_by('start_date')
+
+        paginator = Paginator(upcoming_events, 4)  # 4 events per page for pagination
+        page_number = request.GET.get('upcoming_page')
+        page_obj_upcoming = paginator.get_page(page_number)
+
+        return render(request, 'events/homepage.html', {
+            'all_events': all_events,
+            'page_obj_upcoming': page_obj_upcoming,
+        })

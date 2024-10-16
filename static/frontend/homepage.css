@@ -1,0 +1,85 @@
+/* Adjust size of carousel items */
+.carousel-item img {
+    max-height: 400px; /* Change to desired height */
+    width: 300px;
+    object-fit: cover;
+}
+
+/* Adjust the caption styling */
+.carousel-caption h5 {
+    font-size: 1.5rem; /* Smaller font size */
+}
+
+.carousel-caption p {
+    font-size: 1rem; /* Smaller font size */
+}
+
+/* Change color and style of event details */
+.carousel-caption {
+    background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent background */
+    padding: 10px;
+    border-radius: 8px;
+}
+
+.carousel-caption h5 {
+    color: #ffcc00; /* Example color for the title */
+    font-weight: bold;
+}
+
+.carousel-caption p {
+    color: #ffffff; /* White color for the date and venue */
+}
+
+/* Add margin below the slider */
+.event-slider {
+    margin-bottom: 80px; /* Adjust as needed */
+}
+
+.red-outline {
+    display: inline-block;
+    padding: 10px 20px;
+    color: #ff0000;
+    border: 2px solid #ff0000;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.3s, color 0.3s;
+    
+}
+
+.red-outline:hover {
+    background-color: #ff0000;
+    color: #ffffff;
+}
+
+.btn-outline-danger {
+    margin-bottom: 30px;
+}
+
+.share-buttons {
+    margin-top: 20px;
+}
+.share-buttons .btn {
+    margin: 5px;
+    padding: 10px 15px;
+    border-radius: 25px;
+}
+
+.about-us {
+    padding: 60px 20px;
+    background-color: #f9f9f9;
+    text-align: center;
+    margin-top: 40px;
+}
+.about-us h2 {
+    font-size: 2.5em;
+    color: #333;
+    margin-bottom: 20px;
+}
+.about-us p {
+    font-size: 1.1em;
+    color: #666;
+    line-height: 1.6;
+    max-width: 800px;
+    margin: 0 auto;
+}

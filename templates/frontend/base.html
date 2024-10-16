@@ -1,146 +1,182 @@
-{% load static %}
+
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+    {% load static %}
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Ticket Yo</title>
+    <link href="{% static 'frontend/base.css' %}" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'frontend/styles.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="{% static 'events/scripts.js' %}" defer></script>
+    <script src="{% static 'frontend/scripts.js' %}"></script>
 
 </head>
+
 <body>
-    <!-- Header -->
-<header id="main-header" class="header p-3 d-flex justify-content-between align-items-center">
-    <div class="d-flex align-items-center">
-        <div class="logo">
-            <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 80px; width: 100px;">
-        </div>
-    </div>
-    
-    <nav>
-        <ul class="nav">
-            <!-- Authenticated User's Dashboard -->
-            {% if user.is_authenticated %}
+
+    <!-- Large screen navigation (desktop) -->
+    <nav class="navbar navbar-expand-lg d-none d-lg-flex sticky-top bg-light">
+        <div class="container-fluid">
+            <div class="d-flex align-items-center">
+                <div class="logo">
+                    <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 50px; width: 80px;">
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="search-bar-container">
+                <form method="get" action="{% url 'all_events' %}" id="search-form">
+                    <div class="input-group mb-4">
+                        <input type="text" name="q" value="{{ query }}" class="form-control" id="search-input"
+                            placeholder="Search event">
+                    </div>
+                </form>
+            </div>
+
+            <!-- Navigation links -->
+            <ul class="nav ms-auto">
+                <li class="nav-item">
+                    <a href="{% url 'homepage' %}" class="nav-link text-black">Home</a>
+                </li>
+                {% if user.is_authenticated %}
                 <li class="nav-item">
                     <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
                 </li>
-            {% else %}
+                {% else %}
                 <li class="nav-item">
-                    <a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a>
+                    <a href="{% url 'all_events' %}" class="nav-link text-black">All Events</a>
                 </li>
-            {% endif %}
-    
-            <!-- Past Events Link -->
-            <li class="nav-item">
-                <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
-            </li>
-    
-            <!-- Conditional Dashboards Based on User Type -->
-            {% if user.is_authenticated and user.is_customer %}
+                {% endif %}
+                <li class="nav-item">
+                    <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
+                </li>
+                {% if user.is_authenticated and user.is_customer %}
                 <li class="nav-item">
                     <a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a>
                 </li>
-            {% endif %}
-            
-            {% if user.is_authenticated and user.is_vendor %}
+                {% endif %}
+                {% if user.is_authenticated and user.is_vendor %}
                 <li class="nav-item">
                     <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
                 </li>
-            {% endif %}
-    
-            <!-- Sign Up and Login for Unauthenticated Users Only -->
-            {% if not user.is_authenticated %}
+                {% endif %}
+                {% if not user.is_authenticated %}
                 <li class="nav-item">
                     <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
                 </li>
                 <li class="nav-item">
                     <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
                 </li>
-            {% endif %}
-    
-            <!-- Cart Button (Always Visible) -->
-            <li class="nav-item">
-                <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
-                    <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
-                </a>
-            </li>
-        </ul>
+                {% endif %}
+                <li class="nav-item">
+                    <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center cart-link">
+                        <i class="bi bi-cart-fill fs-4 me-2"></i> Cart
+                    </a>
+                </li>
+            </ul>
+        </div>
     </nav>
-    
-</header>
- <!-- Display any messages -->
- {% if messages %}
- <div class="mb-3">
-     {% for message in messages %}
-         <div class="alert alert-{{ message.tags }}">{{ message }}</div>
-     {% endfor %}
- </div>
+<!-- Display any messages -->
+{% if messages %}
+<div class="mb-3">
+    {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}">{{ message }}</div>
+    {% endfor %}
+</div>
 {% endif %}
 
+    <!-- Mobile header (small screens) -->
+    <nav class="navbar navbar-light bg-light d-lg-none">
+        <div class="container-fluid d-flex justify-content-between align-items-center">
+            <button class="navbar-toggler" type="button" id="openSidebar">
+                <span class="navbar-toggler-icon"></span>
+            </button>
 
-<!-- Sidebar -->
-<div class="sidebar" id="sidebar">
-    <button class="close-btn" id="closeSidebar">&times;</button>
-    <div class="logo mb-3">
-        <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 80px; width: 100px;">
-    </div>
-    <ul class="nav flex-column mt-3">
-        
-        <!-- Authenticated User's Dashboard -->
-        {% if user.is_authenticated %}
+            <!-- Container for the search icon and search bar -->
+            <div class="search-container" id="search-container">
+                <!-- Search Icon -->
+                <a href="#" id="searchIcon">
+                    <i class="bi bi-search fs-4"></i>
+                </a>
+
+                <!-- Search Bar (Hidden by Default) -->
+                <div class="search-bar-container" id="searchBar" style="display: none;">
+                    <form method="get" action="{% url 'all_events' %}" id="search-form">
+                        <div class="input-group mb-4">
+                            <input type="text" name="q" value="{{ query }}" class="form-control" id="search-input"
+                                placeholder="Search event">
+                            <!-- Search Icon inside the search bar (submit button) -->
+                            <button class="btn btn-outline-secondary" type="submit">
+                                <i class="bi bi-search"></i>
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+
+            <a class="navbar-brand" href="#">
+                <img src="{% static 'frontend/logo.jpg' %}" alt="Ticket Yo" style="height: 40px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- Sidebar -->
+    <div class="sidebar" id="sidebar">
+        <button class="close-btn" id="closeSidebar">&times;</button>
+
+        <div class="logo mb-3">
+            <img src="{% static 'frontend/logo.jpg' %}" alt="Logo" style="height: 80px; width: 100px;">
+        </div>
+
+        <ul class="nav flex-column mt-3">
+            <li class="nav-item">
+                <a href="{% url 'homepage' %}" class="nav-link text-black">Home</a>
+            </li>
+            {% if user.is_authenticated %}
             <li class="nav-item">
                 <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
             </li>
-        {% else %}
+            {% else %}
             <li class="nav-item">
                 <a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a>
             </li>
-        {% endif %}
-
-        <!-- Past Events Link -->
-        <li class="nav-item">
-            <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
-        </li>
-
-        <!-- Conditional Dashboards Based on User Type -->
-        {% if user.is_authenticated and user.is_customer %}
+            {% endif %}
+            <li class="nav-item">
+                <a href="{% url 'past_events' %}" class="nav-link text-black">Past Events</a>
+            </li>
+            {% if user.is_authenticated and user.is_customer %}
             <li class="nav-item">
                 <a href="{% url 'customer_home' %}" class="nav-link text-black">Customer Dashboard</a>
             </li>
-        {% endif %}
-        
-        {% if user.is_authenticated and user.is_vendor %}
+            {% endif %}
+            {% if user.is_authenticated and user.is_vendor %}
             <li class="nav-item">
                 <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
             </li>
-        {% endif %}
-
-        <!-- Sign Up and Login for Unauthenticated Users Only -->
-        {% if not user.is_authenticated %}
+            {% endif %}
+            {% if not user.is_authenticated %}
             <li class="nav-item">
                 <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
             </li>
             <li class="nav-item">
                 <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
             </li>
-        {% endif %}
-
-        <!-- Cart Button (Always Visible) -->
-        <li class="nav-item">
-            <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
-                <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
-            </a>
-        </li>
-    </ul>
-</div>
-
-<!-- Sidebar button for mobile view -->
-<button class="sidebar-btn" id="openSidebar">&#9776;</button>
+            {% endif %}
+            <!-- <li class="nav-item">
+                <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
+                    <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
+                </a>
+            </li> -->
+        </ul>
+    </div>
 
     <!-- Main Content -->
     <div class="container main-content">
@@ -149,18 +185,64 @@
         {% endblock %}
     </div>
 
+    <!-- Bottom navigation bar for small screens -->
+    <nav class="navbar navbar-light bg-light fixed-bottom d-lg-none">
+        <div class="container-fluid d-flex justify-content-around">
+            <a href="{% url 'all_events' %}" class="nav-link">
+                <i class="bi bi-calendar-event fs-4"></i>
+                <span>All Events</span>
+            </a>
+            <a href="{% url 'view_cart' %}" class="nav-link">
+                <i class="bi bi-cart-fill fs-4"></i>
+                <span>Cart</span>
+            </a>
+
+            {% if user.is_authenticated and user.is_customer %}
+            <a href="{% url 'customer_home' %}" class="nav-link">
+                <i class="bi bi-person-fill fs-4"></i>
+                <span>Dashboard</span>
+            </a>
+            {% endif %}
+            {% if user.is_authenticated and user.is_vendor %}
+            <a href="{% url 'dashboard' %}" class="nav-link">
+                <i class="bi bi-person-fill fs-4"></i>
+                <span>Dashboard</span>
+            </a>
+            {% endif %}
+        </div>
+    </nav>
+
     <!-- Footer -->
     <footer class="footer mt-5">
         <p>&copy; 2024 Ticket Yo. All Rights Reserved.</p>
         <p>
-            <a href="#">FAQ</a> | 
-            <a href="#">Contact Us</a> | 
-            <a href="#">Location</a> | 
+            <a href="#">FAQ</a> |
+            <a href="#">Contact Us</a> |
+            <a href="#">Location</a> |
             <a href="#">About Us</a>
         </p>
     </footer>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="{% static 'frontend/scripts.js' %}"></script>
+    <!-- <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script> -->
+
+    <script>
+        // Get the search icon and search bar elements
+        const searchIcon = document.getElementById('searchIcon');
+        const searchBar = document.getElementById('searchBar');
+
+        // Add click event listener to the search icon
+        searchIcon.addEventListener('click', function (event) {
+            event.preventDefault();
+
+            // Hide the search icon
+            searchIcon.style.display = 'none';
+
+            // Display the search bar
+            searchBar.style.display = 'block';
+        });
+
+    </script>
+
 </body>
+
 </html>
