@@ -229,6 +229,9 @@
         // Get the search icon and search bar elements
         const searchIcon = document.getElementById('searchIcon');
         const searchBar = document.getElementById('searchBar');
+        const openSidebarBtn = document.getElementById('openSidebar');
+        const closeSidebarBtn = document.getElementById('closeSidebar');
+        const sidebar = document.getElementById('sidebar');
 
         // Add click event listener to the search icon
         searchIcon.addEventListener('click', function (event) {
@@ -239,6 +242,16 @@
 
             // Display the search bar
             searchBar.style.display = 'block';
+        });
+
+        // Open sidebar when the open button is clicked
+        openSidebarBtn.addEventListener('click', function() {
+            sidebar.classList.add('active');
+        });
+
+        // Close sidebar when the close button is clicked
+        closeSidebarBtn.addEventListener('click', function() {
+            sidebar.classList.remove('active');
         });
 
     </script>
