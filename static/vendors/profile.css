@@ -1,0 +1,54 @@
+h2 {
+    color: hsl(0, 86%, 53%); /* Adjust based on your brand color */
+    font-weight: bold;
+}
+
+.card {
+    border-radius: 10px;
+    border: none;
+    background-color: #f9f9f9;
+    width: 500px;
+    margin-left: 300px;
+}
+
+.form-label {
+    font-size: 1rem;
+    color: #333;
+}
+
+button[type="submit"] {
+    /* background-color: #007bff; Adjust based on your brand color */
+    /* border: none; */
+    font-size: 1rem;
+    /* transition: background-color 0.3s; */
+}
+
+/* button[type="submit"]:hover { */
+    /* background-color: #0056b3; Darken color on hover */
+/* } */
+
+input[type="text"], 
+input[type="email"], 
+input[type="password"], 
+textarea {
+    width: 100%;
+    padding: 10px 15px;
+    margin-top: 5px;
+    margin-bottom: 15px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+    background-color: #f9f9f9;
+    font-size: 1rem;
+    color: #333;
+    transition: border-color 0.3s ease-in-out, box-shadow 0.3s ease-in-out;
+}
+
+input[type="text"]:focus, 
+input[type="email"]:focus, 
+input[type="password"]:focus, 
+textarea:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
+    outline: none;
+}

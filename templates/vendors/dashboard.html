@@ -59,15 +59,16 @@
             
             <!-- Profile Dropdown on the Right -->
             <div class="dropdown">
-                <button class="btn btn-outline-profile dropdown-toggle" type="button" id="profileDropdown" aria-haspopup="true" aria-expanded="false">
+                <button class="btn btn-outline-danger dropdown-toggle" type="button" id="profileDropdown" aria-haspopup="true" aria-expanded="false">
                     Profile
                 </button>
-                <div class="dropdown-menu" aria-labelledby="profileDropdown">
+                <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
                     <a class="dropdown-item" href="{% url 'update_vendor' %}">Update Profile</a>
                     <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
                     <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
                 </div>
             </div>
+            
         </div>
 
         <div class="row">
