@@ -1,0 +1,101 @@
+{% extends 'frontend/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'events/styles.css' %}">
+<link rel="stylesheet" href="{% static 'frontend/homepage.css' %}">
+<script src="{% static 'events/scripts.js' %}" defer></script>
+
+<div>
+    <!-- Hero Section with Sliding Events -->
+    <section class="hero">
+        <div class="hero-content">
+            <h1>Discover Events That Move You</h1>
+            <p>Find and book tickets for concerts, sports, theater, and more!</p>
+            <a href="{% url 'all_events' %}" class="btn btn-outline-danger">Get Tickets</a>
+        </div>
+    </section>
+
+    <div>
+        <!-- Sliding Event Carousel -->
+        <section class="event-slider">
+            <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    {% for event in all_events %}
+                    <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                        <img src="{{ event.poster.url }}" class="d-block w-100" alt="{{ event.title }}">
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5>{{ event.title }}</h5>
+                            <p>{{ event.venue_name }} - {{ event.start_date|date:"F jS, Y" }}</p>
+                            <a href="{% url 'event_detail' event.id %}" class="btn btn-danger">Learn More</a>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#eventCarousel"
+                    data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#eventCarousel"
+                    data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </section>
+    </div>
+
+    
+    
+
+    <!-- Grid of Upcoming Events -->
+    <section class="upcoming-events">
+        <h2>Upcoming Events</h2>
+        <div class="container">
+            <div class="row">
+                {% for event in page_obj_upcoming %}
+                <div class="col-md-3 mb-4">
+                    <div class="card event-card text-center">
+                        <a href="{% url 'event_detail' event.id %}">
+                            <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title">{{ event.title }}</h5>
+                            <p class="venue">{{ event.venue_name }}</p>
+                            <p class="price">UGX {{ event.sale_price|floatformat:0 }}</p>
+                            <a href="{% url 'buy_ticket' event.id %}" class="btn btn-outline-danger">Get Tickets</a>
+                        </div>
+                    </div>
+                </div>
+                {% empty %}
+                <p class="text-center">No upcoming events available.</p>
+                {% endfor %}
+            </div>
+            <!-- Pagination -->
+            {% if page_obj_upcoming.has_next %}
+            <div class="text-center">
+                <a href="?upcoming_page={{ page_obj_upcoming.next_page_number }}" class="btn btn-secondary">Load More
+                    Events</a>
+            </div>
+            {% endif %}
+        </div>
+    </section>
+</div>
+
+<section class="about-us">
+    <div class="container">
+        <h2>About Us</h2>
+        <p>We are dedicated to connecting people with events they love. Our platform offers a diverse range of events, including concerts, sports, theater, and more. We aim to make event discovery easy and enjoyable, so you can focus on creating memorable experiences.</p>
+        <p>Whether you’re looking for a night out with friends, family activities, or solo adventures, we have something for everyone. Join us as we explore events that bring people together and create unforgettable moments.</p>
+    </div>
+</section>
+
+<div class="share-buttons">
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">Share on Facebook</a>
+    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this event!" target="_blank" class="btn btn-outline-info">Share on Twitter</a>
+    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">Share on LinkedIn</a>
+</div>
+
+{% endblock %}

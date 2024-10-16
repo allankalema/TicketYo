@@ -1,6 +1,8 @@
+
 {% extends 'frontend/base.html' %}
 
 {% block content %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -20,13 +22,10 @@
         }
 
         .event-poster {
-            width: 100%;
-            max-height: 500px;
-            object-fit: cover;
-            border-radius: 10px;
-            margin-bottom: 20px;
-        }
-
+        width: 100%; /* Make it responsive */
+        max-width: 600px; /* Adjust maximum width */
+        height: 400px; /* Maintain aspect ratio */
+    }
         .event-title {
             font-size: 2.5rem;
             font-weight: 700;
@@ -44,7 +43,7 @@
 
         .event-description {
             font-size: 1.1rem;
-            color: #333;
+            color: #463f3f;
             margin-bottom: 30px;
         }
 
@@ -57,6 +56,18 @@
         .event-icons i {
             font-size: 1.2rem;
             margin-right: 10px;
+        }
+
+        .event-icons .bi-geo-alt-fill {
+            color: blue;
+        }
+
+        .event-icons .bi-tags-fill {
+            color: rgb(49, 54, 54);
+        }
+
+        .sold-by .bi-person-fill {
+            color:blue;
         }
 
         .event-price {
@@ -102,115 +113,124 @@
             max-width: 800px;
             margin: 0 auto;
         }
+        .event-poster-container {
+            width: 100%;
+            height: fit-content;
+        }
+        .col-md-6 {
+            width: 100%;
+            height: fit-content;
+        }
     </style>
 </head>
 
 <body>
 
-    <div class="container mt-5 event-details">
-        <!-- Event Poster -->
-        {% if event.poster %}
-            <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster">
-        {% else %}
-            <p>No image available</p>
-        {% endif %}
+    <div class="container mt-5">
+        <div class="row">
+            <!-- Event Poster Section -->
+            <div class="col-md-6 mb-4">
+                <div class="event-poster-container">
+                    {% if event.poster %}
+                        <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="event-poster img-fluid rounded">
+                    {% else %}
+                        <p>No image available</p>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Event Details Section -->
+            <div class="col-md-6">
+                <!-- Event Title -->
+                <h1 class="event-title">{{ event.title }}</h1>
     
-        <!-- Event Title -->
-        <h1 class="event-title">{{ event.title }}</h1>
+                <!-- Sold By -->
+                <p class="sold-by"><strong><i class="bi bi-person-fill"></i> Sold by:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
     
-        <!-- Sold By -->
-        <p class="sold-by"><strong> <i class="bi bi-person-fill"></i>Sold by:</strong> {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
+                <!-- Event Description -->
+                <p class="event-description"><i class="bi bi-file-text-fill"></i> {{ event.description }}</p>
     
-        <!-- Event Description -->
-        <p class="event-description"><i class="bi bi-file-text-fill"></i>
-            {{ event.description }}</p>
+                <!-- Event Category -->
+                <p class="event-icons"><i class="bi bi-tags-fill"></i><strong>Category:</strong> {{ event.category }}</p>
     
-        <!-- Event Category -->
-        <p class="event-icons">
-            <i class="bi bi-tags-fill"></i>
-            <strong>Category:</strong> {{ event.category }}
-        </p>
+                <!-- Event Date with Icon -->
+                <p class="event-icons"><i class="bi bi-calendar-fill"></i>
+                    {% if event.end_date %}
+                        {{ event.start_date|date:"F d, Y" }} - {{ event.end_date|date:"F d, Y" }}
+                    {% else %}
+                        {{ event.start_date|date:"F d, Y" }}
+                    {% endif %}
+                </p>
     
-        <!-- Event Date with Icon -->
-        <p class="event-icons">
-            <i class="bi bi-calendar-fill"></i>
-            {% if event.end_date %}
-                {{ event.start_date|date:"F d, Y" }} - {{ event.end_date|date:"F d, Y" }}
-            {% else %}
-                {{ event.start_date|date:"F d, Y" }}
-            {% endif %}
-        </p>
+                <!-- Event Location with Icon -->
+                <p class="event-icons"><i class="bi bi-geo-alt-fill"></i>{{ event.venue_name }}</p>
     
-        <!-- Event Location with Icon -->
-        <p class="event-icons">
-            <i class="bi bi-geo-alt-fill"></i>
-            {{ event.venue_name }}
-        </p>
+                <!-- Event Prices -->
+                <p class="event-price">
+                    <span class="regular-price">(UGX {{ event.regular_price|floatformat:0 }})</span> 
+                    UGX {{ event.sale_price|floatformat:0 }}
+                </p>
     
-        <!-- Event Prices -->
-        <p class="event-price">
-            <span class="regular-price">(UGX {{ event.regular_price|floatformat:0 }})</span> 
-            UGX {{ event.sale_price|floatformat:0 }}
-        </p>
+                <!-- Tickets Availability -->
+                <p class="availability">
+                    {% if event.remaining_tickets >= 4 %}
+                        <span class="text-success">Available</span>
+                    {% elif event.remaining_tickets <= 3 and event.remaining_tickets > 0 %}
+                        <span class="text-warning">Almost Sold Out</span>
+                    {% else %}
+                        <span class="text-danger">Sold Out</span>
+                    {% endif %}
+                </p>
     
-        <!-- Tickets Availability -->
-        <p class="availability">
-            {% if event.remaining_tickets >= 4 %}
-                <span class="text-success">Available</span>
-            {% elif event.remaining_tickets <= 3 and event.remaining_tickets > 0 %}
-                <span class="text-warning">Almost Sold Out</span>
-            {% else %}
-                <span class="text-danger">Sold Out</span>
-            {% endif %}
-        </p>
-    
-        <!-- Ticket Categories Table -->
+                <!-- Get Tickets Button -->
+                {% if event.has_passed %}
+                    <div class="text-center">
+                        <span class="text-muted">Event Passed</span>
+                    </div>
+                {% elif event.remaining_tickets == 0 %}
+                    <div class="text-center">
+                        <span class="text-danger">Sold Out</span>
+                    </div>
+                {% else %}
+                    <div class="text-center">
+                        <a href="{% url 'buy_ticket' event.id %}" class="get-tickets-btn">Get Tickets</a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Ticket Categories Table Below the Two Columns -->
         {% if event.ticket_categories.all %}
-            <table class="table table-hover table-ticket-categories">
-                <thead class="thead-dark">
-                    <tr>
-                        <th>Category Title</th>
-                        <th>Price</th>
-                        <th>Status</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for category in event.ticket_categories.all %}
+            <div class="ticket-categories-table mt-4">
+                <table class="table table-hover table-ticket-categories">
+                    <thead class="thead-dark">
                         <tr>
-                            <td>{{ category.category_title }}</td>
-                            <td>UGX {{ category.category_price|floatformat:0 }}</td>
-                            <td>
-                                {% if category.remaining_tickets >= 4 %}
-                                    <span class="text-success">Available</span>
-                                {% elif category.remaining_tickets <= 3 and category.remaining_tickets > 0 %}
-                                    <span class="text-warning">Almost Sold Out</span>
-                                {% else %}
-                                    <span class="text-danger">Sold Out</span>
-                                {% endif %}
-                            </td>
+                            <th>Category Title</th>
+                            <th>Price</th>
+                            <th>Status</th>
                         </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for category in event.ticket_categories.all %}
+                            <tr>
+                                <td>{{ category.category_title }}</td>
+                                <td>UGX {{ category.category_price|floatformat:0 }}</td>
+                                <td>
+                                    {% if category.remaining_tickets >= 4 %}
+                                        <span class="text-success">Available</span>
+                                    {% elif category.remaining_tickets <= 3 and category.remaining_tickets > 0 %}
+                                        <span class="text-warning">Almost Sold Out</span>
+                                    {% else %}
+                                        <span class="text-danger">Sold Out</span>
+                                    {% endif %}
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         {% endif %}
-    
-        <!-- Event Button Logic -->
-        {% if event.has_passed %}
-            <div class="text-center">
-                <span class="text-muted">Event Passed</span>
-            </div>
-        {% elif event.remaining_tickets == 0 %}
-            <div class="text-center">
-                <span class="text-danger">Sold Out</span>
-            </div>
-        {% else %}
-            <div class="text-center">
-                <a href="{% url 'buy_ticket' event.id %}" class="get-tickets-btn">Get Tickets</a>
-            </div>
-        {% endif %}
-    
-    </div>
-    
+    </div> 
     <!-- Bootstrap JS, FontAwesome -->
     <script src="https://kit.fontawesome.com/a076d05399.js"></script>
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>

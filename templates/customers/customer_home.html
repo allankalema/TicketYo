@@ -1,49 +1,72 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Customer Home</title>
-</head>
-<body>
-    <h2>Welcome, {{ user.username }}!</h2>
-    <p>This is your home page.</p>
+{% extends 'frontend/base.html' %}
 
-    <hr>
-    <a href="{% url 'customer_update' %}">Update Profile</a>
-    <a href="{% url 'customer_delete' %}">Delete</a>
-    <a href="{% url 'customer_change_password' %}">Change Password</a>
-    <a href="{% url 'customer_logout' %}">Logout</a>
-    <a href="{% url 'view_cart' %}">View Cart</a>
-    <a href="{% url 'all_events' %}">Home</a>
-    <hr>
-    
-    <!-- Event List -->
-    <h3>Your Events</h3>
-    <ul>
-        {% for event in events %}
-            <li><a href="{% url 'event_detail' event.id %}">{{ event.title }}</a></li>
-        {% endfor %}
-    </ul>
 
-    <!-- Ticket Inventory -->
-    <h3>Your Ticket Inventory</h3>
-    {% for event in events %}
-        <h4>{{ event.title }}</h4>
-        <ul>
-            {% for ticket in tickets %}
-                {% if ticket.event == event %}
-                    <li>
-                        <strong>Ticket Number:</strong> {{ ticket.ticket_number }}<br>
-                        <strong>Category:</strong> {{ ticket.ticket_category.category_title }}<br>
-                        <strong>Purchase Date:</strong> {{ ticket.purchase_date }}<br>
-                        <a href="{% url 'ticket_detail' ticket.id %}">View Ticket Details</a>
-                    </li>
-                {% endif %}
+{% block content %}
+
+<div class="container my-5">
+    <!-- Welcome Message -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Welcome, {{ user.username }}!</h2>
+        <!-- Profile Dropdown -->
+        <div class="dropdown">
+            <button class="btn btn-danger dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown"
+                aria-expanded="false">
+                Profile
+            </button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
+                <li><a class="dropdown-item" href="{% url 'customer_update' %}">Update Profile</a></li>
+                <li><a class="dropdown-item" href="{% url 'customer_change_password' %}">Change Password</a></li>
+                <li><a class="dropdown-item text-danger" href="{% url 'customer_delete' %}">Delete Account</a></li>
+                <li>
+                    <hr class="dropdown-divider">
+                </li>
+                <li><a class="dropdown-item" href="{% url 'customer_logout' %}">Logout</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Info Paragraph -->
+    <p class="lead">This is your home page. Here you can manage your profile, view events, and access your tickets.</p>
+ 
+
+    <!-- Quick Navigation Links -->
+    <!-- <div class="nav-links mb-4">
+        <a href="{% url 'view_cart' %}" class="btn btn-outline-danger me-2 mb-2"></a>
+        <a href="{% url 'all_events' %}" class="btn btn-outline-danger mb-2">Home</a>
+    </div> -->
+
+
+    <!-- Event List Section -->
+    <div class="my-4">
+        <h3>Your Events</h3>
+        <ul class="list-group">
+            {% for event in events %}
+            <li class="list-group-item">
+                <a href="{% url 'event_detail' event.id %}">{{ event.title }}</a>
+            </li>
             {% endfor %}
         </ul>
-    {% endfor %}
+    </div>
 
-    
-</body>
-</html>
+    <!-- Ticket Inventory Section -->
+    <div class="my-4">
+        <h3>Your Ticket Inventory</h3>
+        {% for event in events %}
+        <h4 class="mt-4">{{ event.title }}</h4>
+        <ul class="list-group">
+            {% for ticket in tickets %}
+            {% if ticket.event == event %}
+            <li class="list-group-item">
+                <strong>Ticket Number:</strong> {{ ticket.ticket_number }}<br>
+                <strong>Category:</strong> {{ ticket.ticket_category.category_title }}<br>
+                <strong>Purchase Date:</strong> {{ ticket.purchase_date }}<br>
+                <a href="{% url 'ticket_detail' ticket.id %}" class="btn btn-link">View Ticket Details</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+        </ul>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
