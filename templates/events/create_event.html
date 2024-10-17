@@ -1,16 +1,18 @@
 {% extends 'frontend/base.html' %}
+
 {% load static %}
+
 {% block content %}
-<title>Create Event</title>
 
 <!-- Load CSS -->
 <link rel="stylesheet" href="{% static 'events/create.css' %}">
+<script src="{% static 'events/create.js' %}"></script>
 
 <!-- Main Container -->
 <div class="container">
     <!-- Section A: Header and Cancel Button -->
     <div class="section-a">
-        <h2 class="text-danger ">Create Event</h2>
+        <h2 class="text-danger mt-3 ">Create Event</h2>
         <a href="{% url 'dashboard' %}" class="btn btn-outline-danger cancel-btn mt3">Cancel</a>
     </div>
 
@@ -165,67 +167,6 @@
     </div>
 </div>
 
-<!-- JavaScript for dynamic form handling -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'events/create.js' %}"></script>
 
-<script>
-    $(document).ready(function () {
-        let formCount = $('#id_tickets-TOTAL_FORMS').val(); // Adjusted form count based on management form
-        const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
 
-        // Function to calculate the total number of tickets from all categories
-        function calculateTotalCategoryTickets() {
-            let totalTickets = 0;
-
-            // Loop through each category's ticket input field
-            $('.ticket-form input[id$="category_tickets_available"]').each(function () {
-                let categoryTickets = parseInt($(this).val()) || 0;
-                totalTickets += categoryTickets;
-            });
-
-            return totalTickets;
-        }
-
-        // Function to update the total event tickets field
-        function updateEventTickets() {
-            let totalCategoryTickets = calculateTotalCategoryTickets();
-            let eventTicketsField = $('#id_tickets_available'); // Select event tickets available field
-
-            // If total category tickets exceed event tickets, update event tickets
-            if (totalCategoryTickets > parseInt(eventTicketsField.val())) {
-                eventTicketsField.val(totalCategoryTickets);
-            }
-        }
-
-        // Attach the event listener for any changes in the category tickets input
-        $(document).on('input', 'input[id$="category_tickets_available"]', function () {
-            updateEventTickets();
-        });
-
-        // Dynamic form addition
-        $('#add-more').click(function () {
-            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
-            $('#ticket-categories').append('<div class="ticket-form">' + newFormHtml + '</div>');
-            formCount++;
-            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-
-            // Recalculate totals when a new form is added
-            updateEventTickets();
-        });
-
-        // Remove form functionality
-        $(document).on('click', '.remove-form', function () {
-            $(this).closest('.ticket-form').remove();
-            formCount--;
-            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-
-            // Recalculate totals after a form is removed
-            updateEventTickets();
-        });
-
-        // Initial calculation when the page loads
-        updateEventTickets();
-    });
-</script>
 {% endblock %}
