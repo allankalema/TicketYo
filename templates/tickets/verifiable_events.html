@@ -1,25 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Verifiable Events</title>
-</head>
-<body>
-    <h1>Upcoming Verifiable Events</h1>
-    <ul>
-        {% for event_data in verifiable_events %}
-    <div>
-        <h3>{{ event_data.event.title }}</h3>
-        {% if event_data.is_clickable %}
-            <a href="{% url 'verify_ticket' event_data.event.id %}">Verify Tickets</a>
-        {% else %}
-            <p>The event is not currently available for verification.</p>
-        {% endif %}
+{% extends 'frontend/base.html' %}
+
+{% load static %}
+
+{% block content %}
+<div class="container mb-4">
+    <div class="card fancy-card p-4 shadow-sm">
+        <h1 class="text-center text-danger">Upcoming Verifiable Events</h1>
+        <ul>
+            {% for event_data in verifiable_events %}
+            <div>
+                <h3>{{ event_data.event.title }}</h3>
+                {% if event_data.is_clickable %}
+                <a href="{% url 'verify_ticket' event_data.event.id %}">Verify Tickets</a>
+                {% else %}
+                <p>The event is not currently available for verification.</p>
+                {% endif %}
+            </div>
+            {% endfor %}
+        </ul>
     </div>
-{% endfor %}
-
-
-    
-    </ul>
-</body>
-</html>
+</div>
+{% endblock %}

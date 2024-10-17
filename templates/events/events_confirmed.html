@@ -1,21 +1,26 @@
 {% extends 'frontend/base.html' %}
 
+{% load static %}
+
 {% block content %}
+
+<link rel="stylesheet" href="{% static 'events/events.css' %}">
+
 <div class="container mt-5">
-    <h2 class="mb-4">Events Confirmed by You</h2>
+    <h2 class="text-center text-danger mb-4">Events Confirmed by You</h2>
     
     <!-- Search Bar -->
-    <form method="GET" class="mb-4">
+    <form method="GET" class="mb-4 mt-4">
         <div class="input-group">
             <input type="text" name="search" class="form-control" placeholder="Search events..." value="{{ search_query }}">
             <div class="input-group-append">
-                <button class="btn btn-secondary" type="submit">Search</button>
+                <button class="btn btn-outline-danger" type="submit">Search</button>
             </div>
         </div>
     </form>
 
-    <div class="table-responsive">
-        <table class="table table-hover">
+    <div class="table-responsive mt-4">
+        <table class="table table-hover table-striped">
             <thead class="thead-light">
                 <tr>
                     <th class="title-column">Title</th> <!-- Adjusted width -->
@@ -53,91 +58,6 @@
 
 </div>
 
-<!-- Inline CSS for Simplicity -->
-<style>
-    /* Styling for hover effect and dropdown card */
-    .event-row:hover {
-        background-color: #f0f0f0;
-        cursor: pointer;
-    }
-
-    /* Card styling */
-    #options-card {
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-    }
-
-    /* Search bar styling */
-    .input-group .form-control {
-        max-width: 400px;
-    }
-
-    .btn-secondary {
-        background-color: #5a6268;
-        border-color: #545b62;
-    }
-
-    .btn-secondary:hover {
-        background-color: #4e555b;
-    }
-
-    /* Fixed width for columns */
-    .title-column {
-        width: 120px; /* Adjust width for Title column */
-    }
-
-    .vendor-column {
-        width: 120px; /* Adjust width for Vendor column */
-    }
-
-    .status-column {
-        width: 150px; /* Adjust width for Status column */
-        white-space: nowrap; /* Prevent wrapping */
-        overflow: hidden; /* Hide overflow */
-        text-overflow: ellipsis; /* Add ellipsis for overflowing text */
-    }
-
-    .date-column {
-        width: 100px; /* Adjust width for Action Date column */
-    }
-
-    .time-column {
-        width: 100px; /* Adjust width for Action Time column */
-    }
-
-    /* Remove underline and style clickable spans */
-    .clickable-option {
-        display: block;
-        padding: 10px;
-        color: #007bff;
-        cursor: pointer;
-    }
-
-    .clickable-option:hover {
-        background-color: #f0f0f0;
-        text-decoration: none;
-        color: #0056b3;
-    }
-
-    /* Table styling */
-    table {
-        width: 100%; /* Make the table responsive */
-        border-collapse: collapse; /* Collapse borders */
-    }
-
-    th, td {
-        text-align: left; /* Align text to the left */
-        vertical-align: middle; /* Align vertically to the middle */
-        padding: 10px; /* Add padding for cells */
-        border: 1px solid #ddd; /* Add borders to table cells */
-    }
-
-    /* Responsive table */
-    @media (max-width: 767.98px) {
-        .vendor-column {
-            display: none; /* Hide Vendor column on small screens */
-        }
-    }
-</style>
 
 <!-- JavaScript for toggling the dropdown card -->
 <script>

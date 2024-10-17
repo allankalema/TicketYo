@@ -1,0 +1,118 @@
+/* Inline CSS for Simplicity */
+
+    /* Styling for hover effect and dropdown card */
+    .event-row:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    /* Card styling */
+    #options-card {
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+    }
+
+    /* Search bar styling */
+    .input-group .form-control {
+        max-width: 400px;
+    }
+
+    .btn-secondary {
+        background-color: #5a6268;
+        border-color: #545b62;
+    }
+
+    .btn-secondary:hover {
+        background-color: #4e555b;
+    }
+
+    /* Fixed width for columns */
+    .title-column {
+        width: 120px; /* Adjust width for Title column */
+    }
+
+    .vendor-column {
+        width: 120px; /* Adjust width for Vendor column */
+    }
+
+    .status-column {
+        width: 150px; /* Adjust width for Status column */
+        white-space: nowrap; /* Prevent wrapping */
+        overflow: hidden; /* Hide overflow */
+        text-overflow: ellipsis; /* Add ellipsis for overflowing text */
+    }
+
+    .date-column {
+        width: 100px; /* Adjust width for Action Date column */
+    }
+
+    .time-column {
+        width: 100px; /* Adjust width for Action Time column */
+    }
+
+    /* Remove underline and style clickable spans */
+    .clickable-option {
+        display: block;
+        padding: 10px;
+        color: #ff0000;
+        cursor: pointer;
+    }
+
+    .clickable-option:hover {
+        background-color: #f0f0f0;
+        text-decoration: none;
+        color: #ff0000;
+    }
+
+    /* Table styling */
+    table {
+        width: 100%; /* Make the table responsive */
+        border-collapse: collapse; /* Collapse borders */
+    }
+
+    th, td {
+        text-align: left; /* Align text to the left */
+        vertical-align: middle; /* Align vertically to the middle */
+        padding: 10px; /* Add padding for cells */
+        border: 1px solid #ddd; /* Add borders to table cells */
+    }
+
+
+    /* Add these styles to your CSS file */
+
+   .custom-input {
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    padding: 10px;
+    transition: border-color 0.2s ease-in-out;
+}
+
+.custom-input:focus {
+    border-color: #80bdff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.5);
+    outline: none;
+}
+
+.custom-select {
+    appearance: none;
+    padding: 10px;
+}
+
+.card-container {
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    border: 1px solid #e3e6ea;
+}
+
+.card {
+    background-color: #ffffff;
+    border-radius: 8px;
+}
+
+
+    /* Responsive table */
+    @media (max-width: 767.98px) {
+        .vendor-column {
+            display: none; /* Hide Vendor column on small screens */
+        }
+    }
+

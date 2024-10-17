@@ -52,3 +52,55 @@ textarea:focus {
     box-shadow: 0 0 8px rgba(0, 123, 255, 0.3);
     outline: none;
 }
+
+
+/* Adjustments for mobile devices */
+@media (max-width: 768px) {
+    .container {
+        margin: 10px auto;
+        padding: 0;
+    }
+
+    .card {
+        padding: 20px 10px;
+        border-radius: 8px;
+        margin-left: auto;
+    }
+
+    /* Ensure label and input fit well on small screens */
+    .form-label {
+        font-size: 1rem;
+        font-weight: 500;
+        margin-bottom: 5px;
+    }
+
+    input[type="password"] {
+        padding: 10px;
+        font-size: 0.95rem;
+        width: 100%;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+    }
+
+    /* Button full-width and centered on mobile */
+    .btn-mobile {
+        width: 100%;
+        padding: 12px 0;
+        font-size: 1rem;
+        text-align: center;
+    }
+
+    /* Ensure margins between elements */
+    h2 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    }
+
+    .btn-outline-danger {
+    font-size: 1rem;
+    font-weight: bold;
+    }
+
+}
+
+
