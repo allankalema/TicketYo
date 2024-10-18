@@ -4,16 +4,17 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Events Card -->
-        <div class="col-md-4">
-            <div class="card">
+        <!-- Events Card on the left side covering full height -->
+        <div class="col-md-6">
+            <div class="card" style="height: 100%;">
                 <div class="card-body">
                     <h4>Assign Events to {{ agent.first_name }}</h4>
                     <input type="text" id="searchBar" placeholder="Search Events..." class="form-control mb-3" onkeyup="filterEvents()">
-
+                    
+                    <!-- Event list with scroll -->
                     <form method="POST">
                         {% csrf_token %}
-                        <div id="eventList" style="max-height: 400px; overflow-y: auto;">
+                        <div id="eventList" style="max-height: 500px; overflow-y: auto;">
                             {% for event in user_events %}
                                 <div class="form-check">
                                     <input type="checkbox" class="form-check-input" name="events" value="{{ event.id }}" id="event-{{ event.id }}">
@@ -25,8 +26,25 @@
             </div>
         </div>
 
-        <!-- Actions Card -->
-        <div class="col-md-4">
+        <!-- Right side with two stacked cards -->
+        <div class="col-md-6">
+            <!-- Information Card (Top) -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5>How POS Agent Works</h5>
+                    <p>For each event assigned, the POS agent can:</p>
+                    <ul>
+                        <li>Generate tickets for the event.</li>
+                        <li>Verify events.</li>
+                    </ul>
+                    <!-- Disclaimer styled distinctly -->
+                    <p class="text-danger font-weight-bold" style="font-size: 14px;">
+                        <strong>DISCLAIMER:</strong> Only assign events to trusted agents, as they will gain control over event actions. TicketYo is not responsible for any loss of funds due to agent actions.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Actions Card (Bottom) -->
             <div class="card">
                 <div class="card-body">
                     <h5>Actions:</h5>
@@ -38,23 +56,10 @@
                         <input type="checkbox" class="form-check-input" name="actions" value="Verify Events" id="verifyEvents">
                         <label class="form-check-label" for="verifyEvents">Verify Events</label>
                     </div>
+                    
+                    <!-- Add button -->
                     <button type="submit" class="btn btn-outline-danger mt-3" style="border-color: #e70000;">Add</button>
                     </form>
-                </div>
-            </div>
-        </div>
-
-        <!-- Information Card -->
-        <div class="col-md-4">
-            <div class="card">
-                <div class="card-body">
-                    <h5>How POS Agent Works</h5>
-                    <p>For each event assigned, the POS agent can:</p>
-                    <ul>
-                        <li>Generate tickets for the event.</li>
-                        <li>Verify events.</li>
-                    </ul>
-                    <p><strong>Precaution:</strong> Only assign events to agents you truly trust, as they will have more control over your events. TicketYo has no way of retrieving lost money.</p>
                 </div>
             </div>
         </div>
