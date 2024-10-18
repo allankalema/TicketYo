@@ -224,14 +224,13 @@ def view_qr_codes(request, event_id):
 @login_required
 @vendor_required
 def verifiable_events(request):
-    current_date = now().date()
+    current_date = timezone.now().date()
     vendor = request.user
 
     # Fetch events whose start_date is within 4 days from the current date
     verifiable_events = Event.objects.filter(
-        user=vendor, 
-        start_date__gte=current_date, 
-        start_date__lte=current_date + timedelta(days=4)
+        user=vendor,
+        start_date__gte=current_date - timedelta(days=4),  # Show events starting from 4 days before current date
     )
 
     events_data = []
@@ -239,23 +238,23 @@ def verifiable_events(request):
         start_date = event.start_date.date()
         end_date = event.end_date.date() if event.end_date else None
 
+        # Initialize clickability and visibility flags
         is_clickable = False
         should_display = False
 
-        # Set clickability and display based on criteria
-        if start_date == current_date:
-            is_clickable = True
+        # Check for the display conditions
+        if start_date >= current_date - timedelta(days=4):
             should_display = True
-        elif start_date <= current_date:
-            if end_date:
-                if current_date <= end_date + timedelta(days=1):
-                    is_clickable = True
-                    should_display = True
+
+            # Clickability conditions
+            if start_date == current_date:
+                is_clickable = True  # Clickable on the event's start date
+            elif end_date:
+                if start_date <= current_date <= end_date + timedelta(days=1):
+                    is_clickable = False  # Not clickable, but should display
             else:
-                # If no end date, clickable only up to one day after start date
-                if current_date <= start_date + timedelta(days=1):
-                    is_clickable = True
-                    should_display = True
+                if start_date <= current_date <= start_date + timedelta(days=1):
+                    is_clickable = False  # Not clickable for events without an end date but displayed for one day after start date
 
         if should_display:
             events_data.append({
@@ -264,6 +263,7 @@ def verifiable_events(request):
             })
 
     return render(request, 'tickets/verifiable_events.html', {'events_data': events_data})
+
 
 @login_required
 @vendor_required
