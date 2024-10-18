@@ -1,0 +1,69 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>Event Details: {{ event.title }}</h3>
+
+    <!-- Deassign Event Button -->
+    <div class="text-right mb-3">
+        <form action="{% url 'deassign_event' event.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Deassign Event</button>
+        </form>
+    </div>
+
+    <!-- Generated Tickets Table -->
+    <h4>Generated Tickets</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Tickets Sold</th>
+                <th>Price per Ticket</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in generated_totals %}
+            <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.sold }}</td>
+                <td>{{ item.price }}</td>
+                <td>{{ item.total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>Total</strong></td>
+                <td colspan="3"><strong>{{ total_generated }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!-- Verified Tickets Table (if permissions are granted) -->
+    {% if verifying_enabled %}
+    <h4>Verified Tickets</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Tickets Verified</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in verified_totals %}
+            <tr>
+                <td>{{ item.title }}</td>
+                <td>{{ item.verified }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>Total Verified</strong></td>
+                <td><strong>{{ total_verified }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    {% else %}
+    <p>No verified tickets available.</p>
+    {% endif %}
+</div>
+{% endblock %}

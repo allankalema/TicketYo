@@ -6,6 +6,7 @@ from events.models import Event
 from django.db.models import Q
 from datetime import datetime
 from accounts.models import User
+from events.models import *
 import random
 from vendors.decorators import vendor_required
 from django.contrib.auth.decorators import user_passes_test
@@ -370,3 +371,88 @@ def pos_agent_events(request, agent_id):
         'assigned_events': assigned_events,
     }
     return render(request, 'pos/pos_agent_events.html', context)
+
+
+@login_required
+@vendor_required
+def pos_event_detail(request, event_id):
+    # Get the event by ID
+    event = get_object_or_404(Event, id=event_id)
+    
+    # Fetch the associated agent assignment for the current vendor
+    agent_assignment = get_object_or_404(AgentEventAssignment, event=event, vendor=request.user)
+
+    # Fetch ticket categories associated with the event
+    ticket_categories = TicketCategory.objects.filter(event=event)
+
+    # Calculate total tickets generated per category
+    generated_totals = []
+    total_generated = 0
+
+    for category in ticket_categories:
+        total_sold = category.category_tickets_sold
+        price_per_ticket = category.category_price
+        total_amount = total_sold * price_per_ticket
+        total_generated += total_amount
+        generated_totals.append({
+            'title': category.category_title,
+            'sold': total_sold,
+            'price': price_per_ticket,
+            'total': total_amount,
+        })
+
+    # Handle ordinary tickets if no categories exist
+    if not ticket_categories.exists():
+        total_sold = event.tickets_sold
+        price_per_ticket = event.regular_price
+        total_amount = total_sold * price_per_ticket
+        generated_totals.append({
+            'title': 'Ordinary',
+            'sold': total_sold,
+            'price': price_per_ticket,
+            'total': total_amount,
+        })
+
+    # Check if verifying tickets is allowed
+    verifying_enabled = agent_assignment.verifying_tickets
+    verified_totals = []
+
+    if verifying_enabled:
+        # Placeholder logic for tracking verified tickets
+        verified_data = {}  # Replace with actual logic to get verified tickets data
+        for category in ticket_categories:
+            # Fetch verified tickets based on category
+            verified_count = verified_data.get(category.id, 0)  # Adjust as per your logic
+            verified_totals.append({
+                'title': category.category_title,
+                'verified': verified_count,
+            })
+
+        # If no verified totals exist, add a default entry for ordinary tickets
+        if not verified_totals:
+            verified_totals.append({
+                'title': 'Ordinary',
+                'verified': 0,
+            })
+
+    # Total verified tickets count
+    total_verified = sum(item['verified'] for item in verified_totals)
+
+    context = {
+        'event': event,
+        'generated_totals': generated_totals,
+        'total_generated': total_generated,
+        'verifying_enabled': verifying_enabled,
+        'verified_totals': verified_totals,
+        'total_verified': total_verified,
+    }
+    return render(request, 'pos/pos_event_detail.html', context)
+
+
+@login_required
+@vendor_required
+def deassign_event(request, event_id):
+    # Get the event assignment and delete it
+    assignment = get_object_or_404(AgentEventAssignment, event__id=event_id, vendor=request.user)
+    assignment.delete()
+    return redirect('pos-agent-events') 

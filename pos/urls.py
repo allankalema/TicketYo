@@ -15,4 +15,6 @@ urlpatterns = [
     path('agent/<int:agent_id>/', views.agent_detail, name='pos-agent-detail'),
     path('assign-events/<int:agent_id>/', views.assign_events_to_pos_agent, name='assign_events_to_pos_agent'),
     path('pos-agent/<int:agent_id>/events/', views.pos_agent_events, name='pos-agent-events'),
+    path('event/<int:event_id>/', views.pos_event_detail, name='pos_event_detail'),
+    path('event/deassign/<int:event_id>/', views.deassign_event, name='deassign_event'),
 ]
