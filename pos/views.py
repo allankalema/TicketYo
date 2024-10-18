@@ -232,8 +232,15 @@ def pos_dashboard(request):
 @vendor_required
 @login_required
 def assign_events_to_pos_agent(request, agent_id):
+    # Ensure agent exists and is a POS agent
     agent = User.objects.get(id=agent_id, is_posagent=True)
-    user_events = Event.objects.filter(user=request.user, start_date__gte=timezone.now()).order_by('start_date')
+    
+    # Filter only the approved events for the current vendor (request.user)
+    user_events = Event.objects.filter(
+        user=request.user,
+        start_date__gte=timezone.now(),
+        status='approved'  # Filter for approved events
+    ).order_by('start_date')
 
     if request.method == 'POST':
         selected_events_ids = request.POST.getlist('events')
@@ -266,3 +273,4 @@ def assign_events_to_pos_agent(request, agent_id):
         'agent': agent,
         'user_events': user_events,
     })
+

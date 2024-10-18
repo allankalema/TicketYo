@@ -9,14 +9,19 @@
             <div class="card" style="height: 100%;">
                 <div class="card-body">
                     <h4>Assign Events to {{ agent.first_name }}</h4>
-                    <input type="text" id="searchBar" placeholder="Search Events..." class="form-control mb-3" onkeyup="filterEvents()">
+
+                    <!-- Search bar for filtering events with an inline button -->
+                    <div class="input-group mb-3">
+                        <input type="text" id="searchBar" placeholder="Search Events..." class="form-control" onkeyup="filterEvents()">
+                        <button class="btn btn-outline-secondary" type="button">Search</button>
+                    </div>
                     
                     <!-- Event list with scroll -->
                     <form method="POST">
                         {% csrf_token %}
                         <div id="eventList" style="max-height: 500px; overflow-y: auto;">
                             {% for event in user_events %}
-                                <div class="form-check">
+                                <div class="form-check event-item">
                                     <input type="checkbox" class="form-check-input" name="events" value="{{ event.id }}" id="event-{{ event.id }}">
                                     <label class="form-check-label" for="event-{{ event.id }}">{{ event.title }}</label>
                                 </div>
@@ -66,22 +71,53 @@
     </div>
 </div>
 
+<!-- JavaScript for filtering events -->
 <script>
     function filterEvents() {
-        var input, filter, div, label, i;
-        input = document.getElementById('searchBar');
-        filter = input.value.toLowerCase();
-        div = document.getElementById("eventList");
-        label = div.getElementsByTagName('label');
+    var input, filter, div, labels, i;
+    input = document.getElementById('searchBar');
+    filter = input.value.toLowerCase();
+    div = document.getElementById("eventList");
+    labels = div.getElementsByClassName('form-check');  // Get all event items with class "form-check"
 
-        for (i = 0; i < label.length; i++) {
-            if (label[i].innerHTML.toLowerCase().indexOf(filter) > -1) {
-                label[i].parentNode.style.display = "";
-            } else {
-                label[i].parentNode.style.display = "none";
-            }
+    var events = [];
+
+    // Loop through all event labels and store their match score (based on name match) 
+    for (i = 0; i < labels.length; i++) {
+        var label = labels[i].getElementsByTagName('label')[0];
+        var eventName = label.innerHTML.toLowerCase();
+
+        // Calculate relevance score: 0 if no match, or the position where the match starts + length difference
+        var matchIndex = eventName.indexOf(filter);
+        var score = (matchIndex > -1) ? matchIndex + (eventName.length - filter.length) : Infinity;
+
+        // Only push relevant events into the list
+        if (matchIndex > -1) {
+            events.push({
+                element: labels[i],
+                score: score
+            });
+        } else {
+            labels[i].style.display = "none";  // Hide non-matching event
         }
     }
+
+    // Sort the events by their match score (lower score means better match)
+    events.sort(function(a, b) {
+        return a.score - b.score;
+    });
+
+    // Reorder the event elements in the DOM
+    for (i = 0; i < events.length; i++) {
+        div.appendChild(events[i].element);
+        events[i].element.style.display = "";  // Make sure matching events are visible
+    }
+
+    // If no matching events, display a message
+    if (events.length === 0) {
+        div.innerHTML = "<p>No events match your search.</p>";
+    }
+}
 </script>
 
 {% endblock %}
