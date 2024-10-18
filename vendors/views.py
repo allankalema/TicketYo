@@ -21,77 +21,67 @@ from tickets.models import Ticket
 from events.models import Event
 from django.db.models import Q
 
+# Generate a 6-character verification code
 def generate_verification_code():
     return get_random_string(length=6, allowed_chars=string.ascii_uppercase + string.digits)
 
-def signup(request):
+def vendor_signup(request):
     if request.method == 'POST':
-        form = UserCreationForm(request.POST)  # Updated form
+        form = VendorSignupForm(request.POST)
         if form.is_valid():
             user = form.save(commit=False)
-            # Set is_vendor flag to True
-            user.is_vendor = True
-            # Generate verification code and store it with the user
+            user.is_vendor = True  # Set vendor flag
+            user.is_active = False  # Prevent login before verification
+            
+            # Generate and save the verification code
             verification_code = generate_verification_code()
             user.verification_code = verification_code
             user.verification_code_created_at = timezone.now()
-            user.is_active = False  # Prevent login before verification
             user.save()
-            
+
             # Send verification email
-            verification_link = request.build_absolute_uri(
-                reverse('verify_email', args=[user.pk])
-            )
             email_subject = 'Your Verification Code'
             email_body = f'Your verification code is {verification_code}.'
             send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
 
-            return redirect('verify_email', pk=user.pk)
+            return redirect('vendor_verify_email', pk=user.pk)
     else:
-        form = UserCreationForm()
+        form = VendorSignupForm()
+    return render(request, 'vendors/vendor_signup.html', {'form': form})
 
-    return render(request, 'vendors/signup.html', {'form': form})
-
-def verify_email(request, pk):
-    user = get_object_or_404(User, pk=pk)  # Change to User
+def vendor_verify_email(request, pk):
+    user = get_object_or_404(User, pk=pk)
     
     if request.method == 'POST':
         code = request.POST.get('code')
-        attempts = request.session.get('attempts', 0)
         
-        # Check if code has expired
+        # Check if the code has expired
         expiration_time = user.verification_code_created_at + timezone.timedelta(minutes=10)
         if timezone.now() > expiration_time:
-            user.delete()
-            return redirect('signup')
+            messages.error(request, "Verification code has expired. Please sign up again.")
+            return redirect('vendor_signup')
         
+        # Validate the entered code
         if code == user.verification_code:
-            # Code is correct, activate the user
             user.is_active = True
-            user.verification_code = None  # Clear the code after verification
+            user.verification_code = None  # Clear the code after successful verification
             user.save()
-            
-            # Log in the user
+
+            # Log in the vendor
             login(request, user)
-            
+
             # Send a welcome email
             email_subject = 'Welcome to Ticket Yo'
-            email_body = f'Hi {user.username}, welcome to Ticket Yo!'
+            email_body = f'Hi {user.username}, welcome to Ticket Yo! You can now manage your store and events.'
             send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
-            
-            return redirect('dashboard')
+
+            return redirect('dashboard')  # Redirect to the vendor dashboard
         else:
-            attempts += 1
-            request.session['attempts'] = attempts
-            if attempts >= 5:
-                user.delete()  # Discard the user data after 5 failed attempts
-                return redirect('signup')
-            else:
-                error_message = 'Invalid code. Please try again.'
-                return render(request, 'vendors/verify_email.html', {'error': error_message})
-    else:
-        return render(request, 'vendors/verify_email.html')
+            messages.error(request, "Invalid verification code. Please try again.")
     
+    return render(request, 'vendors/verify_email.html', {'user': user})   
+
+
 @login_required
 @vendor_required
 def vendor_dashboard(request):

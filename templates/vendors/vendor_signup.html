@@ -41,11 +41,12 @@
             {% if form.last_name.errors %}
                 <div class="error-message">{{ form.last_name.errors.0 }}</div>
             {% endif %}
-
+            
             <div class="form-group">
-                <label for="{{ form.storename.id_for_label }}">Store Name:</label>
-                {{ form.storename }}
+                <label for="{{ form.store_name.id_for_label }}">Store Name:</label>
+                {{ form.store_name }}
             </div>
+            
             {% if form.storename.errors %}
                 <div class="error-message">{{ form.storename.errors.0 }}</div>
             {% endif %}
@@ -80,7 +81,7 @@
         </form>
 
         <div class="login-links">
-            <p>Already have an account? <a href="{% url 'login' %}">Login here</a></p>
+            <p>Already have an account? <a href="{% url 'universal_login' %}">Login here</a></p>
         </div>
     </div>
 
