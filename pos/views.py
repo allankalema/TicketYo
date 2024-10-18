@@ -1,4 +1,4 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.core.mail import send_mail
 from django.conf import settings
@@ -168,49 +168,16 @@ def signup_pos_agent(request, email):
     })
 
 
-@login_required
 def agent_detail(request, agent_id):
-    agent = User.objects.get(id=agent_id)
-    total_tickets_sold = 0
-    total_tickets_verified = 0
-    total_amount_made = 0.00
-
-    search_query = request.GET.get('search_events', '')
-    assigned_events = agent.assigned_events.all()
-
-    if search_query:
-        assigned_events = assigned_events.filter(title__icontains=search_query)
-
-    if not request.user.is_vendor:
-        return redirect('home')
-
-    all_events = request.user.events.filter(
-        (Q(start_date__gte=timezone.now()) | Q(end_date__gte=timezone.now())),
-        status='approved'
-    )
-
-    if request.method == 'POST':
-        selected_event_ids = request.POST.getlist('events')
-        if not selected_event_ids:
-            messages.error(request, "At least one event must be allocated to the agent.")
-        else:
-            selected_events = Event.objects.filter(id__in=selected_event_ids)
-            agent.assigned_events.set(selected_events)
-            messages.success(request, "Events have been successfully updated.")
-            return redirect('agent_detail', agent_id=agent.id)
+    # Retrieve the agent using the provided agent_id
+    agent = get_object_or_404(User, id=agent_id, is_posagent=True)
 
     context = {
         'agent': agent,
-        'assigned_events': assigned_events,
-        'search_query': search_query,
-        'total_tickets_sold': total_tickets_sold,
-        'total_tickets_verified': total_tickets_verified,
-        'total_amount_made': total_amount_made,
-        'all_events': all_events,
+        # You can add more context if needed
     }
     
     return render(request, 'pos/agent_detail.html', context)
-
 
 @login_required
 def agent_action(request, agent_id):
