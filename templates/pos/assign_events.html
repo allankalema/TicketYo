@@ -1,4 +1,3 @@
-<!-- pos/assign_events.html -->
 {% extends 'frontend/base.html' %}
 
 {% block content %}
@@ -15,7 +14,7 @@
                         <input type="text" id="searchBar" placeholder="Search Events..." class="form-control" onkeyup="filterEvents()">
                         <button class="btn btn-outline-secondary" type="button">Search</button>
                     </div>
-                    
+
                     <!-- Event list with scroll -->
                     <form method="POST">
                         {% csrf_token %}
@@ -74,50 +73,50 @@
 <!-- JavaScript for filtering events -->
 <script>
     function filterEvents() {
-    var input, filter, div, labels, i;
-    input = document.getElementById('searchBar');
-    filter = input.value.toLowerCase();
-    div = document.getElementById("eventList");
-    labels = div.getElementsByClassName('form-check');  // Get all event items with class "form-check"
+        var input, filter, div, labels, i;
+        input = document.getElementById('searchBar');
+        filter = input.value.toLowerCase();
+        div = document.getElementById("eventList");
+        labels = div.getElementsByClassName('form-check');  // Get all event items with class "form-check"
 
-    var events = [];
+        var events = [];
 
-    // Loop through all event labels and store their match score (based on name match) 
-    for (i = 0; i < labels.length; i++) {
-        var label = labels[i].getElementsByTagName('label')[0];
-        var eventName = label.innerHTML.toLowerCase();
+        // Loop through all event labels and store their match score (based on name match) 
+        for (i = 0; i < labels.length; i++) {
+            var label = labels[i].getElementsByTagName('label')[0];
+            var eventName = label.innerHTML.toLowerCase();
 
-        // Calculate relevance score: 0 if no match, or the position where the match starts + length difference
-        var matchIndex = eventName.indexOf(filter);
-        var score = (matchIndex > -1) ? matchIndex + (eventName.length - filter.length) : Infinity;
+            // Calculate relevance score: 0 if no match, or the position where the match starts + length difference
+            var matchIndex = eventName.indexOf(filter);
+            var score = (matchIndex > -1) ? matchIndex + (eventName.length - filter.length) : Infinity;
 
-        // Only push relevant events into the list
-        if (matchIndex > -1) {
-            events.push({
-                element: labels[i],
-                score: score
-            });
-        } else {
-            labels[i].style.display = "none";  // Hide non-matching event
+            // Only push relevant events into the list
+            if (matchIndex > -1) {
+                events.push({
+                    element: labels[i],
+                    score: score
+                });
+            } else {
+                labels[i].style.display = "none";  // Hide non-matching event
+            }
+        }
+
+        // Sort the events by their match score (lower score means better match)
+        events.sort(function(a, b) {
+            return a.score - b.score;
+        });
+
+        // Reorder the event elements in the DOM
+        for (i = 0; i < events.length; i++) {
+            div.appendChild(events[i].element);
+            events[i].element.style.display = "";  // Make sure matching events are visible
+        }
+
+        // If no matching events, display a message
+        if (events.length === 0) {
+            div.innerHTML = "<p>No events match your search.</p>";
         }
     }
-
-    // Sort the events by their match score (lower score means better match)
-    events.sort(function(a, b) {
-        return a.score - b.score;
-    });
-
-    // Reorder the event elements in the DOM
-    for (i = 0; i < events.length; i++) {
-        div.appendChild(events[i].element);
-        events[i].element.style.display = "";  // Make sure matching events are visible
-    }
-
-    // If no matching events, display a message
-    if (events.length === 0) {
-        div.innerHTML = "<p>No events match your search.</p>";
-    }
-}
 </script>
 
 {% endblock %}

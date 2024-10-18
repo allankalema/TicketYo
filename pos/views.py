@@ -14,6 +14,7 @@ from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login
 from django.core.paginator import Paginator
+from pos.models import AgentEventAssignment
 
 
 @login_required
@@ -233,7 +234,7 @@ def pos_dashboard(request):
 @login_required
 def assign_events_to_pos_agent(request, agent_id):
     # Ensure agent exists and is a POS agent
-    agent = User.objects.get(id=agent_id, is_posagent=True)
+    agent = get_object_or_404(User, id=agent_id, is_posagent=True)
     
     # Filter only the approved events for the current vendor (request.user)
     user_events = Event.objects.filter(
@@ -243,34 +244,59 @@ def assign_events_to_pos_agent(request, agent_id):
     ).order_by('start_date')
 
     if request.method == 'POST':
+        # Get selected events and actions
         selected_events_ids = request.POST.getlist('events')
-        actions = request.POST.getlist('actions')
+        generate_tickets = 'Generate Tickets' in request.POST.getlist('actions')
+        verify_events = 'Verify Events' in request.POST.getlist('actions')
 
         if selected_events_ids:
-            # Assign the events to the agent
             event_details = []
+            
+            # Loop through each selected event and assign permissions
             for event_id in selected_events_ids:
-                event = Event.objects.get(id=event_id)
-                agent.assigned_events.add(event)  # Add event to POS agent
-                event_details.append(event.title)  # Collect event titles
+                event = get_object_or_404(Event, id=event_id)
 
-            action_list = ', '.join(actions) if actions else "No action selected"
+                # Create or update an AgentEventAssignment record for this agent and event
+                AgentEventAssignment.objects.update_or_create(
+                    agent=agent,
+                    event=event,
+                    defaults={
+                        'generating_tickets': generate_tickets,
+                        'verifying_tickets': verify_events,
+                    }
+                )
 
-            # Send email to the POS agent with the details
-            send_mail(
-                'Event Assignment Notification',
-                f'Hello,\n\nThis is from TicketYo. You have been assigned the following events:\n\n{", ".join(event_details)}\n\nActions to carry out:\n{action_list}\n\nPlease ensure you handle these assignments responsibly.',
-                settings.DEFAULT_FROM_EMAIL,
-                [agent.email],
-                fail_silently=False,
-            )
+                # Collect event titles for the email notification
+                event_details.append(event.title)
+
+            # Prepare actions for email notification
+            action_list = []
+            if generate_tickets:
+                action_list.append('Generate Tickets')
+            if verify_events:
+                action_list.append('Verify Events')
+            action_list_str = ', '.join(action_list) if action_list else "No specific actions selected"
+
+            # Send email to the POS agent with the assignment details
+            try:
+                send_mail(
+                    'Event Assignment Notification',
+                    f'Hello {agent.first_name},\n\nThis is from TicketYo. You have been assigned the following events:\n\n'
+                    f'{", ".join(event_details)}\n\n'
+                    f'Actions to carry out: {action_list_str}\n\n'
+                    'Please ensure you handle these assignments responsibly.',
+                    settings.DEFAULT_FROM_EMAIL,
+                    [agent.email],
+                    fail_silently=False,
+                )
+            except Exception as e:
+                messages.error(request, f'Error sending email: {str(e)}')
 
             # Display success message
             messages.success(request, f'Successfully assigned events to {agent.first_name}.')
-            return redirect('assign_events_to_pos_agent', agent_id=agent.id)
+            return redirect('manage_pos_agents')  # Redirect to the manage POS agents page
 
     return render(request, 'pos/assign_events.html', {
         'agent': agent,
         'user_events': user_events,
     })
-
