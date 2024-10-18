@@ -15,7 +15,7 @@ from tickets.models import Ticket
 def generate_verification_code():
     return ''.join(random.choices(string.ascii_uppercase + string.digits, k=6))
 
-def user_signup(request):
+def customer_signup(request):
     if request.method == 'POST':
         form = UserSignupForm(request.POST)
         if form.is_valid():
@@ -32,12 +32,14 @@ def user_signup(request):
             email_body = f'Your verification code is {verification_code}.'
             send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
 
-            return redirect('user_verify_email', pk=user.pk)
+            return redirect('customer_verify_email', pk=user.pk)
     else:
         form = UserSignupForm()
-    return render(request, 'accounts/signup.html', {'form': form})
+    return render(request, 'customers/signup.html', {'form': form})
 
-def user_verify_email(request, pk):
+
+
+def customer_verify_email(request, pk):
     user = get_object_or_404(User, pk=pk)
     if request.method == 'POST':
         code = request.POST.get('code')
@@ -46,7 +48,7 @@ def user_verify_email(request, pk):
         expiration_time = user.verification_code_created_at + timezone.timedelta(minutes=10)
         if timezone.now() > expiration_time:
             messages.error(request, "Verification code has expired.")
-            return redirect('signup')
+            return redirect('customer_signup')
 
         if code == user.verification_code:
             user.is_verified = True
@@ -59,13 +61,14 @@ def user_verify_email(request, pk):
 
             # Send welcome email
             email_subject = 'Welcome to Our Platform'
-            email_body = f'Hi {user.username}, welcome to Our Platform!'
+            email_body = f'Hi {user.username}, welcome to TicketYo where we you can buy Tickets to you esteemed events!'
             send_mail(email_subject, email_body, settings.DEFAULT_FROM_EMAIL, [user.email])
 
             return redirect('customer_home')
         else:
             messages.error(request, "Invalid verification code. Please try again.")
-    return render(request, 'accounts/user_email_verification.html', {'user': user})
+    return render(request, 'customers/customer_email_verification.html', {'user': user})
+
 
 @login_required
 def user_home(request):
