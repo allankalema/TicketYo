@@ -263,6 +263,7 @@ def assign_events_to_pos_agent(request, agent_id):
                     defaults={
                         'generating_tickets': generate_tickets,
                         'verifying_tickets': verify_events,
+                        'vendor': request.user,  # The vendor who is assigning the event
                     }
                 )
 
@@ -281,7 +282,7 @@ def assign_events_to_pos_agent(request, agent_id):
             try:
                 send_mail(
                     'Event Assignment Notification',
-                    f'Hello {agent.first_name},\n\nThis is from TicketYo. You have been assigned the following events:\n\n'
+                    f'Hello {agent.first_name},\n\nThis is from TicketYo. You have been assigned the following events by {request.user.first_name} {request.user.last_name} (Vendor):\n\n'
                     f'{", ".join(event_details)}\n\n'
                     f'Actions to carry out: {action_list_str}\n\n'
                     'Please ensure you handle these assignments responsibly.',

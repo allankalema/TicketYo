@@ -9,6 +9,9 @@ class AgentEventAssignment(models.Model):
     # ForeignKey to the Event model in the events app
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='agent_assignments')
 
+    vendor = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='assigned_event', null=True)
+
+
     # Boolean fields for permissions
     generating_tickets = models.BooleanField(default=False)
     verifying_tickets = models.BooleanField(default=False)
