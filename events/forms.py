@@ -30,7 +30,7 @@ TicketCategoryFormSet = inlineformset_factory(
 
 
 
-class AddToCartForm(forms.ModelForm):
-    class Meta:
-        model = Cart
-        fields = []
+# class AddToCartForm(forms.ModelForm):
+#     class Meta:
+#         model = Cart
+#         fields = []

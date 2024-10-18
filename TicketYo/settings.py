@@ -6,7 +6,7 @@ from decouple import config
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # Custom user model
-AUTH_USER_MODEL = 'vendors.Vendor'
+AUTH_USER_MODEL = 'accounts.User'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'django-insecure-xrsoe(-i(#r!obcems%2nmc1j3jn=tmck59wq0lvcw+3_g$fx$'
@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     'api',
     'frontend',
     'pos',
+    'accounts',
 ]
 
 MIDDLEWARE = [
@@ -45,6 +46,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # 'accounts.middleware.UserInstanceMiddleware',
 ]
 
 ROOT_URLCONF = 'TicketYo.urls'
@@ -108,9 +110,9 @@ USE_TZ = True
 
 # Custom authentication backends
 AUTHENTICATION_BACKENDS = [
-    'vendors.backends.VendorOrCustomerModelBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 ## Jazzmin settings for customizing the admin interface
 JAZZMIN_SETTINGS = {

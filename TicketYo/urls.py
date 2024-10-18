@@ -17,6 +17,7 @@ urlpatterns = [
     path('', include('frontend.urls')),
     path('api/', include('api.urls')),
     path('pos/', include('pos.urls')),
+    path('accounts/', include('accounts.urls')),
 ]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 handler403 = custom_permission_denied_view

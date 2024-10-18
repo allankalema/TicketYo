@@ -26,7 +26,7 @@
             <div class="col-md-6">
                 <form method="post" class="border p-4 bg-light rounded">
                     {% csrf_token %}
-                    {{ form.as_p }}
+                    {{ form.as_p }}  <!-- This will render the fields with labels and inputs -->
                     <div class="text-center">
                         <button type="submit" class="btn btn-danger btn-block mt-3">Update</button>
                     </div>

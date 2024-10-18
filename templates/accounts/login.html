@@ -1,0 +1,51 @@
+{% extends "frontend/universal_login.html" %}
+
+{% block form_content %}
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'frontend/login.css' %}">
+
+    <div class="login-form">
+        <h2 class="login-heading">Login</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.non_field_errors }}
+            <div class="form-group">
+                <label for="{{ form.username.id_for_label }}">Username:</label>
+                {{ form.username }}
+            </div>
+            {% if form.username.errors %}
+                <div class="error-message">{{ form.username.errors.0 }}</div>
+            {% endif %}
+
+            <div class="form-group">
+                <label for="{{ form.password.id_for_label }}">Password:</label>
+                {{ form.password }}
+                <span class="show-password" onclick="togglePassword()">Show</span>
+            </div>
+            {% if form.password.errors %}
+                <div class="error-message">{{ form.password.errors.0 }}</div>
+            {% endif %}
+
+            <button type="submit" class="login-button">Login</button>
+        </form>
+
+        <div class="login-links">
+            <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
+            <p>Forgot Password? <a href="#">Reset Password</a></p>
+        </div>
+    </div>
+
+    <script>
+        function togglePassword() {
+            const passwordInput = document.querySelector('#id_password');
+            const passwordToggle = document.querySelector('.show-password');
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                passwordToggle.textContent = 'Hide';
+            } else {
+                passwordInput.type = 'password';
+                passwordToggle.textContent = 'Show';
+            }
+        }
+    </script>
+{% endblock %}

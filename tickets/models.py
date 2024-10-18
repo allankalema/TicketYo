@@ -2,27 +2,31 @@
 
 from django.db import models
 from events.models import Event, TicketCategory
-from customers.models import Customer
-from vendors.models import Vendor
+from accounts.models import User
 import qrcode
 from io import BytesIO
+from django.conf import settings
 from django.core.files import File
 
+# tickets/models.py
 class Ticket(models.Model):
     ENTITY_TYPE_CHOICES = [
         ('customer', 'Customer'),
         ('vendor', 'Vendor'),
+        ('pos_agent', 'pos_agent'),
     ]
 
     event = models.ForeignKey(Event, on_delete=models.CASCADE, related_name='tickets')
     ticket_category = models.ForeignKey(TicketCategory, on_delete=models.CASCADE, null=True, blank=True)
     customer_username = models.CharField(max_length=255, blank=True, null=True)
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='tickets')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='tickets')
     ticket_number = models.CharField(max_length=20, unique=True)
     purchase_date = models.DateTimeField(auto_now_add=True)
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
     entity_type = models.CharField(max_length=10, choices=ENTITY_TYPE_CHOICES)
     verified = models.BooleanField(default=False)
+    
+
     
     def generate_qr_code(self):
         qr = qrcode.QRCode(
@@ -52,22 +56,16 @@ class Ticket(models.Model):
     def generate_ticket_number(event, vendor, category, entity, entity_type):
         from random import randint
 
-        vendor_code = vendor.storename[0].upper()
-        vendor_id = str(vendor.id).zfill(4)
-        event_code = event.title[0].upper()
-        event_id = str(event.id).zfill(4)
+        vendor_code = vendor.storename[0].upper()  # Vendor code from the event creator
+        vendor_id = str(vendor.id).zfill(4)         # Vendor ID
+        event_code = event.title[0].upper()         # Event code
+        event_id = str(event.id).zfill(4)           # Event ID
         category_code = category.category_title[:2].upper() if category else "OR"  # OR for ordinary
         category_id = str(category.id).zfill(2) if category else "00"
 
-        # Determine entity code and ID based on whether it's a customer or a vendor
-        if entity_type == 'customer':
-            entity_code = entity.username[0].upper()
-            entity_id = str(entity.id).zfill(3)
-        elif entity_type == 'vendor':
-            entity_code = entity.storename[0].upper()
-            entity_id = str(entity.id).zfill(4)  # Assuming vendor IDs may need to be 4 digits
-        else:
-            raise ValueError("Invalid entity type. Must be 'customer' or 'vendor'.")
+        # Entity code and ID based on the user currently generating the tickets
+        entity_code = entity.username[0].upper()    # Use username for the entity code
+        entity_id = str(entity.id).zfill(4)         # Entity ID
 
         random_digits = str(randint(1000, 9999))
 

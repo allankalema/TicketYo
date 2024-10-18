@@ -9,6 +9,6 @@ urlpatterns = [
     path('event_detail/<int:event_id>/', pos_event_detail, name='pos_event_detail'), 
     path('verify-email/', verify_email, name='verify_email'),
     path('signup/<str:email>/', signup_pos_agent, name='signup_pos_agent'),
-    path('pos/login/', pos_agent_login, name='pos_agent_login'),
+    # path('pos/login/', pos_agent_login, name='pos_agent_login'),
     path('pos/dashboard/', pos_dashboard, name='pos_dashboard'), # Detail view for agent
 ]

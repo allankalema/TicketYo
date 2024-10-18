@@ -1,8 +1,6 @@
 # payments/models.py
 from django.db import models
 from django.conf import settings
-from customers.models import Customer  # Import Customer model
-from vendors.models import Vendor      # Import Vendor model
 from events.models import Event        # Import Event model
 
 class Payment(models.Model):
