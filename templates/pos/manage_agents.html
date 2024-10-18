@@ -73,11 +73,11 @@
                     
                     <!-- Search Bar for My Agents -->
                     <form method="GET" class="d-flex mb-3">
-                        <input type="text" name="my_agents_search" class="form-control me-2" placeholder="Search my agents...">
+                        <input type="text" name="my_agents_search" class="form-control me-2" placeholder="Search my agents..." value="{{ my_agents_search }}">
                         <button type="submit" class="btn btn-outline-primary btn-custom">Search</button>
                     </form>
 
-                    <!-- List of My Agents (to be implemented later) -->
+                    <!-- List of My Agents -->
                     <ul class="list-group mb-3">
                         {% for agent in my_agents %}
                         <li class="list-group-item">
@@ -114,7 +114,6 @@
         color: #e70000;
         text-decoration: underline;
     }
-    
 
     .form-control.me-2 {
         margin-right: 10px;

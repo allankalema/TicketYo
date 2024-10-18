@@ -42,17 +42,28 @@ def manage_pos_agents(request):
     page_number = request.GET.get('page')
     available_agents_page = paginator.get_page(page_number)
 
-    # Retrieve "my agents" (implementation for determining 'my agents' will come later)
-    my_agents = []  # Placeholder for now, modify this later
+    # Retrieve "my agents" assigned to the current vendor
+    my_agents = AgentEventAssignment.objects.filter(vendor=request.user).select_related('agent')
+
+    # Ensure agents are unique and extract first and last names
+    my_agents_unique = {assignment.agent.id: assignment.agent for assignment in my_agents}
+
+    # Handle the search functionality for "My Agents"
+    my_agents_search_query = request.GET.get('my_agents_search', '')
+    if my_agents_search_query:
+        my_agents_unique = {id: agent for id, agent in my_agents_unique.items() if
+                            my_agents_search_query.lower() in agent.first_name.lower() or 
+                            my_agents_search_query.lower() in agent.last_name.lower()}
 
     context = {
         'user': request.user,
         'available_agents_page': available_agents_page,
         'search_query': search_query,
-        'my_agents': my_agents,  # This will be filled later
+        'my_agents': list(my_agents_unique.values()),  # Convert to a list for rendering
     }
 
     return render(request, 'pos/manage_agents.html', context)
+
 
 
 @login_required
