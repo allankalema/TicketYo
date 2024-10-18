@@ -247,14 +247,14 @@ def verifiable_events(request):
             should_display = True
 
             # Clickability conditions
-            if start_date == current_date:
+            if current_date >= start_date:
                 is_clickable = True  # Clickable on the event's start date
             elif end_date:
                 if start_date <= current_date <= end_date + timedelta(days=1):
-                    is_clickable = False  # Not clickable, but should display
+                    is_clickable = True  # clickable, but should display
             else:
                 if start_date <= current_date <= start_date + timedelta(days=1):
-                    is_clickable = False  # Not clickable for events without an end date but displayed for one day after start date
+                    is_clickable = True  #  clickable for events without an end date but displayed for one day after start date
 
         if should_display:
             events_data.append({
