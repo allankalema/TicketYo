@@ -355,3 +355,18 @@ def invite_pos_agent(request):
         messages.error(request, "Please provide a valid email.")
     
     return render(request, 'pos/invite_pos_agent.html')
+
+@login_required
+@vendor_required
+def pos_agent_events(request, agent_id):
+    # Get the POS agent by ID
+    pos_agent = get_object_or_404(User, id=agent_id, is_posagent=True)
+
+    # Fetch events assigned to this POS agent for the logged-in vendor
+    assigned_events = AgentEventAssignment.objects.filter(agent=pos_agent, vendor=request.user).select_related('event')
+
+    context = {
+        'pos_agent': pos_agent,
+        'assigned_events': assigned_events,
+    }
+    return render(request, 'pos/pos_agent_events.html', context)

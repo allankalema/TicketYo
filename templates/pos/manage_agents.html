@@ -81,7 +81,7 @@
                     <ul class="list-group mb-3">
                         {% for agent in my_agents %}
                         <li class="list-group-item">
-                            <a href="#" class="text-decoration-none">{{ agent.first_name }} {{ agent.last_name }}</a>
+                            <a href="{% url 'pos-agent-events' agent.id %}" class="text-decoration-none">{{ agent.first_name }} {{ agent.last_name }}</a>
                         </li>
                         {% empty %}
                         <li class="list-group-item">No agents available</li>
