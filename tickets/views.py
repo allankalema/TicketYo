@@ -18,10 +18,7 @@ from django.core.mail import EmailMessage
 def prepare_event_data(event_id):
     event = get_object_or_404(Event, id=event_id)
     categories = event.ticket_categories.all()
-    
-    if event.is_sold_out():
-        return None, {'template': 'tickets/sold_out.html', 'context': {'event': event}}
-    
+
     ticket_data = [
         {'category': category, 
          'tickets_remaining': category.category_tickets_available - category.category_tickets_sold}
@@ -46,10 +43,11 @@ def get_user_entity(request):
         return None, None
 
 
-def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_info, user, user_type):
+def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_info, buyer, buyer_type):
     ticket_details = []
     total_tickets = 0
     total_price = 0
+    vendor = event.user  # Vendor is the event creator
     
     for data in ticket_data:
         category = data['category']
@@ -57,7 +55,8 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
         if quantity > 0:
             if category.is_category_sold_out() or category.category_tickets_sold + quantity > category.category_tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
-            ticket_details += generate_tickets(event, category, quantity, user, user_type)
+            # Generate tickets with distinct vendor and buyer
+            ticket_details += generate_tickets(event, category, quantity, vendor, buyer, buyer_type)
             total_tickets += quantity
             total_price += quantity * category.category_price
             category.category_tickets_sold += quantity
@@ -68,7 +67,8 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
         if quantity > 0:
             if event.is_sold_out() or event.tickets_sold + quantity > event.tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
-            ticket_details += generate_tickets(event, None, quantity, user, user_type)
+            # Generate tickets for ordinary category
+            ticket_details += generate_tickets(event, None, quantity, vendor, buyer, buyer_type)
             total_tickets += quantity
             total_price += quantity * event.sale_price
     
@@ -77,25 +77,25 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
     
     return {'ticket_details': ticket_details, 'total_tickets': total_tickets, 'total_price': total_price}, None
 
-def generate_tickets(event, category, quantity, user, user_type):
+def generate_tickets(event, category, quantity, vendor, buyer, buyer_type):
     tickets = []
     for _ in range(quantity):
         ticket_number = Ticket.generate_ticket_number(
             event=event,
-            vendor=event.user,
+            vendor=vendor,       # Vendor is always the event creator
             category=category,
-            entity=user,
-            entity_type=user_type
+            entity=buyer,        # Entity is the buyer
+            entity_type=buyer_type
         )
         qr_image = generate_qr_code(ticket_number)
         ticket = Ticket.objects.create(
             event=event,
             ticket_category=category,
-            customer_username=user.username,
-            user=user,
+            customer_username=buyer.username,  # Buyer info
+            user=vendor,                       # Vendor info (event creator)
             ticket_number=ticket_number,
             qr_code=qr_image,
-            entity_type=user_type
+            entity_type=buyer_type
         )
         tickets.append({
             'ticket_number': ticket_number,
@@ -104,7 +104,6 @@ def generate_tickets(event, category, quantity, user, user_type):
             'qr_code_url': ticket.qr_code.url
         })
     return tickets
-
 
 def generate_qr_code(ticket_number):
     qr = qrcode.QRCode(version=1, error_correction=qrcode.constants.ERROR_CORRECT_L, box_size=10, border=4)

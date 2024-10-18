@@ -33,6 +33,10 @@ def vendor_signup(request):
             user.is_vendor = True  # Set vendor flag
             user.is_active = False  # Prevent login before verification
             
+            # Assign the store name and store phone to the user model
+            user.storename = form.cleaned_data['store_name']
+            user.store_phone = form.cleaned_data['store_phone']  # Ensure this field is added to the User model if needed
+            
             # Generate and save the verification code
             verification_code = generate_verification_code()
             user.verification_code = verification_code
