@@ -301,3 +301,46 @@ def assign_events_to_pos_agent(request, agent_id):
         'agent': agent,
         'user_events': user_events,
     })
+
+@login_required
+@login_required
+def invite_pos_agent(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        message = request.POST.get('message', '')
+        vendor_first_name = request.user.first_name
+        vendor_last_name = request.user.last_name
+        vendor_email = request.user.email
+
+        if email:
+            # Prepare email content
+            email_subject = "Invitation to Join TicketYo as a POS Agent"
+            email_body = (
+                f"Hello,\n\n"
+                f"You are being invited by {vendor_first_name} {vendor_last_name} to become a POS agent for handling cash transactions and ticket verification for their events at TicketYo.\n\n"
+                "If you agree, please proceed to TicketYo and sign up as a POS agent. You will be able to manage assigned events and perform actions.\n\n"
+                "Thank you.\n"
+                "Yours sincerely,\n"
+                "The Management\n\n"
+                f"For any inquiries, please contact the vendor at {vendor_email}."
+            )
+
+            # Include additional message if provided
+            if message:
+                email_body += f"\n\nAdditional Message:\n{message}"
+
+            # Send the email
+            send_mail(
+                email_subject,
+                email_body,
+                settings.DEFAULT_FROM_EMAIL,  # Replace with your default email
+                [email],
+                fail_silently=False,
+            )
+
+            messages.success(request, "Invitation sent successfully!")
+            return redirect('manage_pos_agents')  # Change to your desired redirect
+
+        messages.error(request, "Please provide a valid email.")
+    
+    return render(request, 'pos/invite_pos_agent.html')
