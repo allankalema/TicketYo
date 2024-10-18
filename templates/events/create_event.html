@@ -1,109 +1,110 @@
 {% extends 'frontend/base.html' %}
+
 {% load static %}
+
 {% block content %}
-<title>Create Event</title>
 
 <!-- Load CSS -->
 <link rel="stylesheet" href="{% static 'events/create.css' %}">
+<script src="{% static 'events/create.js' %}"></script>
 
 <!-- Main Container -->
 <div class="container">
     <!-- Section A: Header and Cancel Button -->
     <div class="section-a">
-        <h2>Create Event</h2>
-        <a href="{% url 'dashboard' %}" class="btn btn-outline-danger cancel-btn">Cancel</a>
+        <h2 class="text-danger mt-3 ">Create Event</h2>
+        <a href="{% url 'dashboard' %}" class="btn btn-outline-danger cancel-btn mt3">Cancel</a>
     </div>
-    
+
     <!-- Form Container -->
     <form method="post" enctype="multipart/form-data">
         {% csrf_token %}
-        
-        <div class="section-b">
-            <div class="form-container">
-                <div class="form-left">
-                  <div class="form-group">
-                    <label for="title" class="form-label">Title</label>
-                    <input type="text" id="title" name="title" placeholder="Enter title">
-                  </div>
-                  <div class="form-group">
-                    <label for="description" class="form-label">Description</label>
-                    <textarea id="description" name="description" placeholder="Enter description"></textarea>
-                  </div>
 
-                 <div class="form-group">
-                    <label for="category" class="form-label">Category</label>
-                    <div class="category-container">
-                        <input type="text" id="category" name="category" placeholder="Select or type a category">
-                        <datalist id="category-options">
-                            <option value="Concert">
-                            <option value="Conference">
-                            <option value="Festival">
-                            <option value="Workshop">
-                            <option value="Sports">
-                            <option value="Theatre">
-                        </datalist>
+        <div class="section-b">
+            <div class="form-container shadow-lg p-4 mb-5">
+                <div class="form-left">
+                    <div class="form-group mb-4">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" id="title" name="title" class="form-control" placeholder="Enter title">
+                    </div>
+                    <div class="form-group mb-4">
+                        <label for="description" class="form-label">Description</label>
+                        <textarea id="description" name="description" class="form-control" placeholder="Enter description"></textarea>
+                    </div>
+
+                    <div class="form-group mb-4">
+                        <label for="category" class="form-label">Category</label>
+                        <div class="category-container">
+                            <input type="text" id="category" name="category" class="form-control" placeholder="Select or type a category">
+                            <datalist id="category-options">
+                                <option value="Concert">
+                                <option value="Conference">
+                                <option value="Festival">
+                                <option value="Workshop">
+                                <option value="Sports">
+                                <option value="Theatre">
+                            </datalist>
+                        </div>
                     </div>
                 </div>
 
-                
-                
-                </div>
-              
                 <!-- Poster upload on the right -->
                 <div class="form-right">
-                    <div class="poster-upload" onclick="document.getElementById('file-upload').click();">
-                      <i class="bi bi-cloud-upload-fill upload-icon"></i>
-                      <span>Upload your poster here</span> <!-- This will be replaced by the file name -->
-                      <input type="file" id="file-upload" name="poster" accept="image/*" style="display: none;" />
-                      <small class="text-danger">{{ event_form.poster.errors }}</small>
+                    <div class="poster-upload text-center" onclick="document.getElementById('file-upload').click();">
+                        <i class="bi bi-cloud-upload-fill upload-icon mb-2"></i>
+                        <span>Upload your poster here</span> <!-- This will be replaced by the file name -->
+                        <input type="file" id="file-upload" name="poster" accept="image/*" style="display: none;" />
+                        <small class="text-danger">{{ event_form.poster.errors }}</small>
                     </div>
-                  </div>
-              </div>
-              
-          </div>
-          
+                </div>
+            </div>
+
+        </div>
+
         <!-- Section C: Event Dates, Pricing, Tickets Available -->
         <div class="section-c">
-            <div class="form-group">
-                <label for="id_start_date">Start Date:</label>
+            <div class="form-container shadow-lg p-4 mb-5">
+            <div class="form-group mb-2">
+                <label for="id_start_date" class="form-label">Start Date:</label>
                 {{ event_form.start_date }}
                 <small class="text-danger">{{ event_form.start_date.errors }}</small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_end_date">End Date (Optional):</label>
+
+            <div class="form-group mb-2">
+                <label for="id_end_date" class="form-label">End Date (Optional):</label>
                 {{ event_form.end_date }}
                 <small class="text-danger">{{ event_form.end_date.errors }}</small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_venue_name">Venue Name:</label>
+
+            <div class="form-group mb-2">
+                <label for="id_venue_name" class="form-label">Venue Name:</label>
                 {{ event_form.venue_name }}
                 <small class="text-danger">{{ event_form.venue_name.errors }}</small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_regular_price">Regular Price:</label>
+
+            <div class="form-group mb-2">
+                <label for="id_regular_price" class="form-label">Regular Price:</label>
                 {{ event_form.regular_price }}
                 <small class="text-danger">{{ event_form.regular_price.errors }}</small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_sale_price">Sale Price:</label>
+
+            <div class="form-group mb-2">
+                <label for="id_sale_price" class="form-label">Sale Price:</label>
                 {{ event_form.sale_price }}
                 <small class="text-danger">{{ event_form.sale_price.errors }}</small>
             </div>
-            
-            <div class="form-group">
-                <label for="id_tickets_available">Tickets Available:</label>
+
+            <div class="form-group mb-2">
+                <label for="id_tickets_available" class="form-label">Tickets Available:</label>
                 {{ event_form.tickets_available }}
                 <small class="text-danger">{{ event_form.tickets_available.errors }}</small>
             </div>
         </div>
-        
+        </div>
+
         <!-- Section D: Ticket Categories -->
         <div class="section-d">
-            <h3>Ticket Categories</h3>
+            <h3 class="section-title">Ticket Categories</h3>
             <div id="ticket-categories">
                 {{ formset.management_form }}
                 {% for form in formset %}
@@ -112,14 +113,17 @@
                         <div class="col-12 col-md-4">
                             <label class="form-label">Category Title</label>
                             {{ form.category_title }}
+                            <small class="text-danger">{{ form.category_title.errors }}</small>
                         </div>
                         <div class="col-12 col-md-4">
                             <label class="form-label">Price</label>
                             {{ form.category_price }}
+                            <small class="text-danger">{{ form.category_price.errors }}</small>
                         </div>
                         <div class="col-12 col-md-3">
                             <label class="form-label">Tickets Available</label>
                             {{ form.category_tickets_available }}
+                            <small class="text-danger">{{ form.category_tickets_available.errors }}</small>
                         </div>
                         <div class="col-12 col-md-1 d-flex align-items-center">
                             <button type="button" class="btn btn-outline-danger remove-form">Remove</button>
@@ -128,10 +132,10 @@
                 </div>
                 {% endfor %}
             </div>
-            
-            <button type="button" id="add-more" class="btn btn-outline-primary mb-4">Add Another Category</button>
+
+            <button type="button" id="add-more" class="btn btn-outline-danger mb-4">Add Another Category</button>
         </div>
-        
+
         <!-- Submit button aligned to the bottom right -->
         <div class="text-right">
             <button type="submit" class="btn btn-outline-success">Submit Event for Approval</button>
@@ -145,14 +149,17 @@
         <div class="col-12 col-md-4">
             <label class="form-label">Category Title</label>
             {{ formset.empty_form.category_title }}
+            <small class="text-danger">{{ formset.empty_form.category_title.errors }}</small>
         </div>
         <div class="col-12 col-md-4">
             <label class="form-label">Price</label>
             {{ formset.empty_form.category_price }}
+            <small class="text-danger">{{ formset.empty_form.category_price.errors }}</small>
         </div>
         <div class="col-12 col-md-3">
             <label class="form-label">Tickets Available</label>
             {{ formset.empty_form.category_tickets_available }}
+            <small class="text-danger">{{ formset.empty_form.category_tickets.errors }}</small>
         </div>
         <div class="col-12 col-md-1 d-flex align-items-center">
             <button type="button" class="btn btn-outline-danger remove-form">Remove</button>
@@ -160,67 +167,6 @@
     </div>
 </div>
 
-<!-- JavaScript for dynamic form handling -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-<script src="{% static 'events/create.js' %}"></script>
 
-<script>
-    $(document).ready(function() {
-        let formCount = $('#id_tickets-TOTAL_FORMS').val(); // Adjusted form count based on management form
-        const emptyFormHtml = $('#empty-form').html(); // Get the HTML of the empty form template
-        
-        // Function to calculate the total number of tickets from all categories
-        function calculateTotalCategoryTickets() {
-            let totalTickets = 0;
-            
-            // Loop through each category's ticket input field
-            $('.ticket-form input[id$="category_tickets_available"]').each(function() {
-                let categoryTickets = parseInt($(this).val()) || 0;
-                totalTickets += categoryTickets;
-            });
-            
-            return totalTickets;
-        }
 
-        // Function to update the total event tickets field
-        function updateEventTickets() {
-            let totalCategoryTickets = calculateTotalCategoryTickets();
-            let eventTicketsField = $('#id_tickets_available'); // Select event tickets available field
-
-            // If total category tickets exceed event tickets, update event tickets
-            if (totalCategoryTickets > parseInt(eventTicketsField.val())) {
-                eventTicketsField.val(totalCategoryTickets);
-            }
-        }
-
-        // Attach the event listener for any changes in the category tickets input
-        $(document).on('input', 'input[id$="category_tickets_available"]', function() {
-            updateEventTickets();
-        });
-
-        // Dynamic form addition
-        $('#add-more').click(function() {
-            const newFormHtml = emptyFormHtml.replace(/__prefix__/g, formCount);
-            $('#ticket-categories').append('<div class="ticket-form">' + newFormHtml + '</div>');
-            formCount++;
-            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-
-            // Recalculate totals when a new form is added
-            updateEventTickets();
-        });
-
-        // Remove form functionality
-        $(document).on('click', '.remove-form', function() {
-            $(this).closest('.ticket-form').remove();
-            formCount--;
-            $('#id_tickets-TOTAL_FORMS').val(formCount); // Update the total form count in the management form
-            
-            // Recalculate totals after a form is removed
-            updateEventTickets();
-        });
-
-        // Initial calculation when the page loads
-        updateEventTickets();
-    });
-</script>
 {% endblock %}

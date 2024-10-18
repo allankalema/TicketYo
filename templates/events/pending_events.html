@@ -2,16 +2,9 @@
 {% load static %}
 
 {% block content %}
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Pending Events</title>
-    <!-- Add Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
-</head>
-<body>
+
     <div class="container mt-4">
-        <h2 class="mb-4">Pending Events</h2>
+        <h2 class="text-center text-secondary ">Pending Events</h2>
         <table class="table table-responsive table-striped">
             <thead>
                 <tr>
@@ -31,17 +24,11 @@
                     </tr>
                 {% empty %}
                     <tr>
-                        <td colspan="4" class="text-center">No pending events found.</td>
+                        <td colspan="4" class="text-center text-danger">No pending events found.</td>
                     </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 
-    <!-- Bootstrap JS, Popper.js, and jQuery -->
-    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.3/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
-</html>
 {% endblock %}

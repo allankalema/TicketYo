@@ -6,7 +6,7 @@
 <div class="container my-5">
     <!-- Welcome Message -->
     <div class="d-flex justify-content-between align-items-center mb-4">
-        <h2>Welcome, {{ user.username }}!</h2>
+        <h2 class="text-danger">Welcome, {{ user.username }}!</h2>
         <!-- Profile Dropdown -->
         <div class="dropdown">
             <button class="btn btn-danger dropdown-toggle" type="button" id="profileDropdown" data-bs-toggle="dropdown"
@@ -28,10 +28,18 @@
     <!-- Info Paragraph -->
     <p class="lead">This is your home page. Here you can manage your profile, view events, and access your tickets.</p>
  
+ 
+
+    <!-- Quick Navigation Links -->
+    <div class="nav-links mb-4">
+        <a href="{% url 'view_cart' %}" class="btn btn-outline-danger me-2 mb-2">View Cart</a>
+        <a href="{% url 'all_events' %}" class="btn btn-outline-danger mb-2">Home</a>
+    </div>
+
 
     <!-- Event List Section -->
     <div class="my-4">
-        <h3>Your Events</h3>
+        <h3 class="text">Your Events</h3>
         <ul class="list-group">
             {% for event in events %}
             <li class="list-group-item">

@@ -1,31 +1,145 @@
 {% extends 'frontend/base.html' %}
 
+{% load static %}
+
 {% block content %}
-<form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
 
-    <!-- Event form -->
-    <h2>Event Details</h2>
-    {{ event_form.as_p }}
+<link href="{% static 'events/events.css' %}" rel="stylesheet">
+<style>
+    /* Container and Card */
+.container .card {
+    border-radius: 15px;
+    background-color: #ffffff;
+    padding: 30px;
+}
 
-    <!-- Ticket categories formset -->
-    <h2>Ticket Categories</h2>
-    {{ ticket_formset.management_form }}
-    {% for form in ticket_formset %}
-        {{ form.as_p }}
-    {% endfor %}
+/* Section Titles */
+h2.text-center {
+    font-weight: bold;
+    color: #343a40;
+}
 
-    <!-- Status selection for approval/rejection -->
-    <div class="form-group">
-        <label for="status">Event Status</label>
-        <select name="status" id="status" class="form-control">
-            <option value="pending" {% if event.status == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="approved" {% if event.status == 'approved' %}selected{% endif %}>Approved</option>
-            <option value="rejected" {% if event.status == 'rejected' %}selected{% endif %}>Rejected</option>
-        </select>
+/* Form Labels and Select */
+.form-label {
+    font-size: 1rem;
+    font-weight: 500;
+}
+
+/* Form Select Dropdown */
+.form-select {
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+}
+</style>
+
+
+<div class="container mb-5">
+    <div class="card card-container mb-4 mt-4 shadow-sm p-4">
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+
+            <h2 class="text mb-4">Event Details</h2>
+            <div class="event-details-section mb-5">
+                 <!-- Poster Upload -->
+                 <div class="form-group mb-3">
+                    <label for="{{ event_form.poster.id_for_label }}" class="form-label">Poster</label>
+                    {{ event_form.poster }}
+                </div>
+
+                <!-- Event Title -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.title.id_for_label }}" class="form-label">Title</label>
+                    {{ event_form.title }}
+                </div>
+                 <!-- Event Description -->
+                 <div class="form-group mb-3">
+                    <label for="{{ event_form.description.id_for_label }}" class="form-label">Description</label>
+                    {{ event_form.description }}
+                </div>
+                <!-- Event Category -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.category.id_for_label }}" class="form-label">Category</label>
+                    {{ event_form.category }}
+                </div>
+
+                <!-- Event Start Date -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.start_date.id_for_label }}" class="form-label">Start Date</label>
+                    {{ event_form.start_date }}
+                </div>
+
+                <!-- Event End Date (Optional) -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.end_date.id_for_label }}" class="form-label">End Date (Optional)</label>
+                    {{ event_form.end_date }}
+                </div>
+
+                <!-- Venue Name -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.venue_name.id_for_label }}" class="form-label">Venue Name</label>
+                    {{ event_form.venue_name }}
+                </div>
+
+                <!-- Regular Price -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.regular_price.id_for_label }}" class="form-label">Regular Price</label>
+                    {{ event_form.regular_price }}
+                </div>
+
+                <!-- Sale Price -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.sale_price.id_for_label }}" class="form-label">Sale Price</label>
+                    {{ event_form.sale_price }}
+                </div>
+
+                <!-- Tickets Available -->
+                <div class="form-group mb-3">
+                    <label for="{{ event_form.tickets_available.id_for_label }}" class="form-label">Tickets Available</label>
+                    {{ event_form.tickets_available }}
+                </div>
+            </div>
+
+
+            <!-- Ticket categories formset -->
+            <h2 class="form-label text mb-5">Ticket Categories</h2>
+            <div class="event-details-section mb-4">
+                {{ ticket_formset.management_form }}
+                {% for form in ticket_formset %}
+                <div class="card p-3 mb-3 border-0">
+                    <!-- Ticket Category Title -->
+                    <div class="form-group mb-3">
+                        <label for="{{ form.category_title.id_for_label }}" class="form-label">Category Title</label>
+                        {{ form.category_title }}
+                    </div>
+
+                    <!-- Ticket Category Price -->
+                    <div class="form-group mb-3">
+                        <label for="{{ form.category_price.id_for_label }}" class="form-label">Price</label>
+                        {{ form.category_price }}
+                    </div>
+
+                    <!-- Tickets Available for this Category -->
+                    <div class="form-group mb-3">
+                        <label for="{{ form.category_tickets_available.id_for_label }}" class="form-label">Tickets Available</label>
+                        {{ form.category_tickets_available }}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <!-- Status selection for approval/rejection -->
+            <div class="form-group">
+                <label for="status" class="form-label">Event Status</label>
+                <select name="status" id="status" class="form-control form-select">
+                    <option value="pending" {% if event.status == 'pending' %}selected{% endif %}>Pending</option>
+                    <option value="approved" {% if event.status == 'approved' %}selected{% endif %}>Approved</option>
+                    <option value="rejected" {% if event.status == 'rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+
+            <button type="submit" class="btn btn-danger mb-4 mt-4">Authorize Event</button>
+            <a href="{% url 'pending_events' %}" class="btn btn-secondary mb-4 mt-4 ml-3">Cancel</a>
+        </form>
     </div>
-
-    <button type="submit" class="btn btn-primary">Authorize Event</button>
-    <a href="{% url 'pending_events' %}" class="btn btn-secondary">Cancel</a>
-</form>
+</div>
 {% endblock %}

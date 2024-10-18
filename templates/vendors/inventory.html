@@ -1,21 +1,26 @@
-<!DOCTYPE html>
-<html>
-<head>
-    <title>Ticket Inventory</title>
-</head>
-<body>
-    <h2>Ticket Inventory</h2>
+{% extends 'frontend/base.html' %}
 
-    {% if inventory %}
+{% load static %}
+
+{% block content %}
+<div class="container text-center">
+    <div class="card fancy-card shadow-lg p-4">
+
+        <h2 class="card-title text-danger text-center">Ticket Inventory</h2>
+
+        {% if inventory %}
         <ul>
             {% for ticket in inventory %}
-                <li>
-                    <a href="{% url 'ticket_receipt' ticket.id %}">{{ ticket.event.title }}</a>
-                </li>
+            <li>
+                <a href="{% url 'ticket_receipt' ticket.id %}">{{ ticket.event.title }}</a>
+            </li>
             {% endfor %}
         </ul>
-    {% else %}
+        {% else %}
         <p>No tickets in inventory.</p>
-    {% endif %}
-</body>
-</html>
+        {% endif %}
+    </div>
+
+</div>
+
+{% endblock %}
