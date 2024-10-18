@@ -33,7 +33,6 @@
                                 <div class="card-body">
                                     <h5 class="card-title fancy-font">{{ event.title }}</h5>
                                     <p class="venue"><i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}</p>
-                                    <p class="creator"><i class="bi bi-person-fill"></i> Created by {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
                                     <p class="price">
                                         <span class="regular-price">(<span class="text-danger text-decoration-line-through">{{ event.regular_price|floatformat:0 }}</span>)</span>
                                         <span class="sale-price">UGX {{ event.sale_price|floatformat:0 }}</span>
@@ -86,7 +85,6 @@
                                 <div class="card-body">
                                     <h5 class="card-title fancy-font">{{ event.title }}</h5>
                                     <p class="venue"><i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}</p>
-                                    <p class="creator"><i class="bi bi-person-fill"></i> Created by {{ event.vendor.first_name }} from {{ event.vendor.storename }}</p>
                                     <p class="date">
                                         {% if event.end_date %}
                                             From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
@@ -110,5 +108,34 @@
                 <p class="text-center">No sold out events available.</p>
             {% endif %}
         </div>
+
+        <h3 class="text-center">Your Events</h3>
+        <div id="your-events-container">
+            {% for event in events %}
+                <div class="col-md-4 mb-4">
+                    <div class="card event-card text-center">
+                        <a href="{% url 'event_detail' event.id %}">
+                            {% if event.poster %}
+                                <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
+                            {% else %}
+                                <img src="{% static 'images/no-image.png' %}" class="card-img-top event-poster" alt="No Image Available">
+                            {% endif %}
+                        </a>
+                        <div class="card-body">
+                            <h5 class="card-title fancy-font">{{ event.title }}</h5>
+                            <p class="venue"><i class="bi bi-geo-alt-fill"></i> {{ event.venue_name }}</p>
+                            <p class="date">
+                                {% if event.end_date %}
+                                    From {{ event.start_date|date:"F jS, Y" }} to {{ event.end_date|date:"F jS, Y" }}
+                                {% else %}
+                                    {{ event.start_date|date:"F jS, Y" }}
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+
     </div>
 {% endblock %}

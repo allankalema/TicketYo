@@ -24,7 +24,7 @@
             <thead class="thead-light">
                 <tr>
                     <th class="title-column">Title</th> <!-- Adjusted width -->
-                    <th class="vendor-column d-none d-md-table-cell">Vendor</th> <!-- Hidden on small screens -->
+                    <th class="vendor-column d-none d-md-table-cell">Vendor Store Name</th> <!-- Hidden on small screens -->
                     <th class="status-column">Status</th> <!-- Fixed width -->
                     <th class="date-column">Action Date</th> <!-- Adjusted width -->
                     <th class="time-column">Action Time</th> <!-- Adjusted width -->
@@ -34,7 +34,7 @@
                 {% for log in action_logs %}
                 <tr class="event-row" data-event-id="{{ log.event.id }}">
                     <td class="clickable">{{ log.event.title }}</td>
-                    <td  class="vendor-column d-none d-md-table-cell"> {{ log.event.vendor.storename }}</td>
+                    <td  class="vendor-column d-none d-md-table-cell"> {{ log.event.user.storename }}</td>
                     <td>{{ log.action }}</td>
                     <td>{{ log.timestamp|date:"Y-m-d" }}</td>  <!-- Displaying only the date -->
                     <td>{{ log.timestamp|date:"H:i:s" }}</td>  <!-- Displaying only the time -->

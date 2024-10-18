@@ -15,14 +15,10 @@ from django.http import HttpResponse
 from django.template.loader import get_template
 from django.core.mail import EmailMessage
 
-
 def prepare_event_data(event_id):
     event = get_object_or_404(Event, id=event_id)
     categories = event.ticket_categories.all()
-    
-    if event.is_sold_out():
-        return None, {'template': 'tickets/sold_out.html', 'context': {'event': event}}
-    
+
     ticket_data = [
         {'category': category, 
          'tickets_remaining': category.category_tickets_available - category.category_tickets_sold}
@@ -37,18 +33,21 @@ def prepare_event_data(event_id):
     return {'event': event, 'ticket_data': ticket_data, 'ordinary_ticket_data': ordinary_ticket_data}, None
 
 def get_user_entity(request):
-    if hasattr(request.user, 'is_vendor') and request.user.is_vendor:
+    if request.user.is_vendor:
         return 'vendor', request.user
-    elif hasattr(request.user, 'is_customer') and request.user.is_customer:
+    elif request.user.is_customer:
         return 'customer', request.user
+    elif request.user.is_posagent:  # Check for POS agent as well
+        return 'posagent', request.user
     else:
         return None, None
 
 
-def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_info, entity, entity_type):
+def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_info, buyer, buyer_type):
     ticket_details = []
     total_tickets = 0
     total_price = 0
+    vendor = event.user  # Vendor is the event creator
     
     for data in ticket_data:
         category = data['category']
@@ -56,7 +55,8 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
         if quantity > 0:
             if category.is_category_sold_out() or category.category_tickets_sold + quantity > category.category_tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
-            ticket_details += generate_tickets(event, category, quantity, entity, entity_type)
+            # Generate tickets with distinct vendor and buyer
+            ticket_details += generate_tickets(event, category, quantity, vendor, buyer, buyer_type)
             total_tickets += quantity
             total_price += quantity * category.category_price
             category.category_tickets_sold += quantity
@@ -67,7 +67,8 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
         if quantity > 0:
             if event.is_sold_out() or event.tickets_sold + quantity > event.tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
-            ticket_details += generate_tickets(event, None, quantity, entity, entity_type)
+            # Generate tickets for ordinary category
+            ticket_details += generate_tickets(event, None, quantity, vendor, buyer, buyer_type)
             total_tickets += quantity
             total_price += quantity * event.sale_price
     
@@ -76,20 +77,25 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
     
     return {'ticket_details': ticket_details, 'total_tickets': total_tickets, 'total_price': total_price}, None
 
-
-def generate_tickets(event, category, quantity, entity, entity_type):
+def generate_tickets(event, category, quantity, vendor, buyer, buyer_type):
     tickets = []
     for _ in range(quantity):
-        ticket_number = Ticket.generate_ticket_number(event=event, vendor=event.vendor, category=category, entity=entity, entity_type=entity_type)
+        ticket_number = Ticket.generate_ticket_number(
+            event=event,
+            vendor=vendor,       # Vendor is always the event creator
+            category=category,
+            entity=buyer,        # Entity is the buyer
+            entity_type=buyer_type
+        )
         qr_image = generate_qr_code(ticket_number)
         ticket = Ticket.objects.create(
             event=event,
             ticket_category=category,
-            customer_username=entity.username,
-            vendor=event.vendor,
+            customer_username=buyer.username,  # Buyer info
+            user=vendor,                       # Vendor info (event creator)
             ticket_number=ticket_number,
             qr_code=qr_image,
-            entity_type=entity_type
+            entity_type=buyer_type
         )
         tickets.append({
             'ticket_number': ticket_number,
@@ -108,7 +114,6 @@ def generate_qr_code(ticket_number):
     img.save(buffer)
     return File(buffer, name=f'{ticket_number}_qr.png')
 
-
 @login_required
 def buy_ticket(request, event_id):
     event_data, error = prepare_event_data(event_id)
@@ -116,25 +121,24 @@ def buy_ticket(request, event_id):
         return render(request, error['template'], error['context'])
     
     if request.method == 'POST':
-
         msisdn = request.POST.get('msisdn')
-        entity_type, entity = get_user_entity(request)
-        if not entity:
+        user_type, user = get_user_entity(request)
+        if not user:
             return render(request, 'tickets/error.html', {'message': 'User is not authorized to buy tickets.'})
 
         purchase_data, error = process_ticket_purchase(
-            event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, entity, entity_type
+            event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, user, user_type
         )
         if error:
             return render(request, error['template'], error['context'])
         
         context = {
             'event': event_data['event'],
-            'vendor': event_data['event'].vendor,
+            'vendor': event_data['event'].user,
             'ticket_details': purchase_data['ticket_details'],
             'total_price': purchase_data['total_price'],
             'total_tickets': purchase_data['total_tickets'],
-            'customer': entity,
+            'customer': user,
             'ticket_data': event_data['ticket_data'],
             'ordinary_ticket_data': event_data['ordinary_ticket_data'],
             'msisdn': msisdn
@@ -143,24 +147,21 @@ def buy_ticket(request, event_id):
 
     return render(request, 'tickets/buy_ticket.html', event_data)
 
-
-
 @login_required
 def download_ticket_pdf(request, ticket_number):
     ticket = get_object_or_404(Ticket, ticket_number=ticket_number)
-    event = ticket.event  # Get the associated event
-    vendor = event.vendor  # Get the associated vendor
+    event = ticket.event
+    vendor = event.user
 
-    # Create absolute URLs for QR code and poster
     qr_code_url = request.build_absolute_uri(ticket.qr_code.url)
-    poster_url = request.build_absolute_uri(event.poster.url)  # Ensure you use 'event.poster.url'
+    poster_url = request.build_absolute_uri(event.poster.url)
 
     context = {
         'ticket': ticket,
         'event': event,
         'vendor': vendor,
-        'qr_code_url': qr_code_url,  # Add absolute URL for QR code
-        'poster_url': poster_url,  # Add absolute URL for poster
+        'qr_code_url': qr_code_url,
+        'poster_url': poster_url,
     }
 
     template_path = 'tickets/ticket_pdf.html'
@@ -176,7 +177,6 @@ def download_ticket_pdf(request, ticket_number):
         return HttpResponse('We had some errors <pre>' + html + '</pre>')
     return response
 
-
 def send_ticket_receipts(request, ticket_details):
     email = EmailMessage(
         'Your Ticket Receipts',
@@ -185,9 +185,8 @@ def send_ticket_receipts(request, ticket_details):
         [request.user.email]
     )
 
-    # Attach each ticket as a PDF
     for detail in ticket_details:
-        pdf_content = generate_pdf_for_ticket(detail)  # Function to generate PDF
+        pdf_content = generate_pdf_for_ticket(detail)  
         email.attach(f"{detail['ticket_number']}_ticket.pdf", pdf_content, 'application/pdf')
 
     email.send()
@@ -202,13 +201,11 @@ def generate_pdf_for_ticket(template_src, context_dict):
         return HttpResponse(result.getvalue(), content_type='application/pdf')
     return None
 
-
 @login_required
 def view_qr_codes(request, event_id):
     event = get_object_or_404(Event, id=event_id)
-    tickets = Ticket.objects.filter(event=event, customer=request.user)
+    tickets = Ticket.objects.filter(event=event, customer_username=request.user.username)
 
-    # Prepare a list of ticket details including QR code URLs
     ticket_details = []
     for ticket in tickets:
         ticket_details.append({
@@ -227,59 +224,45 @@ def view_qr_codes(request, event_id):
 @login_required
 @vendor_required
 def verifiable_events(request):
-    current_date = now().date()  # Get the current date
-    vendor = request.user  # Assuming this gets the correct vendor associated with the user
-    
-    verifiable_events = Event.objects.filter(vendor=vendor)  # Filter events for the logged-in vendor
+    current_date = timezone.now().date()
+    vendor = request.user
+
+    # Fetch events whose start_date is within 4 days from the current date
+    verifiable_events = Event.objects.filter(
+        user=vendor,
+        start_date__gte=current_date - timedelta(days=4),  # Show events starting from 4 days before current date
+    )
+
     events_data = []
-
     for event in verifiable_events:
-        start_date = event.start_date.date()  # Truncate start_date to date only
-        end_date = event.end_date.date() if event.end_date else None  # Handle cases with no end_date
+        start_date = event.start_date.date()
+        end_date = event.end_date.date() if event.end_date else None
 
+        # Initialize clickability and visibility flags
         is_clickable = False
         should_display = False
 
-        if start_date == current_date:
-            # The event starts today, make it clickable and display it
-            is_clickable = True
+        # Check for the display conditions
+        if start_date >= current_date - timedelta(days=4):
             should_display = True
-        elif start_date < current_date:
-            # The event has started in the past
-            if end_date is None:
-                # No end date, check if it has been less than 24 hours since start_date
-                if now() <= event.start_date + timedelta(days=1):
-                    # It's still within the 24-hour window
-                    is_clickable = True
-                    should_display = True
+
+            # Clickability conditions
+            if current_date >= start_date:
+                is_clickable = True  # Clickable on the event's start date
+            elif end_date:
+                if start_date <= current_date <= end_date + timedelta(days=1):
+                    is_clickable = True  # clickable, but should display
             else:
-                # Event has an end date
-                if start_date <= current_date <= end_date:
-                    # Current date is between the start and end date, make it clickable and display it
-                    is_clickable = True
-                    should_display = True
-                elif current_date == end_date + timedelta(hours=1):
-                    # 1 hour after the end date, remove it from the list
-                    should_display = False
-                elif current_date > end_date:
-                    # After the end date, don't display the event
-                    should_display = False
-        else:
-            # Event's start_date is in the future
-            should_display = True  # Display the event
-            # The event is not clickable yet
-            is_clickable = False
+                if start_date <= current_date <= start_date + timedelta(days=1):
+                    is_clickable = True  #  clickable for events without an end date but displayed for one day after start date
 
         if should_display:
             events_data.append({
                 'event': event,
-                'is_clickable': is_clickable,
+                'is_clickable': is_clickable
             })
 
-    context = {
-        'verifiable_events': events_data,
-    }
-    return render(request, 'tickets/verifiable_events.html', context)
+    return render(request, 'tickets/verifiable_events.html', {'events_data': events_data})
 
 
 @login_required
@@ -287,15 +270,21 @@ def verifiable_events(request):
 def verify_ticket(request, event_id):
     event = get_object_or_404(Event, id=event_id)
     vendor = request.user
-    
+
     # Ensure the correct tickets are being filtered by event and vendor
-    tickets = Ticket.objects.filter(event=event, vendor=vendor)
-    
+    tickets = Ticket.objects.filter(event=event, user=vendor)
+
+    # Debugging: Check the tickets retrieved
+    print(f"Retrieved tickets: {tickets}")  # Add this line
+
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number', '').strip()
         
         # Case-insensitive search and check if the ticket exists
         ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
+
+        # Debugging: Check the ticket searched
+        print(f"Searched ticket number: {ticket_number}, Found ticket: {ticket}")  # Add this line
         
         if ticket:
             if ticket.verified:
@@ -306,9 +295,7 @@ def verify_ticket(request, event_id):
                 ticket.save()
 
                 # Safely retrieve the category title
-                ticket_category_title = 'N/A'
-                if ticket.ticket_category:
-                    ticket_category_title = ticket.ticket_category.category_title
+                ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
 
                 return JsonResponse({
                     'status': 'success',

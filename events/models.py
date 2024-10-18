@@ -2,7 +2,7 @@ from django.db import models
 from django.conf import settings
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
-from vendors.models import Vendor  # This remains as is
+from accounts.models import User  # This remains as is
 from django.contrib.auth import get_user_model
 from django.utils import timezone
 
@@ -13,7 +13,7 @@ class Event(models.Model):
         ('rejected', 'Rejected'),
     ]
 
-    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name='events')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='events')
     poster = models.ImageField(upload_to='event_posters/')
     title = models.CharField(max_length=200)
     description = models.TextField()
@@ -26,7 +26,7 @@ class Event(models.Model):
     tickets_available = models.PositiveIntegerField(null=True, blank=True)
     tickets_sold = models.PositiveIntegerField(default=0)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
-    adminaction = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, editable=False)  # Stores the admin who approved/rejected
+    adminaction = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, editable=False)
 
     def is_sold_out(self):
         return self.tickets_available is not None and self.tickets_sold >= self.tickets_available
@@ -47,17 +47,14 @@ class TicketCategory(models.Model):
     def __str__(self):
         return f'{self.category_title} - {self.event.title}'
 
+# events/models.py
 class Cart(models.Model):
-    vendor = models.ForeignKey('vendors.Vendor', on_delete=models.CASCADE, null=True, blank=True)
-    customer = models.ForeignKey('customers.Customer', on_delete=models.CASCADE, null=True, blank=True)
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     event = models.ForeignKey(Event, on_delete=models.CASCADE)
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.get_user()} - {self.event.title}'
-    
-    def get_user(self):
-        return self.vendor if self.vendor else self.customer
+        return f'{self.user} - {self.event.title}'
 
 
 class ActionLog(models.Model):

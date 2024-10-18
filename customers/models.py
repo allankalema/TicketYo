@@ -1,48 +1,5 @@
-from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, PermissionsMixin
 from django.db import models
-from django.utils import timezone
 
-class CustomerManager(BaseUserManager):
-    def create_user(self, username, email, password=None, **extra_fields):
-        if not username:
-            raise ValueError('The Username field must be set')
-        if not email:
-            raise ValueError('The Email field must be set')
-        email = self.normalize_email(email)
-        user = self.model(username=username, email=email, **extra_fields)
-        user.set_password(password)
-        user.save(using=self._db)
-        return user
-
-class Customer(AbstractBaseUser, PermissionsMixin):
-    username = models.CharField(max_length=30, unique=True)
-    email = models.EmailField(unique=True)
-    first_name = models.CharField(max_length=30)
-    last_name = models.CharField(max_length=30)
-    is_active = models.BooleanField(default=True)
-    is_staff = models.BooleanField(default=False)
-    is_customer = models.BooleanField(default=True)
-
-    is_verified = models.BooleanField(default=False)
-    verification_code = models.CharField(max_length=6, blank=True, null=True)
-    verification_code_created_at = models.DateTimeField(null=True, blank=True)
-
-    # Group and permissions related to customer
-    groups = models.ManyToManyField(
-        'auth.Group',
-        related_name='customer_set',  # Unique related_name for groups
-        blank=True,
-    )
-    user_permissions = models.ManyToManyField(
-        'auth.Permission',
-        related_name='customer_user_set',  # Unique related_name for user_permissions
-        blank=True,
-    )
-
-    objects = CustomerManager()
-
-    USERNAME_FIELD = 'username'
-    REQUIRED_FIELDS = ['email', 'first_name', 'last_name']
-
-    def __str__(self):
-        return self.username
+class Customer(models.Model):
+    class Meta:
+        managed = False

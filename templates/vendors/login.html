@@ -6,7 +6,7 @@
     <link rel="stylesheet" href="{% static 'frontend/login.css' %}">
     
     <div class="login-form">
-        <h2 class="login-heading">Vendor Login</h2>
+        <h2 class="login-heading">Login</h2>
         <form method="post">
             {% csrf_token %}
             <div class="form-group">
@@ -30,8 +30,8 @@
         </form>
         
         <div class="login-links">
-            <p>Don't have an account? <a href="{% url 'signup' %}">Sign up here</a></p>
-            <p>Forgot Password? <a href="{% url 'vendor_password_reset_request' %}">Reset Password</a></p>
+            <p>Don't have an account? <a href="#">Sign up here</a></p>
+            <p>Forgot Password? <a href="#">Reset Password</a></p>
         </div>
     </div>
 

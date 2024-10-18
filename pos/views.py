@@ -1,31 +1,29 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
-from vendors.models import Vendor
 from django.core.mail import send_mail
 from django.conf import settings
-from .models import POSAgent
 from events.models import Event
 from django.db.models import Q
 from datetime import datetime
+from accounts.models import User
 import random
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login
-# from vendors.backends import *
-
 
 @login_required
 def manage_pos_agents(request):
-    vendor = Vendor.objects.get(username=request.user.username)
+    if not request.user.is_vendor:
+        return redirect('home')
 
     # Get the search query from GET parameters
     search_query = request.GET.get('search', '')
 
-    # Retrieve active and inactive agents associated with the vendor
-    active_agents = vendor.pos_agents.filter(is_active=True)
-    inactive_agents = vendor.pos_agents.filter(is_active=False)
+    # Retrieve active and inactive agents associated with the user (vendor)
+    active_agents = request.user.pos_agents.filter(is_active=True)
+    inactive_agents = request.user.pos_agents.filter(is_active=False)
 
     # If a search query exists, filter the agents accordingly
     if search_query:
@@ -44,7 +42,7 @@ def manage_pos_agents(request):
         ).distinct()
 
     context = {
-        'vendor': vendor,
+        'user': request.user,
         'active_agents': active_agents,
         'inactive_agents': inactive_agents,
         'search_query': search_query,
@@ -55,8 +53,10 @@ def manage_pos_agents(request):
 
 @login_required
 def create_pos_agent(request):
-    vendor = Vendor.objects.get(username=request.user.username)
-    events = vendor.events.filter(
+    if not request.user.is_vendor:
+        return redirect('home')
+
+    events = request.user.events.filter(
         Q(status='approved') & 
         (Q(start_date__gte=datetime.now()) | Q(end_date__gte=datetime.now()))
     )
@@ -69,11 +69,11 @@ def create_pos_agent(request):
         selected_event_ids = request.POST.getlist('events')
 
         # Create and save the POS agent
-        agent = POSAgent.objects.create(
+        agent = User.objects.create(
             first_name=first_name,
             last_name=last_name,
             email=email,
-            vendor=vendor,  # Save the generated password
+            vendor=request.user,
         )
         
         # Assign selected events to the POS agent
@@ -84,7 +84,7 @@ def create_pos_agent(request):
         event_titles = ', '.join([event.title for event in selected_events])
         send_mail(
             'POS Agent Credentials',
-            f'Hello {first_name},\n\nYou have been selected as a POS Agent for the vendor {vendor.storename}.' 
+            f'Hello {first_name},\n\nYou have been selected as a POS Agent for {request.user.storename}.' 
             f'\n\nThe following events have been assigned to you: {event_titles}.' 
             f'\n\nYour credentials are:\n\nemail: {email}' 
             '\n\n Please login to access your dashboard.',
@@ -93,32 +93,31 @@ def create_pos_agent(request):
             fail_silently=False,
         )
 
-        # Redirect to manage_agents or success page
         return redirect('manage_pos_agents')
 
-    # If it's a GET request, render the form
     return render(request, 'pos/create_agent.html', {
         'events': events,
-        'vendor': vendor,
+        'user': request.user,
     })
+
 
 def verify_email(request):
     if request.method == 'POST':
         email = request.POST.get('email')
         try:
-            agent = POSAgent.objects.get(email=email)
-            # Redirect to the signup page if the email is found
+            agent = User.objects.get(email=email)
             return redirect('signup_pos_agent', email=email)
-        except POSAgent.DoesNotExist:
+        except User.DoesNotExist:
             messages.error(request, "You are not invited to become a POS Agent. Please contact the vendor.")
-            return redirect('verify_email')  # Redirect back to the verification page
+            return redirect('verify_email')
 
     return render(request, 'pos/verify_email.html')
 
+
 def signup_pos_agent(request, email):
     try:
-        agent = POSAgent.objects.get(email=email)
-    except POSAgent.DoesNotExist:
+        agent = User.objects.get(email=email)
+    except User.DoesNotExist:
         messages.error(request, "Invalid email. Please verify your email again.")
         return redirect('verify_email')
 
@@ -133,14 +132,12 @@ def signup_pos_agent(request, email):
             messages.error(request, "Passwords do not match.")
             return redirect('signup_pos_agent', email=email)
 
-        # Update agent information
         agent.first_name = first_name
         agent.last_name = last_name
         agent.username = username
-        agent.password = make_password(password)  # Hash the password
+        agent.password = make_password(password)
         agent.save()
 
-        # Send confirmation emails
         send_mail(
             'POS Agent Registration Complete',
             f'Hello {first_name},\n\nYou have successfully registered as a POS Agent.',
@@ -153,7 +150,7 @@ def signup_pos_agent(request, email):
             'POS Agent Registered',
             f'The POS Agent {first_name} {last_name} has successfully registered.',
             settings.DEFAULT_FROM_EMAIL,
-            [agent.vendor.email],  # Notify the vendor
+            [agent.vendor.email],
             fail_silently=False,
         )
 
@@ -167,44 +164,35 @@ def signup_pos_agent(request, email):
         'assigned_events': agent.assigned_events.all(),
     })
 
+
 @login_required
 def agent_detail(request, agent_id):
-    agent = POSAgent.objects.get(id=agent_id)
+    agent = User.objects.get(id=agent_id)
+    total_tickets_sold = 0
+    total_tickets_verified = 0
+    total_amount_made = 0.00
 
-    # Example placeholders for statistics
-    total_tickets_sold = 0  # Replace with actual logic to calculate total tickets sold
-    total_tickets_verified = 0  # Replace with actual logic
-    total_amount_made = 0.00  # Replace with actual logic
-
-    # Get the search query for events
     search_query = request.GET.get('search_events', '')
-
-    # Filter assigned events if a search query is provided
     assigned_events = agent.assigned_events.all()
+
     if search_query:
         assigned_events = assigned_events.filter(title__icontains=search_query)
 
-    # Get the vendor associated with the agent
-    vendor = agent.vendor
+    if not request.user.is_vendor:
+        return redirect('home')
 
-    # Fetch all events for this vendor that are active (start date or end date is in the future)
-    all_events = vendor.events.filter(
+    all_events = request.user.events.filter(
         (Q(start_date__gte=timezone.now()) | Q(end_date__gte=timezone.now())),
         status='approved'
     )
 
-    # Handle form submission for reallocating events
     if request.method == 'POST':
-        selected_event_ids = request.POST.getlist('events')  # Get selected event IDs
-        
-        # Check if at least one event is selected
+        selected_event_ids = request.POST.getlist('events')
         if not selected_event_ids:
             messages.error(request, "At least one event must be allocated to the agent.")
         else:
             selected_events = Event.objects.filter(id__in=selected_event_ids)
-
-            # Update the assigned events based on selected events
-            agent.assigned_events.set(selected_events)  # This will replace the assigned events
+            agent.assigned_events.set(selected_events)
             messages.success(request, "Events have been successfully updated.")
             return redirect('agent_detail', agent_id=agent.id)
 
@@ -215,7 +203,7 @@ def agent_detail(request, agent_id):
         'total_tickets_sold': total_tickets_sold,
         'total_tickets_verified': total_tickets_verified,
         'total_amount_made': total_amount_made,
-        'all_events': all_events,  # Include all events for selection
+        'all_events': all_events,
     }
     
     return render(request, 'pos/agent_detail.html', context)
@@ -223,7 +211,7 @@ def agent_detail(request, agent_id):
 
 @login_required
 def agent_action(request, agent_id):
-    agent = POSAgent.objects.get(id=agent_id)
+    agent = User.objects.get(id=agent_id)
 
     if request.method == 'POST':
         action = request.POST.get('action')
@@ -239,27 +227,20 @@ def agent_action(request, agent_id):
             messages.success(request, f"{agent.first_name} has been deleted.")
             return redirect('manage_pos_agents')
 
-    # In case of GET request or other issues, redirect to agent detail
     return redirect('agent_detail', agent_id=agent.id)
 
 
 @login_required
 def pos_event_detail(request, event_id):
-    # Retrieve the event based on the ID
     event = Event.objects.get(id=event_id)
-
-    # Get tickets created and verified (Placeholder logic, replace with actual logic)
-    tickets_created = []  # Should eventually contain tickets created by the agent
-    tickets_verified = []  # Should eventually contain tickets verified for this event
-
-    # Get the ticket categories related to the event
-    event_categories = event.ticket_categories.all()  # Get all ticket categories for this event
-
-    # Calculate total tickets sold and the total amount for each category
+    tickets_created = []
+    tickets_verified = []
+    event_categories = event.ticket_categories.all()
     total_amount = 0
+
     for category in event_categories:
-        category.total_amount = category.category_tickets_sold * category.category_price  # Calculate total amount for each category
-        total_amount += category.total_amount  # Accumulate total amount for the event
+        category.total_amount = category.category_tickets_sold * category.category_price
+        total_amount += category.total_amount
 
     context = {
         'event': event,
@@ -271,31 +252,7 @@ def pos_event_detail(request, event_id):
     
     return render(request, 'pos/event_detail.html', context)
 
-def pos_agent_login(request):
-    if request.method == 'POST':
-        username = request.POST.get('username')
-        password = request.POST.get('password')
-        
-        pos_agent = authenticate(request, username=username, password=password,  is_posagent_login=True)
-        
-        
-        if pos_agent is not None:
-            print("Is authenticated:", pos_agent.is_authenticated)
-            login(request, pos_agent, backend='vendors.backends.VendorOrCustomerModelBackend')
-            print("Session Key:", request.session.session_key)  # Session key should not be None
-            print("User ID in session:", request.session.get('_auth_user_id'))
-            request.user = pos_agent
-            print("Login function called successfully")
-            
-            messages.error(request, 'logged in.')
-            return redirect('pos_dashboard')  # Redirect to the POS dashboard
-            
-        else:
-                 messages.error(request, 'Invalid username or password. or you are not authorized as a POS agent.')
-    
-    return render(request, 'pos/pos_agent_login.html')  # Create this template
-
 
 @user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
 def pos_dashboard(request):
-    return render(request, 'pos/pos_dashboard.html')  # Create this template
+    return render(request, 'pos/pos_dashboard.html')

@@ -2,19 +2,12 @@ from django.urls import path
 from . import views
 
 urlpatterns = [
-    path('signup/', views.signup, name='signup'),
-    path('login/', views.login_view, name='login'),
-    path('logout/', views.logout_view, name='logout'),
-    path('dashboard/', views.vendor_dashboard, name='dashboard'),
-    path('update/', views.update_vendor, name='update_vendor'),
-    path('delete/', views.delete_vendor, name='delete_vendor'),
-    path('change-password/', views.change_password, name='change_password'),
-    path('verify_email/<int:pk>/', views.verify_email, name='verify_email'),
-    path('password-reset/', views.vendor_password_reset_request, name='vendor_password_reset_request'),
-    path('password-reset/verify/<uidb64>/', views.vendor_password_reset_verify, name='vendor_password_reset_verify'),
-    path('password-reset/confirm/<uidb64>/', views.vendor_password_reset_confirm, name='vendor_password_reset_confirm'),
-    path('inventory/', views.view_inventory, name='view_inventory'),
-    path('receipt/<int:ticket_id>/', views.ticket_receipt, name='ticket_receipt'),
-    path('vendor/pending-events/', views.pending_events, name='pending_events'),
-    path('events-confirmed/', views.events_confirmed_view, name='events_confirmed'),
+   path('signup/', views.vendor_signup, name='vendor_signup'),
+    path('verify-email/<int:pk>/', views.vendor_verify_email, name='vendor_verify_email'),
+    path('dashboard/', views.vendor_dashboard, name='dashboard'),  # Vendor dashboard
+    path('inventory/', views.view_inventory, name='view_inventory'),  # View inventory
+    path('receipt/<int:ticket_id>/', views.ticket_receipt, name='ticket_receipt'),  # View ticket receipt
+    path('vendor/pending-events/', views.pending_events, name='pending_events'),  # View pending events
+    path('events-confirmed/', views.events_confirmed_view, name='events_confirmed'),  # Confirmed events
+    path('profile/update/', views.update_vendor_profile, name='update_vendor_profile'),
 ]

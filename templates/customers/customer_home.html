@@ -14,13 +14,13 @@
                 Profile
             </button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <li><a class="dropdown-item" href="{% url 'customer_update' %}">Update Profile</a></li>
-                <li><a class="dropdown-item" href="{% url 'customer_change_password' %}">Change Password</a></li>
-                <li><a class="dropdown-item text-danger" href="{% url 'customer_delete' %}">Delete Account</a></li>
+                <li><a class="dropdown-item" href="{% url 'update_customer' %}">Update Profile</a></li>
+                <li><a class="dropdown-item" href="{%url 'change_password' %}">Change Password</a></li>
+                <li><a class="dropdown-item text-danger" href="{%url 'delete_account' %}">Delete Account</a></li>
                 <li>
                     <hr class="dropdown-divider">
                 </li>
-                <li><a class="dropdown-item" href="{% url 'customer_logout' %}">Logout</a></li>
+                <li><a class="dropdown-item" href="{%url 'universal_logout'%}">Logout</a></li>
             </ul>
         </div>
     </div>
@@ -28,13 +28,7 @@
     <!-- Info Paragraph -->
     <p class="lead">This is your home page. Here you can manage your profile, view events, and access your tickets.</p>
  
-
-    <!-- Quick Navigation Links -->
-    <div class="nav-links mb-4">
-        <a href="{% url 'view_cart' %}" class="btn btn-outline-danger me-2 mb-2">View Cart</a>
-        <a href="{% url 'all_events' %}" class="btn btn-outline-danger mb-2">Home</a>
-    </div>
-
+ 
 
     <!-- Event List Section -->
     <div class="my-4">

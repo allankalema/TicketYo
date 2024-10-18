@@ -34,9 +34,9 @@
                 Profile
             </button>
             <div class="dropdown-menu dropdown-menu-end" aria-labelledby="profileDropdown">
-                <a class="dropdown-item" href="{% url 'update_vendor' %}">Update Profile</a>
+                <a class="dropdown-item" href="{% url 'update_vendor_profile' %}">Update Profile</a>
                 <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
-                <a class="dropdown-item" href="{% url 'logout' %}">Logout</a>
+                <a class="dropdown-item" href="{% url 'universal_logout' %}">Logout</a>
             </div>
         </div>
 
@@ -79,8 +79,7 @@
                         <ul id="upcoming-events-list" class="list-unstyled">
                             {% if upcoming_events %}
                             {% for event in upcoming_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{
-                                    event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No upcoming events.</p>
@@ -105,8 +104,7 @@
                         <ul id="sold-out-past-events-list" class="list-unstyled">
                             {% if sold_out_past_events %}
                             {% for event in sold_out_past_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{
-                                    event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No past sold out events.</p>

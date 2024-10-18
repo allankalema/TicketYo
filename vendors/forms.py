@@ -1,40 +1,25 @@
+# vendors/forms.py
 from django import forms
+from accounts.models import User
 from django.contrib.auth.forms import UserCreationForm
-from .models import Vendor
 
-class VendorCreationForm(UserCreationForm):
+class VendorProfileUpdateForm(forms.ModelForm):
     class Meta:
-        model = Vendor
+        model = User
         fields = ['username', 'email', 'first_name', 'last_name', 'storename', 'store_phone']
+        widgets = {
+            'username': forms.TextInput(attrs={'class': 'form-control'}),
+            'email': forms.EmailInput(attrs={'class': 'form-control'}),
+            'first_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'last_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'storename': forms.TextInput(attrs={'class': 'form-control'}),
+            'store_phone': forms.TextInput(attrs={'class': 'form-control'}),
+        }
 
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.fields['password1'].label = 'Password'
-        self.fields['password2'].label = 'Confirm Password'
+class VendorSignupForm(UserCreationForm):
+    store_name = forms.CharField(max_length=100, required=True)
+    store_phone = forms.CharField(max_length=15, required=True)
 
-class VendorUpdateForm(forms.ModelForm):
     class Meta:
-        model = Vendor
-        fields = ['username', 'email', 'first_name', 'last_name', 'storename', 'store_phone']
-
-class VendorPasswordResetRequestForm(forms.Form):
-    email = forms.EmailField(label="Enter your email", max_length=254)
-
-    def clean_email(self):
-        email = self.cleaned_data['email']
-        if not Vendor.objects.filter(email=email).exists():
-            raise forms.ValidationError("There is no vendor registered with this email address.")
-        return email
-
-class VendorSetNewPasswordForm(forms.Form):
-    new_password1 = forms.CharField(widget=forms.PasswordInput, label="New password")
-    new_password2 = forms.CharField(widget=forms.PasswordInput, label="Confirm new password")
-
-    def clean(self):
-        cleaned_data = super().clean()
-        password1 = cleaned_data.get("new_password1")
-        password2 = cleaned_data.get("new_password2")
-
-        if password1 and password2 and password1 != password2:
-            raise forms.ValidationError("Passwords do not match.")
-        return cleaned_data
+        model = User
+        fields = ['first_name', 'last_name', 'username', 'email', 'store_name', 'store_phone', 'password1', 'password2']

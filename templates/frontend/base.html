@@ -72,12 +72,18 @@
                     <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
                 </li>
                 {% endif %}
+                
+                {% if user.is_authenticated and user.is_posagent %}
+                <li class="nav-item">
+                    <a href="{% url 'pos_dashboard' %}" class="nav-link text-black">Pos Dashboard</a>
+                </li>
+                {% endif %}
                 {% if not user.is_authenticated %}
                 <li class="nav-item">
-                    <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
+                    <a href="{% url 'customer_signup' %}" class="nav-link text-black">Sign Up</a>
                 </li>
                 <li class="nav-item">
-                    <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
+                    <a href="{% url 'universal_login' %}" class="nav-link text-black">Login</a>
                 </li>
                 {% endif %}
                 <li class="nav-item">
@@ -168,17 +174,13 @@
             {% endif %}
             {% if not user.is_authenticated %}
             <li class="nav-item">
-                <a href="{% url 'signup' %}" class="nav-link text-black">Sign Up</a>
+                <a href="{% url 'customer_signup' %}" class="nav-link text-black">Sign Up</a>
             </li>
             <li class="nav-item">
-                <a href="{% url 'customer_login' %}" class="nav-link text-black">Login</a>
+                <a href="{% url 'universal_login' %}" class="nav-link text-black">Login</a>
             </li>
             {% endif %}
-            <!-- <li class="nav-item">
-                <a href="{% url 'view_cart' %}" class="nav-link text-black d-flex align-items-center">
-                    <i class="bi bi-cart-fill fs-4 me-2" style="color: black;"></i> Cart
-                </a>
-            </li> -->
+            
         </ul>
     </div>
 
