@@ -7,13 +7,52 @@
 <link rel="stylesheet" href="{% static 'frontend/homepage.css' %}">
 <script src="{% static 'events/scripts.js' %}" defer></script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
+    const loadMoreBtn = document.getElementById("load-more-btn");
+    const eventsRow = document.getElementById("upcoming-events-row");
+
+    function loadMoreEvents(nextPage) {
+        fetch(`?upcoming_page=${nextPage}`)
+            .then(response => response.text())
+            .then(html => {
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, "text/html");
+                const newEvents = doc.querySelectorAll(".event-item");
+
+                // Append new events to the row
+                newEvents.forEach(event => eventsRow.appendChild(event));
+
+                // Check if there is another page of events
+                const newLoadMoreBtn = doc.querySelector("#load-more-btn");
+                if (newLoadMoreBtn) {
+                    // Update next page number
+                    loadMoreBtn.dataset.nextPage = newLoadMoreBtn.dataset.nextPage;
+                } else {
+                    // Remove the button if there are no more pages
+                    loadMoreBtn.remove();
+                }
+            })
+            .catch(error => console.error('Error loading more events:', error));
+    }
+
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener("click", function() {
+            const nextPage = this.dataset.nextPage;
+            loadMoreEvents(nextPage);
+        });
+    }
+});
+
+</script>
+
 <div>
     <!-- Hero Section with Sliding Events -->
     <section class="hero">
         <div class="hero-content">
             <h4 class="text mt-2">Discover Events That Move You</h4>
             <p class="text mb-2 mt-2">Find and book tickets for concerts, sports, theater, and more!</p>
-            <a href="{% url 'all_events' %}" class="btn btn-outline-danger">Get Tickets</a>
+            <a href="{% url 'all_events' %}" class="btn btn-outline-danger mt-4 mb-4">Get Tickets</a>
         </div>
     </section>
 
@@ -47,17 +86,17 @@
         </section>
     </div>
 
-    
-    
+
+
 
     <!-- Grid of Upcoming Events -->
     <section class="upcoming-events">
-        <h2>Upcoming Events</h2>
+        <h1 class="text-black text-center mb-4">Upcoming Events</h1>
         <div class="container">
-            <div class="row">
+            <div class="row" id="upcoming-events-row">
                 {% for event in page_obj_upcoming %}
-                <div class="col-md-3 mb-4">
-                    <div class="card event-card text-center">
+                <div class="col-md-3 mb-4 event-item">
+                    <div class="card event-card text-center shadow-lg">
                         <a href="{% url 'event_detail' event.id %}">
                             <img src="{{ event.poster.url }}" class="card-img-top event-poster" alt="{{ event.title }}">
                         </a>
@@ -73,29 +112,37 @@
                 <p class="text-center">No upcoming events available.</p>
                 {% endfor %}
             </div>
-            <!-- Pagination -->
-            {% if page_obj_upcoming.has_next %}
-            <div class="text-center">
-                <a href="?upcoming_page={{ page_obj_upcoming.next_page_number }}" class="btn btn-secondary">Load More
-                    Events</a>
+
+            <!-- Persistent Load More Button -->
+            <div id="load-more-container" class="text-center mt-4">
+                {% if page_obj_upcoming.has_next %}
+                <button id="load-more-btn" class="btn btn-danger"
+                    data-next-page="{{ page_obj_upcoming.next_page_number }}">Load More Events</button>
+                {% endif %}
             </div>
-            {% endif %}
         </div>
     </section>
+
 </div>
 
 <section class="about-us">
     <div class="container">
         <h2>About Us</h2>
-        <p>We are dedicated to connecting people with events they love. Our platform offers a diverse range of events, including concerts, sports, theater, and more. We aim to make event discovery easy and enjoyable, so you can focus on creating memorable experiences.</p>
-        <p>Whether you’re looking for a night out with friends, family activities, or solo adventures, we have something for everyone. Join us as we explore events that bring people together and create unforgettable moments.</p>
+        <p>We are dedicated to connecting people with events they love. Our platform offers a diverse range of events,
+            including concerts, sports, theater, and more. We aim to make event discovery easy and enjoyable, so you can
+            focus on creating memorable experiences.</p>
+        <p>Whether you’re looking for a night out with friends, family activities, or solo adventures, we have something
+            for everyone. Join us as we explore events that bring people together and create unforgettable moments.</p>
     </div>
 </section>
 
 <div class="share-buttons">
-    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">Share on Facebook</a>
-    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this event!" target="_blank" class="btn btn-outline-info">Share on Twitter</a>
-    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank" class="btn btn-outline-primary">Share on LinkedIn</a>
+    <a href="https://www.facebook.com/sharer/sharer.php?u={{ request.build_absolute_uri }}" target="_blank"
+        class="btn btn-outline-primary">Share on Facebook</a>
+    <a href="https://twitter.com/intent/tweet?url={{ request.build_absolute_uri }}&text=Check out this event!"
+        target="_blank" class="btn btn-outline-info">Share on Twitter</a>
+    <a href="https://www.linkedin.com/shareArticle?mini=true&url={{ request.build_absolute_uri }}" target="_blank"
+        class="btn btn-outline-primary">Share on LinkedIn</a>
 </div>
 
 {% endblock %}

@@ -1,7 +1,7 @@
 /* Adjust size of carousel items */
 .carousel-item img {
-    max-height: 400px; /* Change to desired height */
-    width: 300px;
+    max-height: 300px; /* Change to desired height */
+    width: 300PXpx;
     object-fit: cover;
 }
 
