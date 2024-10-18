@@ -226,3 +226,43 @@ def pos_event_detail(request, event_id):
 @user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
 def pos_dashboard(request):
     return render(request, 'pos/pos_dashboard.html')
+
+
+
+@vendor_required
+@login_required
+def assign_events_to_pos_agent(request, agent_id):
+    agent = User.objects.get(id=agent_id, is_posagent=True)
+    user_events = Event.objects.filter(user=request.user, start_date__gte=timezone.now()).order_by('start_date')
+
+    if request.method == 'POST':
+        selected_events_ids = request.POST.getlist('events')
+        actions = request.POST.getlist('actions')
+
+        if selected_events_ids:
+            # Assign the events to the agent
+            event_details = []
+            for event_id in selected_events_ids:
+                event = Event.objects.get(id=event_id)
+                agent.assigned_events.add(event)  # Add event to POS agent
+                event_details.append(event.title)  # Collect event titles
+
+            action_list = ', '.join(actions) if actions else "No action selected"
+
+            # Send email to the POS agent with the details
+            send_mail(
+                'Event Assignment Notification',
+                f'Hello,\n\nThis is from TicketYo. You have been assigned the following events:\n\n{", ".join(event_details)}\n\nActions to carry out:\n{action_list}\n\nPlease ensure you handle these assignments responsibly.',
+                settings.DEFAULT_FROM_EMAIL,
+                [agent.email],
+                fail_silently=False,
+            )
+
+            # Display success message
+            messages.success(request, f'Successfully assigned events to {agent.first_name}.')
+            return redirect('assign_events_to_pos_agent', agent_id=agent.id)
+
+    return render(request, 'pos/assign_events.html', {
+        'agent': agent,
+        'user_events': user_events,
+    })

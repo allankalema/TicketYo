@@ -10,10 +10,7 @@
             <p><strong>Status:</strong> {% if agent.is_active %}Active{% else %}Inactive{% endif %}</p>
 
             <!-- Button to add to My Agents -->
-            <form method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn btn-outline-primary btn-custom">Add to My Agents</button>
-            </form>
+            <a href="{% url 'assign_events_to_pos_agent' agent.id %}" class="btn btn-outline-primary btn-custom">Add to My Agents</a>
         </div>
     </div>
 </div>

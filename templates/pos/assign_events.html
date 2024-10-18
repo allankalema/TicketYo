@@ -1,0 +1,82 @@
+<!-- pos/assign_events.html -->
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <div class="row">
+        <!-- Events Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h4>Assign Events to {{ agent.first_name }}</h4>
+                    <input type="text" id="searchBar" placeholder="Search Events..." class="form-control mb-3" onkeyup="filterEvents()">
+
+                    <form method="POST">
+                        {% csrf_token %}
+                        <div id="eventList" style="max-height: 400px; overflow-y: auto;">
+                            {% for event in user_events %}
+                                <div class="form-check">
+                                    <input type="checkbox" class="form-check-input" name="events" value="{{ event.id }}" id="event-{{ event.id }}">
+                                    <label class="form-check-label" for="event-{{ event.id }}">{{ event.title }}</label>
+                                </div>
+                            {% endfor %}
+                        </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Actions Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>Actions:</h5>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="actions" value="Generate Tickets" id="generateTickets">
+                        <label class="form-check-label" for="generateTickets">Generate Tickets</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" name="actions" value="Verify Events" id="verifyEvents">
+                        <label class="form-check-label" for="verifyEvents">Verify Events</label>
+                    </div>
+                    <button type="submit" class="btn btn-outline-danger mt-3" style="border-color: #e70000;">Add</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <!-- Information Card -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-body">
+                    <h5>How POS Agent Works</h5>
+                    <p>For each event assigned, the POS agent can:</p>
+                    <ul>
+                        <li>Generate tickets for the event.</li>
+                        <li>Verify events.</li>
+                    </ul>
+                    <p><strong>Precaution:</strong> Only assign events to agents you truly trust, as they will have more control over your events. TicketYo has no way of retrieving lost money.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterEvents() {
+        var input, filter, div, label, i;
+        input = document.getElementById('searchBar');
+        filter = input.value.toLowerCase();
+        div = document.getElementById("eventList");
+        label = div.getElementsByTagName('label');
+
+        for (i = 0; i < label.length; i++) {
+            if (label[i].innerHTML.toLowerCase().indexOf(filter) > -1) {
+                label[i].parentNode.style.display = "";
+            } else {
+                label[i].parentNode.style.display = "none";
+            }
+        }
+    }
+</script>
+
+{% endblock %}
