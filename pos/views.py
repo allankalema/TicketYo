@@ -7,45 +7,48 @@ from django.db.models import Q
 from datetime import datetime
 from accounts.models import User
 import random
+from vendors.decorators import vendor_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
 from django.utils import timezone
 from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login
+from django.core.paginator import Paginator
+
 
 @login_required
+@vendor_required
 def manage_pos_agents(request):
     if not request.user.is_vendor:
-        return redirect('home')
+        return redirect('all_events')
 
     # Get the search query from GET parameters
     search_query = request.GET.get('search', '')
 
-    # Retrieve active and inactive agents associated with the user (vendor)
-    active_agents = request.user.pos_agents.filter(is_active=True)
-    inactive_agents = request.user.pos_agents.filter(is_active=False)
+    # Retrieve all available POS agents
+    available_agents = User.objects.filter(is_posagent=True)
 
-    # If a search query exists, filter the agents accordingly
+    # Filter by search query if it exists
     if search_query:
-        active_agents = active_agents.filter(
+        available_agents = available_agents.filter(
             Q(first_name__icontains=search_query) | 
             Q(last_name__icontains=search_query) | 
-            Q(username__icontains=search_query) | 
-            Q(assigned_events__title__icontains=search_query)
+            Q(username__icontains=search_query)
         ).distinct()
 
-        inactive_agents = inactive_agents.filter(
-            Q(first_name__icontains=search_query) | 
-            Q(last_name__icontains=search_query) | 
-            Q(username__icontains=search_query) | 
-            Q(assigned_events__title__icontains=search_query)
-        ).distinct()
+    # Pagination for available agents (5 per page)
+    paginator = Paginator(available_agents, 5)
+    page_number = request.GET.get('page')
+    available_agents_page = paginator.get_page(page_number)
+
+    # Retrieve "my agents" (implementation for determining 'my agents' will come later)
+    my_agents = []  # Placeholder for now, modify this later
 
     context = {
         'user': request.user,
-        'active_agents': active_agents,
-        'inactive_agents': inactive_agents,
+        'available_agents_page': available_agents_page,
         'search_query': search_query,
+        'my_agents': my_agents,  # This will be filled later
     }
 
     return render(request, 'pos/manage_agents.html', context)

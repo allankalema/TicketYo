@@ -54,8 +54,7 @@
                         <ul id="past-events-list" class="list-unstyled">
                             {% if past_events %}
                             {% for event in past_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{
-                                    event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No past events.</p>

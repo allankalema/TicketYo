@@ -3,7 +3,6 @@
 {% block content %}
 {% load static %}
 
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -12,17 +11,17 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            background-color: #fff; /* Ensure background color is white */
-            color: #333; /* Text color for better visibility */
+            background-color: #fff;
+            color: #333;
         }
         #verify-ticket-form {
             margin-bottom: 20px;
         }
         #verification_result {
-            background-color: #f9f9f9; /* Light grey background for result area */
+            background-color: #f9f9f9;
             padding: 15px;
             border-radius: 5px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
         }
         #qr-reader {
             width: 300px;
@@ -50,7 +49,7 @@
 
     <!-- Include HTML5 QR Code Library -->
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
-    
+
     <script>
         // Function to handle form submission
         function verifyTicket(ticketNumber) {
@@ -93,28 +92,39 @@
         const startScannerButton = document.getElementById('start-scanner');
 
         startScannerButton.addEventListener('click', () => {
-            html5QrCode.start(
-                { facingMode: "environment" },
-                {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 }
-                },
-                (decodedText, decodedResult) => {
-                    console.log(`QR Code detected: ${decodedText}`);
-                    document.getElementById('ticket_number').value = decodedText;
-                    html5QrCode.stop().then(() => {
-                        verifyTicket(decodedText); // Submit ticket number after scanning
-                    }).catch(err => {
-                        console.error(`Error stopping QR code scanner: ${err}`);
+            console.log("Start scanner button clicked");
+
+            // Check for camera permissions and availability
+            navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment" } })
+                .then(function(stream) {
+                    console.log("Camera access granted");
+
+                    html5QrCode.start(
+                        { facingMode: "environment" }, // Use the back camera
+                        {
+                            fps: 10,
+                            qrbox: { width: 250, height: 250 }
+                        },
+                        (decodedText, decodedResult) => {
+                            console.log(`QR Code detected: ${decodedText}`);
+                            document.getElementById('ticket_number').value = decodedText; // Populate the input field
+
+                            // Optionally verify the ticket immediately after scanning
+                            verifyTicket(decodedText); // Automatically verify the ticket number
+                        },
+                        (errorMessage) => {
+                            console.error(`QR Code scanning error: ${errorMessage}`);
+                        }
+                    ).catch(err => {
+                        console.error(`Error starting QR code scanner: ${err}`);
                     });
-                },
-                (errorMessage) => {
-                    console.error(`QR Code scanning error: ${errorMessage}`);
-                }
-            ).catch(err => {
-                console.error(`Error starting QR code scanner: ${err}`);
-            });
+                })
+                .catch(function(err) {
+                    console.error("Error accessing the camera: ", err);
+                    alert("Unable to access the camera. Please check your browser permissions.");
+                });
         });
+
     </script>
 </body>
 </html>
