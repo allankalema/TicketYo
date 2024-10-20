@@ -6,26 +6,34 @@
 
     <!-- Action Buttons -->
     <div class="text-center mb-4">
-        <span id="generate-tickets" class="action-span" 
-              style="cursor: pointer; {% if not can_generate_tickets %}display:none;{% endif %}">
+        <!-- Show Generate Tickets button only if can_generate_tickets is true -->
+        {% if assignment.generating_tickets %}
+        <span id="generate-tickets" class="action-span" style="cursor: pointer;">
             Generate Tickets
         </span>
-        <span id="verify-tickets" class="action-span" 
-              style="cursor: pointer; {% if not can_verify_tickets %}display:none;{% endif %}">
+        {% endif %}
+
+        <!-- Show Verify Tickets button only if can_verify_tickets is true -->
+        {% if assignment.verifying_tickets %}
+        <span id="verify-tickets" class="action-span" style="cursor: pointer;">
             Verify Tickets
         </span>
+        {% endif %}
     </div>
 
     <!-- Action Content -->
     <div id="action-content" class="mt-4">
         <!-- Ticket Generation Section -->
+        {% if assignment.generating_tickets %}
         <div id="generate-content" class="action-section" style="display: none;">
             <h3>Generate Tickets</h3>
             <p>This section is for generating tickets.</p>
-            <!-- Future implementation for ticket generation -->
+            <!-- Your existing ticket generation form can be placed here -->
         </div>
+        {% endif %}
         
         <!-- Ticket Verification Section -->
+        {% if assignment.verifying_tickets %}
         <div id="verify-content" class="action-section" style="display: none;">
             <h3>Verify Tickets</h3>
             <p>This section is for verifying tickets.</p>
@@ -55,61 +63,65 @@
                 {% endif %}
             </div>
         </div>
+        {% endif %}
     </div>
 </div>
 
-<!-- Custom JavaScript -->
+<!-- Custom JavaScript to handle showing the correct sections -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const generateSpan = document.getElementById('generate-tickets');
-    const verifySpan = document.getElementById('verify-tickets');
-    const generateContent = document.getElementById('generate-content');
-    const verifyContent = document.getElementById('verify-content');
+        const generateSpan = document.getElementById('generate-tickets');
+        const verifySpan = document.getElementById('verify-tickets');
+        const generateContent = document.getElementById('generate-content');
+        const verifyContent = document.getElementById('verify-content');
 
-    // Function to show the correct content based on action
-    function showAction(action) {
-        if (action === 'generate') {
-            generateContent.style.display = 'block';
-            verifyContent.style.display = 'none';
-            setActiveSpan(generateSpan);
-        } else if (action === 'verify') {
-            verifyContent.style.display = 'block';
-            generateContent.style.display = 'none';
-            setActiveSpan(verifySpan);
+        // Function to show the correct content based on action
+        function showAction(action) {
+            if (action === 'generate') {
+                generateContent.style.display = 'block';
+                verifyContent.style.display = 'none';
+                setActiveSpan(generateSpan);
+            } else if (action === 'verify') {
+                verifyContent.style.display = 'block';
+                generateContent.style.display = 'none';
+                setActiveSpan(verifySpan);
+            }
         }
-    }
 
-    // Show appropriate content based on clicked action
-    generateSpan.addEventListener('click', function() {
-        showAction('generate');
-        sessionStorage.setItem('activeAction', 'generate'); // Save state
+        // Event listeners for clicks
+        if (generateSpan) {
+            generateSpan.addEventListener('click', function() {
+                showAction('generate');
+                sessionStorage.setItem('activeAction', 'generate'); // Save state
+            });
+        }
+
+        if (verifySpan) {
+            verifySpan.addEventListener('click', function() {
+                showAction('verify');
+                sessionStorage.setItem('activeAction', 'verify'); // Save state
+            });
+        }
+
+        // Automatically display the first available action based on saved state or default
+        const savedAction = sessionStorage.getItem('activeAction');
+        if (savedAction) {
+            showAction(savedAction);
+        } else if ({{ assignment.generating_tickets|yesno:"true,false" }}) {
+            showAction('generate');
+        } else if ({{ assignment.verifying_tickets|yesno:"true,false" }}) {
+            showAction('verify');
+        }
+
+        function setActiveSpan(activeSpan) {
+            // Remove active class from all spans
+            document.querySelectorAll('.action-span').forEach(span => {
+                span.classList.remove('active');
+            });
+            // Add active class to the clicked span
+            activeSpan.classList.add('active');
+        }
     });
-
-    verifySpan.addEventListener('click', function() {
-        showAction('verify');
-        sessionStorage.setItem('activeAction', 'verify'); // Save state
-    });
-
-    // Automatically display the first available action based on saved state or default
-    const savedAction = sessionStorage.getItem('activeAction');
-    if (savedAction) {
-        showAction(savedAction);
-    } else if ({{ can_generate_tickets|yesno:"true,false" }}) {
-        showAction('generate');
-    } else if ({{ can_verify_tickets|yesno:"true,false" }}) {
-        showAction('verify');
-    }
-
-    function setActiveSpan(activeSpan) {
-        // Remove active class from all spans
-        document.querySelectorAll('.action-span').forEach(span => {
-            span.classList.remove('active');
-        });
-        // Add active class to the clicked span
-        activeSpan.classList.add('active');
-    }
-});
-
 </script>
 
 <style>
