@@ -48,7 +48,8 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
     total_tickets = 0
     total_price = 0
     vendor = event.user  # Vendor is the event creator
-    
+    generated_by = buyer  # The currently logged-in user
+
     for data in ticket_data:
         category = data['category']
         quantity = int(tickets_info.get(f'quantity_{category.id}', 0))
@@ -56,28 +57,28 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
             if category.is_category_sold_out() or category.category_tickets_sold + quantity > category.category_tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
             # Generate tickets with distinct vendor and buyer
-            ticket_details += generate_tickets(event, category, quantity, vendor, buyer, buyer_type)
+            ticket_details += generate_tickets(event, category, quantity, vendor, buyer, buyer_type, generated_by)
             total_tickets += quantity
             total_price += quantity * category.category_price
             category.category_tickets_sold += quantity
             category.save()
-    
+
     if not ticket_data and ordinary_ticket_data:
         quantity = int(tickets_info.get('quantity_ordinary', 0))
         if quantity > 0:
             if event.is_sold_out() or event.tickets_sold + quantity > event.tickets_available:
                 return None, {'template': 'events/sold_out.html', 'context': {'event': event}}
             # Generate tickets for ordinary category
-            ticket_details += generate_tickets(event, None, quantity, vendor, buyer, buyer_type)
+            ticket_details += generate_tickets(event, None, quantity, vendor, buyer, buyer_type, generated_by)
             total_tickets += quantity
             total_price += quantity * event.sale_price
-    
+
     event.tickets_sold += total_tickets
     event.save()
-    
+
     return {'ticket_details': ticket_details, 'total_tickets': total_tickets, 'total_price': total_price}, None
 
-def generate_tickets(event, category, quantity, vendor, buyer, buyer_type):
+def generate_tickets(event, category, quantity, vendor, buyer, buyer_type, generated_by):
     tickets = []
     for _ in range(quantity):
         ticket_number = Ticket.generate_ticket_number(
@@ -95,7 +96,8 @@ def generate_tickets(event, category, quantity, vendor, buyer, buyer_type):
             user=vendor,                       # Vendor info (event creator)
             ticket_number=ticket_number,
             qr_code=qr_image,
-            entity_type=buyer_type
+            entity_type=buyer_type,
+            generated_by=generated_by  # User who generated the ticket
         )
         tickets.append({
             'ticket_number': ticket_number,
@@ -119,19 +121,20 @@ def buy_ticket(request, event_id):
     event_data, error = prepare_event_data(event_id)
     if error:
         return render(request, error['template'], error['context'])
-    
+
     if request.method == 'POST':
         msisdn = request.POST.get('msisdn')
         user_type, user = get_user_entity(request)
         if not user:
             return render(request, 'tickets/error.html', {'message': 'User is not authorized to buy tickets.'})
 
+        # Pass the logged-in user as the generator of the tickets
         purchase_data, error = process_ticket_purchase(
             event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, user, user_type
         )
         if error:
             return render(request, error['template'], error['context'])
-        
+
         context = {
             'event': event_data['event'],
             'vendor': event_data['event'].user,
