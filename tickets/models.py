@@ -25,6 +25,7 @@ class Ticket(models.Model):
     qr_code = models.ImageField(upload_to='qr_codes/', blank=True)
     entity_type = models.CharField(max_length=10, choices=ENTITY_TYPE_CHOICES)  # Buyer type
     verified = models.BooleanField(default=False)
+    verified_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_tickets')  # POS Agent info for verification
 
 
     

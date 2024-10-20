@@ -292,6 +292,7 @@ def verify_ticket(request, event_id):
             else:
                 # Mark the ticket as verified
                 ticket.verified = True
+                ticket.verified_by = vendor
                 ticket.save()
 
                 # Safely retrieve the category title
