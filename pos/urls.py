@@ -10,7 +10,7 @@ urlpatterns = [
     path('signup/<str:email>/', views.signup_pos_agent, name='signup_pos_agent'),
     path('pos/dashboard/', views.pos_dashboard, name='pos_dashboard'), 
 
-
+    path('update-profile/', views.update_pos_agent_profile, name='update_pos_agent_profile'),
     path('invite-pos-agent/', views.invite_pos_agent, name='invite_pos_agent'),
     path('agent/<int:agent_id>/', views.agent_detail, name='pos-agent-detail'),
     path('assign-events/<int:agent_id>/', views.assign_events_to_pos_agent, name='assign_events_to_pos_agent'),

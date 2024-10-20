@@ -16,7 +16,7 @@ from django.contrib.auth.hashers import make_password
 from django.contrib.auth import authenticate, login
 from django.core.paginator import Paginator
 from pos.models import AgentEventAssignment
-
+from .forms import *
 
 @login_required
 @vendor_required
@@ -246,6 +246,23 @@ def pos_dashboard(request):
     }
     
     return render(request, 'pos/pos_dashboard.html', context) 
+
+
+@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
+def update_pos_agent_profile(request):
+    # Fetch the currently logged-in user
+    user = get_object_or_404(User, pk=request.user.pk, is_posagent=True)
+
+    if request.method == 'POST':
+        form = POSAgentProfileForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            messages.success(request, 'Your profile has been updated successfully.')
+            return redirect('pos_dashboard')  # Redirect to POS dashboard after update
+    else:
+        form = POSAgentProfileForm(instance=user)
+
+    return render(request, 'pos/update_agent.html', {'form': form})
 
 
 @vendor_required
