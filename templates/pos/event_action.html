@@ -61,40 +61,55 @@
 <!-- Custom JavaScript -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const generateSpan = document.getElementById('generate-tickets');
-        const verifySpan = document.getElementById('verify-tickets');
-        const generateContent = document.getElementById('generate-content');
-        const verifyContent = document.getElementById('verify-content');
+    const generateSpan = document.getElementById('generate-tickets');
+    const verifySpan = document.getElementById('verify-tickets');
+    const generateContent = document.getElementById('generate-content');
+    const verifyContent = document.getElementById('verify-content');
 
-        // Show appropriate content based on clicked action
-        generateSpan.addEventListener('click', function() {
+    // Function to show the correct content based on action
+    function showAction(action) {
+        if (action === 'generate') {
             generateContent.style.display = 'block';
             verifyContent.style.display = 'none';
             setActiveSpan(generateSpan);
-        });
-
-        verifySpan.addEventListener('click', function() {
+        } else if (action === 'verify') {
             verifyContent.style.display = 'block';
             generateContent.style.display = 'none';
             setActiveSpan(verifySpan);
-        });
-
-        // Automatically display the first available action
-        if ({{ can_generate_tickets|yesno:"true,false" }}) {
-            generateSpan.click(); // Show generate content by default
-        } else if ({{ can_verify_tickets|yesno:"true,false" }}) {
-            verifySpan.click(); // Show verify content by default
         }
+    }
 
-        function setActiveSpan(activeSpan) {
-            // Remove active class from all spans
-            document.querySelectorAll('.action-span').forEach(span => {
-                span.classList.remove('active');
-            });
-            // Add active class to the clicked span
-            activeSpan.classList.add('active');
-        }
+    // Show appropriate content based on clicked action
+    generateSpan.addEventListener('click', function() {
+        showAction('generate');
+        sessionStorage.setItem('activeAction', 'generate'); // Save state
     });
+
+    verifySpan.addEventListener('click', function() {
+        showAction('verify');
+        sessionStorage.setItem('activeAction', 'verify'); // Save state
+    });
+
+    // Automatically display the first available action based on saved state or default
+    const savedAction = sessionStorage.getItem('activeAction');
+    if (savedAction) {
+        showAction(savedAction);
+    } else if ({{ can_generate_tickets|yesno:"true,false" }}) {
+        showAction('generate');
+    } else if ({{ can_verify_tickets|yesno:"true,false" }}) {
+        showAction('verify');
+    }
+
+    function setActiveSpan(activeSpan) {
+        // Remove active class from all spans
+        document.querySelectorAll('.action-span').forEach(span => {
+            span.classList.remove('active');
+        });
+        // Add active class to the clicked span
+        activeSpan.classList.add('active');
+    }
+});
+
 </script>
 
 <style>
