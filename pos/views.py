@@ -238,8 +238,14 @@ def pos_event_detail(request, event_id):
 
 @user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
 def pos_dashboard(request):
-    return render(request, 'pos/pos_dashboard.html')
-
+    # Retrieve all event assignments for the currently logged-in POS agent
+    assignments = AgentEventAssignment.objects.filter(agent=request.user)
+    
+    context = {
+        'assignments': assignments
+    }
+    
+    return render(request, 'pos/pos_dashboard.html', context) 
 
 
 @vendor_required

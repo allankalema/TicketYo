@@ -18,7 +18,7 @@
                 {% for event in pending_events %}
                     <tr>
                         <td><a href="{% url 'dash_approve_event' event.id %}" class="text-primary">{{ event.title }}</a></td>
-                        <td>{{ event.vendor.username }}</td>
+                        <td>{{ event.user.username }}</td>
                         <td>{{ event.start_date|date:"Y-m-d H:i:s" }}</td>
                         <td>{{ event.venue_name }}</td>
                     </tr>
