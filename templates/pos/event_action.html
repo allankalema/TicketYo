@@ -27,8 +27,24 @@
         <div id="verify-content" class="action-section" style="display: none;">
             <h3>Verify Tickets</h3>
             <p>This section is for verifying tickets.</p>
-            <!-- Future implementation for ticket verification -->
+            <form method="POST" action="{% url 'verify_ticket_view' assignment.id %}">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="ticket_number">Enter Ticket Number:</label>
+                    <input type="text" id="ticket_number" name="ticket_number" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-primary">Verify Ticket</button>
+            </form>
+        
+            <div id="verification-results" class="mt-4">
+                {% if messages %}
+                    {% for message in messages %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+                {% endif %}
+            </div>
         </div>
+        
     </div>
 </div>
 

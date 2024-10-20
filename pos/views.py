@@ -8,6 +8,7 @@ from datetime import datetime
 from accounts.models import User
 from events.models import *
 import random
+from django.http import HttpResponse
 from vendors.decorators import vendor_required
 from django.contrib.auth.decorators import user_passes_test
 from django.contrib import messages
@@ -17,6 +18,8 @@ from django.contrib.auth import authenticate, login
 from django.core.paginator import Paginator
 from pos.models import AgentEventAssignment
 from .forms import *
+from tickets.models import *
+from django.http import JsonResponse
 
 @login_required
 @vendor_required
@@ -275,6 +278,50 @@ def event_action_view(request, assignment_id):
         'can_verify_tickets': assignment.verifying_tickets,
     }
     return render(request, 'pos/event_action.html', context)
+
+
+@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
+def verify_ticket_view(request, assignment_id):
+    # Fetch the event and vendor using the assignment_id
+    assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
+    event = assignment.event
+    vendor = assignment.vendor  # Vendor who created the event
+
+
+    tickets = Ticket.objects.filter(event=event, user=vendor)
+
+    if request.method == 'POST':
+        # Get the ticket number from the POST request (input from user)
+        ticket_number = request.POST.get('ticket_number')
+
+        ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
+        # Debugging: Check the ticket searched
+        print(f"Searched ticket number: {ticket_number}, Found ticket: {ticket}")  # Add this line
+        
+        if ticket:
+            if ticket.verified:
+                return JsonResponse({'status': 'error', 'message': 'This ticket has already been verified.'})
+            else:
+                # Mark the ticket as verified
+                ticket.verified = True
+                ticket.verified_by = request.user
+                ticket.save()
+
+                # Safely retrieve the category title
+                ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
+
+                return JsonResponse({
+                    'status': 'success',
+                    'ticket_category': ticket_category_title,
+                    'customer_username': ticket.customer_username or 'N/A',
+                    'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
+                })
+        else:
+            return JsonResponse({'status': 'error', 'message': 'Ticket not found.'})
+
+    return render(request, 'tickets/pos_verify_ticket.html', {'event': event})
+
+
 
 @vendor_required
 @login_required
