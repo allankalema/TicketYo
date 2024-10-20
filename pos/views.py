@@ -265,6 +265,17 @@ def update_pos_agent_profile(request):
     return render(request, 'pos/update_agent.html', {'form': form})
 
 
+@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
+def event_action_view(request, assignment_id):
+    assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
+
+    context = {
+        'assignment': assignment,
+        'can_generate_tickets': assignment.generating_tickets,
+        'can_verify_tickets': assignment.verifying_tickets,
+    }
+    return render(request, 'pos/event_action.html', context)
+
 @vendor_required
 @login_required
 def assign_events_to_pos_agent(request, agent_id):

@@ -1,0 +1,64 @@
+{% extends 'frontend/base.html' %}
+
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Event Actions for {{ assignment.event.title }}</h1>
+
+    <!-- Action Buttons -->
+    <div class="text-center mb-4">
+        <span id="generate-tickets" class="action-span" 
+              style="cursor: pointer; {% if not can_generate_tickets %}display:none;{% endif %}">
+            Generate Tickets
+        </span>
+        <span id="verify-tickets" class="action-span" 
+              style="cursor: pointer; {% if not can_verify_tickets %}display:none;{% endif %}">
+            Verify Tickets
+        </span>
+    </div>
+
+    <!-- Action Content -->
+    <div id="action-content" class="mt-4">
+        <div id="generate-content" class="action-section" style="display: none;">
+            <h3>Generate Tickets</h3>
+            <p>This section is for generating tickets.</p>
+            <!-- Future implementation for ticket generation -->
+        </div>
+        
+        <div id="verify-content" class="action-section" style="display: none;">
+            <h3>Verify Tickets</h3>
+            <p>This section is for verifying tickets.</p>
+            <!-- Future implementation for ticket verification -->
+        </div>
+    </div>
+</div>
+
+<!-- Custom JavaScript -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const generateSpan = document.getElementById('generate-tickets');
+        const verifySpan = document.getElementById('verify-tickets');
+        const generateContent = document.getElementById('generate-content');
+        const verifyContent = document.getElementById('verify-content');
+
+        // Show appropriate content based on clicked action
+        generateSpan.addEventListener('click', function() {
+            generateContent.style.display = 'block';
+            verifyContent.style.display = 'none';
+        });
+
+        verifySpan.addEventListener('click', function() {
+            verifyContent.style.display = 'block';
+            generateContent.style.display = 'none';
+        });
+
+        // Automatically display the first available action
+        if ({{ can_generate_tickets|yesno:"true,false" }}) {
+            generateSpan.click(); // Show generate content by default
+        } else if ({{ can_verify_tickets|yesno:"true,false" }}) {
+            verifySpan.click(); // Show verify content by default
+        }
+    });
+</script>
+
+{% endblock %}
