@@ -18,5 +18,4 @@ urlpatterns = [
     path('event/<int:event_id>/', views.pos_event_detail, name='pos_event_detail'),
     path('event/deassign/<int:event_id>/', views.deassign_event, name='deassign_event'),
     path('event-action/<int:assignment_id>/', views.event_action_view, name='event_action'),
-    path('verify_ticket/<int:assignment_id>/', views.verify_ticket_view, name='verify_ticket_view'),
 ]

@@ -18,16 +18,19 @@
 
     <!-- Action Content -->
     <div id="action-content" class="mt-4">
+        <!-- Ticket Generation Section -->
         <div id="generate-content" class="action-section" style="display: none;">
             <h3>Generate Tickets</h3>
             <p>This section is for generating tickets.</p>
             <!-- Future implementation for ticket generation -->
         </div>
         
+        <!-- Ticket Verification Section -->
         <div id="verify-content" class="action-section" style="display: none;">
             <h3>Verify Tickets</h3>
             <p>This section is for verifying tickets.</p>
-            <form method="POST" action="{% url 'verify_ticket_view' assignment.id %}">
+
+            <form method="POST" action="">
                 {% csrf_token %}
                 <div class="form-group">
                     <label for="ticket_number">Enter Ticket Number:</label>
@@ -35,16 +38,23 @@
                 </div>
                 <button type="submit" class="btn btn-primary">Verify Ticket</button>
             </form>
-        
+
+            <!-- Display verification results -->
             <div id="verification-results" class="mt-4">
-                {% if messages %}
-                    {% for message in messages %}
-                        <div class="alert alert-success">{{ message }}</div>
-                    {% endfor %}
+                {% if error_message %}
+                    <div class="alert alert-danger">{{ error_message }}</div>
+                {% endif %}
+                
+                {% if verification_result %}
+                    <div class="alert alert-success">
+                        <strong>Ticket Verified Successfully!</strong><br>
+                        <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
+                        <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
+                        <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
+                    </div>
                 {% endif %}
             </div>
         </div>
-        
     </div>
 </div>
 
@@ -94,18 +104,18 @@
         border-radius: 5px;
         transition: box-shadow 0.3s, transform 0.3s;
         font-weight: bold;
-        color: #007bff; /* Default text color */
+        color: #007bff;
         cursor: pointer;
     }
 
     .action-span:hover {
-        text-decoration: underline; /* Add underline on hover for better visibility */
+        text-decoration: underline;
     }
 
     .action-span.active {
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Darker shadow */
-        transform: translateY(-2px); /* Slight lift effect */
-        color: #0056b3; /* Change text color when active */
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px);
+        color: #0056b3;
     }
 </style>
 
