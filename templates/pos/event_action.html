@@ -1,5 +1,4 @@
 {% extends 'frontend/base.html' %}
-
 {% load static %}
 {% block content %}
 <div class="container mt-5">
@@ -45,11 +44,13 @@
         generateSpan.addEventListener('click', function() {
             generateContent.style.display = 'block';
             verifyContent.style.display = 'none';
+            setActiveSpan(generateSpan);
         });
 
         verifySpan.addEventListener('click', function() {
             verifyContent.style.display = 'block';
             generateContent.style.display = 'none';
+            setActiveSpan(verifySpan);
         });
 
         // Automatically display the first available action
@@ -58,7 +59,38 @@
         } else if ({{ can_verify_tickets|yesno:"true,false" }}) {
             verifySpan.click(); // Show verify content by default
         }
+
+        function setActiveSpan(activeSpan) {
+            // Remove active class from all spans
+            document.querySelectorAll('.action-span').forEach(span => {
+                span.classList.remove('active');
+            });
+            // Add active class to the clicked span
+            activeSpan.classList.add('active');
+        }
     });
 </script>
+
+<style>
+    .action-span {
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        transition: box-shadow 0.3s, transform 0.3s;
+        font-weight: bold;
+        color: #007bff; /* Default text color */
+        cursor: pointer;
+    }
+
+    .action-span:hover {
+        text-decoration: underline; /* Add underline on hover for better visibility */
+    }
+
+    .action-span.active {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4); /* Darker shadow */
+        transform: translateY(-2px); /* Slight lift effect */
+        color: #0056b3; /* Change text color when active */
+    }
+</style>
 
 {% endblock %}
