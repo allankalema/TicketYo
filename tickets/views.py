@@ -38,7 +38,7 @@ def get_user_entity(request):
     elif request.user.is_customer:
         return 'customer', request.user
     elif request.user.is_posagent:  # Check for POS agent as well
-        return 'posagent', request.user
+        return 'pos_agent', request.user
     else:
         return None, None
 
