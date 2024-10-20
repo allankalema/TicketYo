@@ -275,40 +275,92 @@ def event_action_view(request, assignment_id):
     vendor = assignment.vendor  # Vendor who created the event
 
     tickets = Ticket.objects.filter(event=event, user=vendor)
+    ticket_categories = TicketCategory.objects.filter(event=event)
 
     context = {
         'assignment': assignment,
         'can_generate_tickets': assignment.generating_tickets,
         'can_verify_tickets': assignment.verifying_tickets,
+        'ticket_data': ticket_categories,  # Add ticket categories to the context
         'verification_result': None,
         'error_message': None
     }
 
     if request.method == 'POST':
-        # Handling ticket verification logic
-        ticket_number = request.POST.get('ticket_number')
+        # Determine if we are verifying or generating tickets
+        if request.POST.get('ticket_number'):  # Verification logic
+            ticket_number = request.POST.get('ticket_number')
+            ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
 
-        ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
+            if ticket:
+                if ticket.verified:
+                    context['error_message'] = 'This ticket has already been verified.'
+                else:
+                    # Mark the ticket as verified
+                    ticket.verified = True
+                    ticket.verified_by = request.user
+                    ticket.save()
 
-        if ticket:
-            if ticket.verified:
-                context['error_message'] = 'This ticket has already been verified.'
+                    # Safely retrieve the category title
+                    ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
+
+                    context['verification_result'] = {
+                        'ticket_category': ticket_category_title,
+                        'customer_username': ticket.customer_username or 'N/A',
+                        'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
+                    }
             else:
-                # Mark the ticket as verified
-                ticket.verified = True
-                ticket.verified_by = request.user
-                ticket.save()
+                context['error_message'] = 'Ticket not found.'
+        
+        else:  # Ticket generation logic
+            msisdn = request.POST.get('msisdn')
+            total_tickets = 0
 
-                # Safely retrieve the category title
-                ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
+            # Generate tickets for each category
+            for category in ticket_categories:
+                quantity = int(request.POST.get(f'quantity_{category.id}', 0))
+                if quantity > 0:
+                    total_tickets += quantity
+                    for _ in range(quantity):
+                        ticket_number = Ticket.generate_ticket_number(event, vendor, category, request.user, 'pos_agent')
+                        Ticket.objects.create(
+                            event=event,
+                            ticket_category=category,
+                            user=assignment.vendor,
+                            ticket_number=ticket_number,
+                            entity_type='pos_agent',
+                            customer_username=request.user.username,  # Assuming the buyer is the current user
+                            generated_by=request.user
+                        )
+                    category.category_tickets_sold += quantity
+                    category.save()
 
-                context['verification_result'] = {
-                    'ticket_category': ticket_category_title,
-                    'customer_username': ticket.customer_username or 'N/A',
-                    'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
-                }
-        else:
-            context['error_message'] = 'Ticket not found.'
+            # Handle ordinary (non-category) tickets
+            ordinary_quantity = int(request.POST.get('quantity_ordinary', 0))
+            if ordinary_quantity > 0:
+                total_tickets += ordinary_quantity
+                for _ in range(ordinary_quantity):
+                    ticket_number = Ticket.generate_ticket_number(event, vendor, None, request.user, 'pos_agent')
+                    Ticket.objects.create(
+                        event=event,
+                        user=assignment.vendor,
+                        ticket_number=ticket_number,
+                        entity_type='pos_agent',
+                        customer_username=request.user.username,  # Assuming the buyer is the current user
+                        generated_by=request.user
+                    )
+                event.tickets_sold += ordinary_quantity
+
+            event.save()
+
+            # Redirect to the success page if tickets were generated
+            if total_tickets > 0:
+                return render(request, 'pos/ticket_success.html', {
+                    'event': event,
+                    'vendor': vendor,
+                    'total_tickets': total_tickets,
+                    'total_price': request.POST.get('grand_total')
+                })
 
     return render(request, 'pos/event_action.html', context)
 
