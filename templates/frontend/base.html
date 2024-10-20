@@ -52,7 +52,7 @@
                 </li>
                 {% if user.is_authenticated %}
                 <li class="nav-item">
-                    <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
+                    <a href="{% url 'all_events' %}" class="nav-link text-black">All Events</a>
                 </li>
                 {% else %}
                 <li class="nav-item">
@@ -152,11 +152,11 @@
             </li>
             {% if user.is_authenticated %}
             <li class="nav-item">
-                <a href="{% url 'all_events' %}" class="nav-link text-black">{{ user.username }}'s Dashboard</a>
+                <a href="{% url 'all_events' %}" class="nav-link text-black">All Events</a>
             </li>
             {% else %}
             <li class="nav-item">
-                <a href="{% url 'all_events' %}" class="nav-link text-black">Dashboard</a>
+                <a href="{% url 'all_events' %}" class="nav-link text-black">All Events</a>
             </li>
             {% endif %}
             <li class="nav-item">

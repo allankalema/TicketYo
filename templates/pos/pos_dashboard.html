@@ -1,5 +1,7 @@
 {% extends 'frontend/base.html' %}
 
+
+{%load static %}
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Welcome to the POS Dashboard</h1>
@@ -23,16 +25,28 @@
     <h3 class="mt-5">Your Assigned Events</h3>
 
     {% if assignments %}
-        <ul class="list-group mt-4">
+        <div class="row mt-4">
             {% for assignment in assignments %}
-                <li class="list-group-item d-flex justify-content-between align-items-center">
-                    <!-- Event title as clickable (using '#' for now) -->
-                    <a href="#" class="event-title">{{ assignment.event.title }}</a>
-                    <!-- Display the date the event was assigned -->
-                    <span class="badge badge-primary">{{ assignment.created_at|date:"Y-m-d" }}</span>
-                </li>
+                <div class="col-md-4 mb-4">
+                    <div class="card">
+                        <!-- Event poster image -->
+                        {% if assignment.event.poster %}
+                            <img src="{{ assignment.event.poster.url }}" class="card-img-top" alt="{{ assignment.event.title }}">
+                        {% else %}
+                            <img src="{% static 'images/default-poster.jpg' %}" class="card-img-top" alt="Event Poster">
+                        {% endif %}
+                        
+                        <div class="card-body text-center">
+                            <!-- Event title -->
+                            <h5 class="card-title">{{ assignment.event.title }}</h5>
+                        </div>
+
+                        <!-- Entire card clickable, linking to event details -->
+                        <a href="#" class="stretched-link"></a>
+                    </div>
+                </div>
             {% endfor %}
-        </ul>
+        </div>
     {% else %}
         <p class="text-muted">No events assigned to you yet.</p>
     {% endif %}
