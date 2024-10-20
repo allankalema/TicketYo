@@ -1,7 +1,6 @@
 {% extends 'frontend/base.html' %}
 
-
-{%load static %}
+{% load static %}
 {% block content %}
 <div class="container mt-5">
     <h1 class="text-center">Welcome to the POS Dashboard</h1>
@@ -28,17 +27,51 @@
         <div class="row mt-4">
             {% for assignment in assignments %}
                 <div class="col-md-4 mb-4">
-                    <div class="card">
+                    <div class="card event-card">
                         <!-- Event poster image -->
                         {% if assignment.event.poster %}
-                            <img src="{{ assignment.event.poster.url }}" class="card-img-top" alt="{{ assignment.event.title }}">
+                            <img src="{{ assignment.event.poster.url }}" class="card-img-top event-poster" alt="{{ assignment.event.title }}">
                         {% else %}
-                            <img src="{% static 'images/default-poster.jpg' %}" class="card-img-top" alt="Event Poster">
+                            <img src="{% static 'images/default-poster.jpg' %}" class="card-img-top event-poster" alt="Event Poster">
                         {% endif %}
                         
-                        <div class="card-body text-center">
+                        <div class="card-body d-flex flex-column justify-content-between">
                             <!-- Event title -->
                             <h5 class="card-title">{{ assignment.event.title }}</h5>
+
+                            <!-- Event details with icons -->
+                            <div class="event-details mt-3">
+                                <!-- Start Date and End Date -->
+                                <p><i class="fas fa-calendar-alt"></i> {{ assignment.event.start_date|date:"M d, Y" }} - 
+                                    {% if assignment.event.end_date %}
+                                        {{ assignment.event.end_date|date:"M d, Y" }}
+                                    {% else %}
+                                        No End Date
+                                    {% endif %}
+                                </p>
+
+                                <!-- Location -->
+                                <p><i class="fas fa-map-marker-alt"></i> {{ assignment.event.venue_name }}</p>
+
+                                <!-- Vendor -->
+                                <p><i class="fas fa-user"></i> Vendor: {{ assignment.event.user.username }}</p>
+                            </div>
+
+                            <!-- Actions -->
+                            <div class="event-actions mt-4">
+                                <p>You are allowed to perform the following actions:</p>
+                                <ul>
+                                    {% if assignment.generating_tickets %}
+                                        <li>Generate Tickets</li>
+                                    {% endif %}
+                                    {% if assignment.verifying_tickets %}
+                                        <li>Verify Tickets</li>
+                                    {% endif %}
+                                    {% if not assignment.generating_tickets and not assignment.verifying_tickets %}
+                                        <li>No specific actions assigned.</li>
+                                    {% endif %}
+                                </ul>
+                            </div>
                         </div>
 
                         <!-- Entire card clickable, linking to event details -->
@@ -51,6 +84,56 @@
         <p class="text-muted">No events assigned to you yet.</p>
     {% endif %}
 </div>
+
+<!-- Custom CSS -->
+<style>
+    /* Ensuring all cards are the same height */
+    .event-card {
+        height: 500px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        text-align: center;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Setting a fixed height for the poster image */
+    .event-poster {
+        height: 200px;
+        object-fit: cover; /* Ensures images fill the area without distortion */
+    }
+
+    /* Ensuring uniformity in title styling */
+    .card-title {
+        font-size: 18px;
+        font-weight: bold;
+        margin-top: 10px;
+    }
+
+    /* Styling for event details */
+    .event-details p {
+        margin-bottom: 5px;
+        font-size: 14px;
+    }
+
+    .event-details i {
+        margin-right: 5px;
+    }
+
+    /* Ensuring uniform styling for the action list */
+    .event-actions ul {
+        list-style-type: none;
+        padding-left: 0;
+    }
+
+    .event-actions li {
+        font-size: 14px;
+        margin-bottom: 5px;
+    }
+</style>
+
+<!-- Font Awesome for icons -->
+<script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
 <script>
     // Dropdown functionality
