@@ -2,7 +2,7 @@
 
 {% block content %}
 <div class="container mt-5">
-    <h3>Event Details: {{ event.title }}</h3>
+    <h3>Event Details: {{ event.title }}  </h3>
 
     <!-- Deassign Event Button -->
     <div class="text-right mb-3">
@@ -24,12 +24,12 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in generated_totals %}
+            {% for total in generated_totals %}
             <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.sold }}</td>
-                <td>{{ item.price }}</td>
-                <td>{{ item.total }}</td>
+                <td>{{ total.title }}</td>
+                <td>{{ total.sold }}</td>
+                <td>{{ total.price }}</td>
+                <td>{{ total.total }}</td>
             </tr>
             {% endfor %}
             <tr>
@@ -39,8 +39,8 @@
         </tbody>
     </table>
 
-    <!-- Verified Tickets Table (if permissions are granted) -->
     {% if verifying_enabled %}
+    <!-- Verified Tickets Table -->
     <h4>Verified Tickets</h4>
     <table class="table table-bordered">
         <thead>
@@ -50,10 +50,10 @@
             </tr>
         </thead>
         <tbody>
-            {% for item in verified_totals %}
+            {% for total in verified_totals %}
             <tr>
-                <td>{{ item.title }}</td>
-                <td>{{ item.verified }}</td>
+                <td>{{ total.title }}</td>
+                <td>{{ total.verified }}</td>
             </tr>
             {% endfor %}
             <tr>
@@ -62,8 +62,7 @@
             </tr>
         </tbody>
     </table>
-    {% else %}
-    <p>No verified tickets available.</p>
     {% endif %}
 </div>
+
 {% endblock %}
