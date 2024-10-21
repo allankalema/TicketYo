@@ -273,6 +273,8 @@ def event_action_view(request, assignment_id):
     assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
     event = assignment.event
     vendor = assignment.vendor  # Vendor who created the event
+    categories = assignment.event.ticket_categories.all()
+
 
     tickets = Ticket.objects.filter(event=event, user=vendor)
     ticket_categories = TicketCategory.objects.filter(event=event)
@@ -313,55 +315,7 @@ def event_action_view(request, assignment_id):
                 context['error_message'] = 'Ticket not found.'
         
         else:  # Ticket generation logic
-            msisdn = request.POST.get('msisdn')
-            total_tickets = 0
-
-            # Generate tickets for each category
-            for category in ticket_categories:
-                quantity = int(request.POST.get(f'quantity_{category.id}', 0))
-                if quantity > 0:
-                    total_tickets += quantity
-                    for _ in range(quantity):
-                        ticket_number = Ticket.generate_ticket_number(event, vendor, category, request.user, 'pos_agent')
-                        Ticket.objects.create(
-                            event=event,
-                            ticket_category=category,
-                            user=assignment.vendor,
-                            ticket_number=ticket_number,
-                            entity_type='pos_agent',
-                            customer_username=request.user.username,  # Assuming the buyer is the current user
-                            generated_by=request.user
-                        )
-                    category.category_tickets_sold += quantity
-                    category.save()
-
-            # Handle ordinary (non-category) tickets
-            ordinary_quantity = int(request.POST.get('quantity_ordinary', 0))
-            if ordinary_quantity > 0:
-                total_tickets += ordinary_quantity
-                for _ in range(ordinary_quantity):
-                    ticket_number = Ticket.generate_ticket_number(event, vendor, None, request.user, 'pos_agent')
-                    Ticket.objects.create(
-                        event=event,
-                        user=assignment.vendor,
-                        ticket_number=ticket_number,
-                        entity_type='pos_agent',
-                        customer_username=request.user.username,  # Assuming the buyer is the current user
-                        generated_by=request.user
-                    )
-                event.tickets_sold += ordinary_quantity
-
-            event.save()
-
-            # Redirect to the success page if tickets were generated
-            if total_tickets > 0:
-                return render(request, 'pos/ticket_success.html', {
-                    'event': event,
-                    'vendor': vendor,
-                    'total_tickets': total_tickets,
-                    'total_price': request.POST.get('grand_total')
-                })
-
+            pass
     return render(request, 'pos/event_action.html', context)
 
 
