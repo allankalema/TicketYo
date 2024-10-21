@@ -1,0 +1,22 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block content %}
+
+
+<form method="POST" action="{% url 'verify_ticket_view' assignment_id=assignment_id %}">
+{% csrf_token %}
+<input type="text" name="ticket_number" placeholder="Enter Ticket Number">
+<button type="submit">Verify Ticket</button>
+</form>
+
+{% if ticket %}
+<h3>Ticket Information</h3>
+<p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
+<p><strong>Event Title:</strong> {{ ticket.event_title }}</p>
+<p><strong>Ticket Category:</strong> {{ ticket.ticket_category }}</p>
+<p><strong>Purchase Date:</strong> {{ ticket.purchase_date }}</p>
+<p><strong>Purchaser:</strong> {{ ticket.purchaser_username }}</p>
+<p><strong>Verified By:</strong> {{ ticket.verified_by }}</p>
+{% endif %}
+
+{% endblock %}

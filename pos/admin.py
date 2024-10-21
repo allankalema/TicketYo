@@ -1,10 +1,9 @@
-# from django.contrib import admin
-# from .models import POSAgent
+from django.contrib import admin
+from .models import AgentEventAssignment
 
-# class POSAgentAdmin(admin.ModelAdmin):
-#     list_display = ('user', 'is_active')
-#     list_filter = ('is_active',)
-#     search_fields = ('user__first_name', 'user__last_name', 'user__email', 'user__username')
+class AgentEventAssignmentAdmin(admin.ModelAdmin):
+    list_display = ('agent', 'event', 'vendor', 'generating_tickets', 'verifying_tickets', 'created_at', 'updated_at')
+    search_fields = ('agent__username', 'event__title', 'vendor__username')
+    list_filter = ('generating_tickets', 'verifying_tickets', 'vendor')
 
-# admin.site.register(POSAgent, POSAgentAdmin)
-# # 
+admin.site.register(AgentEventAssignment, AgentEventAssignmentAdmin)

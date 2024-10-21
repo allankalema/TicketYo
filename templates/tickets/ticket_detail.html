@@ -1,33 +1,4 @@
-<!-- tickets/templates/tickets/ticket_detail.html -->
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ticket Detail</title>
-</head>
-<body>
-    <h1>Ticket Detail for {{ ticket.event.title }}</h1>
-
-    <h2>Event Details:</h2>
-    <ul>
-        <li><strong>Event Title:</strong> {{ ticket.event.title }}</li>
-        <li><strong>Event Description:</strong> {{ ticket.event.description }}</li>
-        <li><strong>Event Location:</strong> {{ ticket.event.venue_name }}</li>
-    </ul>
-
-    <h2>Ticket Details:</h2>
-    <ul>
-        <li><strong>Category:</strong> {{ ticket.ticket_category.category_title }}</li>
-        <li><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</li>
-        <li><strong>Purchase Date:</strong> {{ ticket.purchase_date }}</li>
-        {% if ticket.qr_code %}
-            <li><img src="{{ ticket.qr_code.url }}" alt="QR Code for {{ ticket.ticket_number }}"></li>
-        {% else %}
-            <li>No QR code available</li>
-        {% endif %}
-    </ul>
-
-    <a href="{% url 'customer_home' %}">Back to Dashboard</a>
-</body>
-</html>
+@login_required
+def ticket_detail(request, pk):
+    ticket = get_object_or_404(Ticket, pk=pk)
+    return render(request, 'tickets/ticket_detail.html', {'ticket': ticket})

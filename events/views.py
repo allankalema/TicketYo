@@ -43,7 +43,6 @@ def create_event(request):
     }
     return render(request, 'events/create_event.html', context)
 
-
 @login_required
 @vendor_required
 def vendor_events(request):
@@ -73,6 +72,8 @@ def vendor_events(request):
         'filter_type': filter_type
     }
     return render(request, 'events/vendor_events.html', context)
+
+
 
 
 def all_events(request):

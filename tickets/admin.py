@@ -2,11 +2,11 @@ from django.contrib import admin
 from .models import Ticket
 
 class TicketAdmin(admin.ModelAdmin):
-    list_display = ('ticket_number', 'event', 'user', 'customer_username', 'ticket_category', 'purchase_date', 'verified', 'entity_type')
-    list_filter = ('verified', 'entity_type', 'event', 'user')
-    search_fields = ('ticket_number', 'customer_username', 'user__username', 'event__title')
+    list_display = ('ticket_number', 'event', 'user', 'customer_username', 'ticket_category', 'purchase_date', 'verified', 'entity_type','verified_by','generated_by')
+    list_filter = ('verified', 'entity_type', 'event', 'user','verified_by','generated_by')
+    search_fields = ('ticket_number', 'customer_username', 'user__username', 'event__title','generated_by')
     ordering = ('-purchase_date',)
-    readonly_fields = ('qr_code', 'purchase_date')  # QR code and purchase date should be read-only
+    readonly_fields = ('qr_code', 'purchase_date','verified_by','generated_by')  # QR code and purchase date should be read-only
 
     def get_queryset(self, request):
         # Optionally limit the queryset for admin users

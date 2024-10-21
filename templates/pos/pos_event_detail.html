@@ -1,0 +1,68 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>Event Details: {{ event.title }}  </h3>
+
+    <!-- Deassign Event Button -->
+    <div class="text-right mb-3">
+        <form action="{% url 'deassign_event' event.id %}" method="post" style="display:inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Deassign Event</button>
+        </form>
+    </div>
+
+    <!-- Generated Tickets Table -->
+    <h4>Generated Tickets</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Tickets Sold</th>
+                <th>Price per Ticket</th>
+                <th>Total Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for total in generated_totals %}
+            <tr>
+                <td>{{ total.title }}</td>
+                <td>{{ total.sold }}</td>
+                <td>{{ total.price }}</td>
+                <td>{{ total.total }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>Total</strong></td>
+                <td colspan="3"><strong>{{ total_generated }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+
+    {% if verifying_enabled %}
+    <!-- Verified Tickets Table -->
+    <h4>Verified Tickets</h4>
+    <table class="table table-bordered">
+        <thead>
+            <tr>
+                <th>Category</th>
+                <th>Tickets Verified</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for total in verified_totals %}
+            <tr>
+                <td>{{ total.title }}</td>
+                <td>{{ total.verified }}</td>
+            </tr>
+            {% endfor %}
+            <tr>
+                <td><strong>Total Verified</strong></td>
+                <td><strong>{{ total_verified }}</strong></td>
+            </tr>
+        </tbody>
+    </table>
+    {% endif %}
+</div>
+
+{% endblock %}

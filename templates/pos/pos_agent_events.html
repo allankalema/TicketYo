@@ -1,0 +1,38 @@
+{% extends 'frontend/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h3>Events Assigned to {{ pos_agent.first_name }} {{ pos_agent.last_name }}</h3>
+    <div class="card">
+        <div class="card-body">
+            <h4>Assigned Events</h4>
+
+            <!-- List of Events -->
+            <ul class="list-group mb-3">
+                {% for assignment in assigned_events %}
+                    <li class="list-group-item">
+                        <a href="{% url 'pos_event_detail' agent_id=assignment.agent.id event_id=assignment.event.id %}" class="text-decoration-none">{{ assignment.event.title }}</a>
+
+
+                    </li>
+                {% empty %}
+                    <li class="list-group-item">No events assigned to this POS agent.</li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+</div>
+
+<!-- Custom Styles -->
+<style>
+    a.text-decoration-none {
+        color: #000;
+    }
+
+    a.text-decoration-none:hover {
+        color: #e70000;
+        text-decoration: underline;
+    }
+</style>
+
+{% endblock %}

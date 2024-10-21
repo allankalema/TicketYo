@@ -3,62 +3,121 @@
 {% block content %}
 <div class="container mt-5">
     <div class="row">
-        <!-- Right side: Buttons for actions -->
-        <div class="col-md-8">
+        <!-- Left side: Invitation and Available POS Agents -->
+        <div class="col-md-6">
+            <div class="card mb-4">
+                <div class="card-body">
+                    <!-- Invite POS Agent Button -->
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h3>Invite POS Agent</h3>
+                        <a href="{% url 'invite_pos_agent' %}" class="btn btn-outline-primary btn-custom">Invite</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Available POS Agents Section -->
             <div class="card">
                 <div class="card-body">
-                    <!-- Create and Manage POS Agents Section -->
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h3>Create and Manage POS Agents</h3>
-                        <a href="{% url 'create_pos_agent' %}" class="btn btn-outline-primary">Create POS Agent</a>
-                    </div>
-                    <hr>
-
+                    <h4>Available POS Agents</h4>
                     
+                    <!-- Search Bar -->
+                    <form method="GET" class="d-flex mb-3">
+                        <input type="text" name="search" class="form-control me-2" placeholder="Search POS agents..." value="{{ search_query }}">
+                        <button type="submit" class="btn btn-outline-primary btn-custom">Search</button>
+                    </form>
+
+                    <!-- List of Available POS Agents -->
+                    <ul class="list-group mb-3">
+                        {% for agent in available_agents_page %}
+                        <li class="list-group-item">
+                            <a href="{% url 'pos-agent-detail' agent.id %}" class="text-decoration-none">{{ agent.first_name }} {{ agent.last_name }}</a>
+                        </li>
+                        {% empty %}
+                        <li class="list-group-item">No POS agents available</li>
+                        {% endfor %}
+                    </ul>
+
+                    <!-- Pagination Controls -->
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if available_agents_page.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ available_agents_page.previous_page_number }}&search={{ search_query }}" aria-label="Previous">
+                                        <span aria-hidden="true">&laquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                            {% for num in available_agents_page.paginator.page_range %}
+                                <li class="page-item {% if available_agents_page.number == num %}active{% endif %}">
+                                    <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
+                                </li>
+                            {% endfor %}
+                            {% if available_agents_page.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ available_agents_page.next_page_number }}&search={{ search_query }}" aria-label="Next">
+                                        <span aria-hidden="true">&raquo;</span>
+                                    </a>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                 </div>
             </div>
         </div>
 
-        <!-- Left side: Active/Inactive POS Agents -->
-        <div class="col-md-4">
-            <!-- Section for active POS agents -->
-            <h3>Active POS Agents</h3>
-            
-            <ul class="list-group mb-3">
-                <!-- Search Bar -->
-            <form method="GET" class="mb-3">
-                <input type="text" name="search" class="form-control" placeholder="Search Active agents..." value="{{ search_query }}">
-                <button type="submit" class="btn btn-primary mt-2">Search</button>
-            </form>
-                {% for agent in active_agents %}
-                <li class="list-group-item">
-                    <a href="{% url 'agent_detail' agent.id %}">{{ agent.first_name }} {{ agent.last_name }}</a><br>
-                </li>
-                {% empty %}
-                <li class="list-group-item">No active agents available</li>
-                {% endfor %}
-            </ul>
+        <!-- Right side: My Agents Section -->
+        <div class="col-md-6">
+            <div class="card">
+                <div class="card-body">
+                    <h4>My Agents</h4>
+                    
+                    <!-- Search Bar for My Agents -->
+                    <form method="GET" class="d-flex mb-3">
+                        <input type="text" name="my_agents_search" class="form-control me-2" placeholder="Search my agents..." value="{{ my_agents_search }}">
+                        <button type="submit" class="btn btn-outline-primary btn-custom">Search</button>
+                    </form>
 
-            <!-- Section for inactive POS agents -->
-            <h3>Inactive POS Agents</h3>
-            <ul class="list-group">
-                {% for agent in inactive_agents %}
-                <li class="list-group-item">
-                    <a href="{% url 'agent_detail' agent.id %}">{{ agent.first_name }} {{ agent.last_name }} - {{ agent.username }}</a><br>
-                    <strong>Assigned Events:</strong>
-                    <ul>
-                        {% for event in agent.assigned_events.all %}
-                        <li>{{ event.title }}</li>
+                    <!-- List of My Agents -->
+                    <ul class="list-group mb-3">
+                        {% for agent in my_agents %}
+                        <li class="list-group-item">
+                            <a href="{% url 'pos-agent-events' agent.id %}" class="text-decoration-none">{{ agent.first_name }} {{ agent.last_name }}</a>
+                        </li>
                         {% empty %}
-                        <li>No events assigned</li>
+                        <li class="list-group-item">No agents available</li>
                         {% endfor %}
                     </ul>
-                </li>
-                {% empty %}
-                <li class="list-group-item">No inactive agents available</li>
-                {% endfor %}
-            </ul>
+                </div>
+            </div>
         </div>
     </div>
 </div>
+
+<!-- Custom Styles -->
+<style>
+    .btn-custom {
+        background-color: transparent;
+        border: 2px solid #e70000;
+        color: #e70000;
+    }
+
+    .btn-custom:hover {
+        background-color: #e70000;
+        color: white;
+    }
+
+    a.text-decoration-none {
+        color: #000;
+    }
+
+    a.text-decoration-none:hover {
+        color: #e70000;
+        text-decoration: underline;
+    }
+
+    .form-control.me-2 {
+        margin-right: 10px;
+    }
+</style>
+
 {% endblock %}

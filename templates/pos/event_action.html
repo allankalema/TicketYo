@@ -1,0 +1,192 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Event Actions for {{ assignment.event.title }}</h1>
+
+    <!-- Action Buttons -->
+    <div class="text-center mb-4">
+        <!-- Show Generate Tickets button only if generating_tickets is true -->
+        {% if assignment.generating_tickets %}
+        <a href="{% url 'Generate_ticket' assignment.id %}" class="btn btn-outline-primary">
+            Generate Tickets
+        </a>
+        {% endif %}
+
+        <!-- Show Verify Tickets button only if verifying_tickets is true -->
+        {% if assignment.verifying_tickets %}
+        <span id="verify-tickets" class="action-span btn btn-outline-primary" style="cursor: pointer;">
+            Verify Tickets
+        </span>
+
+        <!-- QR Code Scan Button -->
+        <span id="scan-qr" class="action-span btn btn-outline-primary" style="cursor: pointer;">
+            Scan QR Code
+        </span>
+
+        {% endif %}
+    </div>
+
+    <!-- Action Content -->
+    <div id="action-content" class="mt-4">
+        <!-- Ticket Verification Section (default) -->
+        {% if assignment.verifying_tickets %}
+        <div id="verify-content" class="action-section">
+            <h3>Verify Tickets</h3>
+            <p>This section is for verifying tickets.</p>
+
+            <form method="POST" action="">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label for="ticket_number">Enter Ticket Number:</label>
+                    <input type="text" id="ticket_number" name="ticket_number" class="form-control" required>
+                </div>
+                <button type="submit" class="btn btn-outline-primary">Verify Ticket</button>
+            </form>
+
+            <!-- QR Code Scanning Section -->
+            <div id="qr-reader" style="width: 300px; margin: auto; display: none;"></div>
+            <div id="qr-reader-results" class="mt-4"></div>
+
+            <!-- Display verification results -->
+            <div id="verification-results" class="mt-4">
+                {% if error_message %}
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+                </div>
+                {% endif %}
+
+                {% if verification_result %}
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Ticket Verified Successfully!</strong><br>
+                    <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
+                    <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
+                    <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const scanQrButton = document.getElementById('scan-qr');
+        const ticketNumberInput = document.getElementById('ticket_number');  // Input field for ticket number
+        
+        if (scanQrButton) {
+            scanQrButton.addEventListener('click', function() {
+                console.log("QR Button Clicked");
+                
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                        .then(function(stream) {
+                            const videoElement = document.createElement('video');
+                            videoElement.srcObject = stream;
+                            videoElement.setAttribute("playsinline", true); // iOS compatibility
+                            videoElement.play();
+                            
+                            const qrCanvas = document.createElement('canvas');
+                            const qrContext = qrCanvas.getContext('2d');
+
+                            // Append video to the body for scanning (invisible preview)
+                            document.body.appendChild(videoElement);
+                            videoElement.style.display = "none";  // Hide video preview
+
+                            // Continuously scan QR code from the video feed
+                            function scanQR() {
+                                qrCanvas.width = videoElement.videoWidth;
+                                qrCanvas.height = videoElement.videoHeight;
+                                qrContext.drawImage(videoElement, 0, 0, qrCanvas.width, qrCanvas.height);
+
+                                try {
+                                    const qrCodeResult = jsQR(qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data, qrCanvas.width, qrCanvas.height);
+                                    if (qrCodeResult) {
+                                        console.log("QR Code Detected: ", qrCodeResult.data);
+                                        ticketNumberInput.value = qrCodeResult.data;  // Set the value in the input field
+                                        
+                                        // Stop the video stream after successful scan
+                                        stream.getTracks().forEach(track => track.stop());
+                                        videoElement.remove();  // Remove video element
+                                    } else {
+                                        requestAnimationFrame(scanQR);  // Retry if no QR code found
+                                    }
+                                } catch (error) {
+                                    console.error("Error scanning QR: ", error);
+                                    requestAnimationFrame(scanQR);  // Continue scanning if error occurs
+                                }
+                            }
+                            scanQR();  // Start scanning
+                        })
+                        .catch(function(err) {
+                            console.error("Error accessing camera: ", err);
+                            alert('Unable to access the camera. Please ensure it is enabled and accessible.');
+                        });
+                } else {
+                    alert('Camera is not supported on this device or browser.');
+                }
+            });
+        }
+    });
+</script>
+
+<style>
+    .action-span {
+        padding: 10px 20px;
+        margin: 0 10px;
+        border-radius: 5px;
+        transition: box-shadow 0.3s, transform 0.3s;
+        font-weight: bold;
+        color: #007bff;
+        cursor: pointer;
+        border: 2px solid #007bff;
+        background-color: transparent;
+    }
+
+    .action-span:hover {
+        text-decoration: underline;
+    }
+
+    .action-span.active {
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
+        transform: translateY(-2px);
+        color: #0056b3;
+    }
+
+    .btn-outline-primary {
+        color: #007bff;
+        border: 2px solid #007bff;
+        background-color: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    .btn-close {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        opacity: 1;
+    }
+
+    .btn-close:hover {
+        color: #ff0000;
+    }
+
+    #qr-reader {
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    #qr-reader {
+        display: none;
+    }
+</style>
+
+{% endblock %}

@@ -1,3 +1,9 @@
+{% extends 'frontend/base.html' %}
+
+{% load static %}
+
+{% block content %}
+
 <h1>Thank You for Your Purchase!</h1>
 
 <p>Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
@@ -41,3 +47,4 @@
     <li><strong>Total Tickets:</strong> {{ total_tickets }}</li>
     <li><strong>Total Price:</strong> UGX {{ total_price }}</li>
 </ul>
+{% endblock%}
