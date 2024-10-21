@@ -274,83 +274,82 @@ def update_pos_agent_profile(request):
 def event_action_view(request, assignment_id):
     assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
     event = assignment.event
-    vendor = assignment.vendor  # Vendor who created the event
-    categories = assignment.event.ticket_categories.all()
-
+    vendor = assignment.vendor
     tickets = Ticket.objects.filter(event=event, user=vendor)
-    ticket_categories = TicketCategory.objects.filter(event=event)
 
     context = {
         'assignment': assignment,
         'can_generate_tickets': assignment.generating_tickets,
         'can_verify_tickets': assignment.verifying_tickets,
-        'ticket_data': ticket_categories,  # Add ticket categories to the context
         'verification_result': None,
         'error_message': None
     }
 
-    if request.method == 'POST':
-        # Determine if we are verifying or generating tickets
-        if request.POST.get('ticket_number'):  # Verification logic
-            ticket_number = request.POST.get('ticket_number')
-            ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
+    if request.method == 'POST' and request.POST.get('ticket_number'):  # Verification logic
+        ticket_number = request.POST.get('ticket_number')
+        ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
 
-            if ticket:
-                if ticket.verified:
-                    context['error_message'] = 'This ticket has already been verified.'
-                else:
-                    # Mark the ticket as verified
-                    ticket.verified = True
-                    ticket.verified_by = request.user
-                    ticket.save()
-
-                    # Safely retrieve the category title
-                    ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
-
-                    context['verification_result'] = {
-                        'ticket_category': ticket_category_title,
-                        'customer_username': ticket.customer_username or 'N/A',
-                        'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
-                    }
+        if ticket:
+            if ticket.verified:
+                context['error_message'] = 'This ticket has already been verified.'
             else:
-                context['error_message'] = 'Ticket not found.'
-        
-        else:  # Ticket generation logic
-            # Insert the logic for generating tickets (replacing the `pass`)
-            
-            event_data, error = prepare_event_data(assignment_id)
-            if error:
-                return render(request, error['template'], error['context'])
+                ticket.verified = True
+                ticket.verified_by = request.user
+                ticket.save()
 
-            
-            user_type, buyer = get_user_entity(request)
-            if not buyer:
-                context['error_message'] = 'User is not authorized to buy tickets.'
-                return render(request, 'tickets/error.html', context)
-
-            # Process the ticket purchase
-            purchase_data, error = process_ticket_purchase(
-                event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, buyer, user_type
-            )
-            if error:
-                return render(request, error['template'], error['context'])
-
-            # Update the context to include purchase details
-            context.update({
-                'vendor': event_data['vendor'],
-                'ticket_details': purchase_data['ticket_details'],
-                'total_price': purchase_data['total_price'],
-                'total_tickets': purchase_data['total_tickets'],
-                'customer': buyer,
-                'ticket_data': event_data['ticket_data'],
-                'ordinary_ticket_data': event_data['ordinary_ticket_data'],
-                
-            })
-
-            return render(request, 'tickets/ticket_success.html', context)
+                ticket_category_title = ticket.ticket_category.category_title if ticket.ticket_category else 'N/A'
+                context['verification_result'] = {
+                    'ticket_category': ticket_category_title,
+                    'customer_username': ticket.customer_username or 'N/A',
+                    'purchase_date': ticket.purchase_date.strftime('%Y-%m-%d %H:%M:%S'),
+                }
+        else:
+            context['error_message'] = 'Ticket not found.'
 
     return render(request, 'pos/event_action.html', context)
 
+@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
+def pos_generate_ticket_view(request, assignment_id):
+    assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
+    event = assignment.event
+
+    context = {
+        'assignment': assignment,
+        'can_generate_tickets': assignment.generating_tickets,
+        'can_verify_tickets': assignment.verifying_tickets,
+        'ticket_data': assignment.event.ticket_categories.all(),
+        'error_message': None
+    }
+
+    if request.method == 'POST':  # Ticket generation logic
+        event_data, error = prepare_event_data(assignment_id)
+        user_type, buyer = get_user_entity(request)
+        
+        if not buyer:
+            context['error_message'] = 'User is not authorized to buy tickets.'
+            return render(request, 'tickets/error.html', context)
+
+        # Process the ticket purchase
+        purchase_data, error = process_ticket_purchase(
+            event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, buyer, user_type
+        )
+        if error:
+            return render(request, error['template'], error['context'])
+
+        # Update context with purchase details
+        context.update({
+            'vendor': event_data['vendor'],
+            'ticket_details': purchase_data['ticket_details'],
+            'total_price': purchase_data['total_price'],
+            'total_tickets': purchase_data['total_tickets'],
+            'customer': buyer,
+            'ticket_data': event_data['ticket_data'],
+            'ordinary_ticket_data': event_data['ordinary_ticket_data'],
+        })
+
+        return render(request, 'tickets/ticket_success.html', context)
+
+    return render(request, 'pos/event_action.html', context)
 
 @vendor_required
 @login_required
