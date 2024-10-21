@@ -243,14 +243,20 @@ def pos_event_detail(request, event_id):
 
 @user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
 def pos_dashboard(request):
-    # Retrieve all event assignments for the currently logged-in POS agent
     assignments = AgentEventAssignment.objects.filter(agent=request.user)
-    
+
+    for assignment in assignments:
+        # Adjusting the ticket count to filter from the Ticket model
+        assignment.verified_ticket_count = Ticket.objects.filter(
+            event=assignment.event,
+            generated_by=request.user,
+            verified=True
+        ).count()
+
     context = {
-        'assignments': assignments
+        'assignments': assignments,
     }
-    
-    return render(request, 'pos/pos_dashboard.html', context) 
+    return render(request, 'pos/pos_dashboard.html', context)
 
 
 @user_passes_test(lambda u: u.is_authenticated and u.is_posagent)

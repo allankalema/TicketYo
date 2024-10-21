@@ -1,5 +1,4 @@
 {% extends 'frontend/base.html' %}
-
 {% load static %}
 {% block content %}
 <div class="container mt-5">
@@ -12,7 +11,6 @@
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Profile
         </button>
-        <!-- Ensuring dropdown menu aligns to the right -->
         <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
             <a class="dropdown-item" href="{% url 'update_pos_agent_profile' %}">Update Profile</a>
             <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
@@ -21,28 +19,37 @@
     </div>
 
     <a href="{% url 'pos_inventory' %}" class="btn btn-outline-danger">Inventory</a>
+
+    <!-- Search Bar -->
+    <div class="text-center mb-4">
+        <input type="text" id="search" placeholder="Search Events" onkeyup="filterEvents()" />
+    </div>
+
     <!-- Assigned Events Section -->
     <h3 class="mt-5">Your Assigned Events</h3>
 
     {% if assignments %}
-        <div class="row mt-4">
+        <div class="row mt-4" id="eventCards">
             {% for assignment in assignments %}
-                <div class="col-md-4 mb-4">
+                {% with now=timezone.now %}
+                    {% if assignment.event.end_date and assignment.event.end_date < now %}
+                        {% comment %} Event has ended {% endcomment %}
+                        <div class="col-md-4 mb-4" style="background-color: #f8f9fa;">
+                    {% else %}
+                        <div class="col-md-4 mb-4">
+                    {% endif %}
+                {% endwith %}
                     <div class="card event-card">
-                        <!-- Event poster image -->
                         {% if assignment.event.poster %}
                             <img src="{{ assignment.event.poster.url }}" class="card-img-top event-poster" alt="{{ assignment.event.title }}">
                         {% else %}
                             <img src="{% static 'images/default-poster.jpg' %}" class="card-img-top event-poster" alt="Event Poster">
                         {% endif %}
-                        
+
                         <div class="card-body d-flex flex-column justify-content-between">
-                            <!-- Event title -->
                             <h5 class="card-title">{{ assignment.event.title }}</h5>
 
-                            <!-- Event details with icons -->
                             <div class="event-details mt-3">
-                                <!-- Start Date and End Date -->
                                 <p><i class="fas fa-calendar-alt"></i> {{ assignment.event.start_date|date:"M d, Y" }} - 
                                     {% if assignment.event.end_date %}
                                         {{ assignment.event.end_date|date:"M d, Y" }}
@@ -50,15 +57,15 @@
                                         No End Date
                                     {% endif %}
                                 </p>
-
-                                <!-- Location -->
                                 <p><i class="fas fa-map-marker-alt"></i> {{ assignment.event.venue_name }}</p>
-
-                                <!-- Vendor -->
                                 <p><i class="fas fa-user"></i> Vendor: {{ assignment.event.user.username }}</p>
+
+                                {% if assignment.verifying_tickets %}
+                                <p><strong>Verified Tickets:</strong> {{ assignment.verified_ticket_count }}</p>
+                            {% endif %}
+                            
                             </div>
 
-                            <!-- Actions -->
                             <div class="event-actions mt-4">
                                 <p>You are allowed to perform the following actions:</p>
                                 <ul>
@@ -75,7 +82,6 @@
                             </div>
                         </div>
 
-                        <!-- Entire card clickable, linking to event details -->
                         <a href="{% url 'event_action' assignment.id %}" class="stretched-link"></a>
                     </div>
                 </div>
@@ -98,20 +104,17 @@
         box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    /* Setting a fixed height for the poster image */
     .event-poster {
         height: 200px;
-        object-fit: cover; /* Ensures images fill the area without distortion */
+        object-fit: cover;
     }
 
-    /* Ensuring uniformity in title styling */
     .card-title {
         font-size: 18px;
         font-weight: bold;
         margin-top: 10px;
     }
 
-    /* Styling for event details */
     .event-details p {
         margin-bottom: 5px;
         font-size: 14px;
@@ -121,7 +124,6 @@
         margin-right: 5px;
     }
 
-    /* Ensuring uniform styling for the action list */
     .event-actions ul {
         list-style-type: none;
         padding-left: 0;
@@ -133,27 +135,24 @@
     }
 </style>
 
+<script>
+    function filterEvents() {
+        const searchValue = document.getElementById('search').value.toLowerCase();
+        const eventCards = document.getElementById('eventCards');
+        const cards = Array.from(eventCards.getElementsByClassName('col-md-4'));
+
+        cards.forEach(card => {
+            const title = card.querySelector('.card-title').textContent.toLowerCase();
+            if (title.includes(searchValue)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+</script>
+
 <!-- Font Awesome for icons -->
 <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
 
-<script>
-    // Dropdown functionality
-    document.addEventListener('DOMContentLoaded', function () {
-        const dropdownButton = document.getElementById('profileDropdown');
-        const dropdownMenu = document.querySelector('.dropdown-menu');
-
-        if (dropdownButton && dropdownMenu) {
-            dropdownButton.addEventListener('click', function (event) {
-                dropdownMenu.classList.toggle('show');
-                event.stopPropagation(); // Prevent event from bubbling up
-            });
-
-            document.addEventListener('click', function (event) {
-                if (!dropdownButton.contains(event.target) && !dropdownMenu.contains(event.target)) {
-                    dropdownMenu.classList.remove('show');
-                }
-            });
-        }
-    });
-</script>
 {% endblock %}
