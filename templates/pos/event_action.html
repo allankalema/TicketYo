@@ -29,6 +29,53 @@
             <h3>Generate Tickets</h3>
             <p>This section is for generating tickets.</p>
             <!-- Your existing ticket generation form can be placed here -->
+        
+            <h2>Purchase Tickets</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    <table>
+                        <tr>
+                            <th>Ticket Category</th>
+                            <th>Price</th>
+                            <th>Number of Tickets</th>
+                            <th>Total</th>
+                        </tr>
+                        {% if ticket_data %}
+                            {% for data in ticket_data %}
+                                <tr>
+                                    <td>{{ data.category.category_title }}</td>
+                                    <td>{{ data.category.category_price }}</td>
+                                    {% if data.tickets_remaining > 0 %}
+                                        <td><input type="number" name="quantity_{{ data.category.id }}" value="0" min="0" max="{{ data.tickets_remaining }}"></td>
+                                        <td class="total_price">0</td>
+                                    {% else %}
+                                        <td colspan="2" style="color: red;"><strong>Sold Out</strong></td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        {% endif %}
+                        {% if ordinary_ticket_data %}
+                            <tr>
+                                <td>Ordinary</td>
+                                <td>{{ ordinary_ticket_data.price }}</td>
+                                {% if ordinary_ticket_data.tickets_remaining > 0 %}
+                                    <td><input type="number" name="quantity_ordinary" value="0" min="0" max="{{ ordinary_ticket_data.tickets_remaining }}"></td>
+                                    <td class="total_price">{{ ordinary_ticket_data.price }}</td>
+                                {% else %}
+                                    <td colspan="2" style="color: red;"><strong>Sold Out</strong></td>
+                                {% endif %}
+                            </tr>
+                        {% endif %}
+                        <tr>
+                            <td colspan="3"><strong>Total:</strong></td>
+                            <td id="grand_total">0</td>
+                        </tr>
+                    </table>
+                
+                    <button type="submit">Generate Ticket</button>
+                </form>
+
+
         </div>
         {% endif %}
         
@@ -122,6 +169,36 @@
             activeSpan.classList.add('active');
         }
     });
+
+    document.addEventListener('DOMContentLoaded', function() {
+            const ticketRows = document.querySelectorAll('tr');
+            const grandTotal = document.getElementById('grand_total');
+
+            ticketRows.forEach(row => {
+                const quantityInput = row.querySelector('input[type="number"]');
+                const totalPrice = row.querySelector('.total_price');
+
+                if (quantityInput) {
+                    quantityInput.addEventListener('input', function() {
+                        const price = parseFloat(row.querySelector('td:nth-child(2)').innerText);
+                        const quantity = parseInt(quantityInput.value);
+                        const total = price * quantity;
+
+                        totalPrice.innerText = total.toFixed(2);
+                        updateGrandTotal();
+                    });
+                }
+            });
+
+            function updateGrandTotal() {
+                let sum = 0;
+                document.querySelectorAll('.total_price').forEach(priceCell => {
+                    sum += parseFloat(priceCell.innerText);
+                });
+                grandTotal.innerText = sum.toFixed(2);
+            }
+        });
+        
 </script>
 
 <style>
