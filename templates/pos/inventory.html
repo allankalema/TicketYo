@@ -1,0 +1,85 @@
+{% extends 'frontend/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container mt-5">
+    <h1 class="text-center">Your Ticket Inventory</h1>
+
+    <!-- Search Bar -->
+    <div class="text-center mb-4">
+        <input type="text" id="search" placeholder="Search by Vendor, Category, or Event Title" onkeyup="filterTickets()" />
+        <select id="eventFilter" onchange="filterTickets()">
+            <option value="">All Events</option>
+            {% for event in events %}
+                <option value="{{ event.id }}">{{ event.title }}</option>
+            {% endfor %}
+        </select>
+    </div>
+
+    <!-- Inventory Content -->
+    <div id="ticketCards" class="row">
+        {% if tickets %}
+            <div class="col-12 mt-4">
+                <h3>Total Tickets: {{ tickets.count }}</h3> <!-- Total number of tickets -->
+                <div class="row">
+                    {% for ticket in tickets %}
+                        <div class="col-md-4 mb-4 ticket-card" data-event-id="{{ ticket.event.id }}">
+                            <div class="card" style="border: 1px solid #e70000;">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ ticket.ticket_category.category_title }} - {{ ticket.event.title }}</h5>
+                                    <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
+                                    <p><strong>Purchase Date:</strong> {{ ticket.purchase_date|date:"M d, Y H:i" }}</p>
+                                    <a href="{% url 'ticket_receipt' ticket.id %}" class="btn btn-outline-danger">View Details</a>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+        {% else %}
+            <p class="text-muted">No tickets found in your inventory.</p>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Custom CSS -->
+<style>
+    .btn-outline-danger {
+        border-color: #e70000;
+        color: #e70000;
+    }
+
+    .btn-outline-danger:hover {
+        background-color: #e70000;
+        color: white;
+    }
+
+    .card {
+        border: 1px solid #e70000;
+    }
+</style>
+
+<script>
+    function filterTickets() {
+        const selectedEvent = document.getElementById('eventFilter').value;
+        const ticketCards = document.getElementById('ticketCards');
+        const tickets = Array.from(ticketCards.getElementsByClassName('col-md-4'));
+
+        // Filter tickets based on the selected event
+        tickets.forEach(ticket => {
+            const eventId = ticket.getAttribute('data-event-id'); // Get the event ID from the data attribute
+            const searchQuery = document.getElementById('search').value.toLowerCase(); // Get search query
+
+            const matchesEvent = selectedEvent === "" || eventId === selectedEvent;
+            const matchesSearch = ticket.textContent.toLowerCase().includes(searchQuery);
+
+            // Show the ticket if it matches the selected event and search query
+            if (matchesEvent && matchesSearch) {
+                ticket.style.display = ''; // Show the ticket
+            } else {
+                ticket.style.display = 'none'; // Hide the ticket
+            }
+        });
+    }
+</script>
+
+{% endblock %}
