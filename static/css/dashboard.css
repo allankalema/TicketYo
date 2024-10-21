@@ -1,3 +1,124 @@
+/* Media Queries for responsiveness */
+@media (max-width: 576px) {
+    /* Adjust the margins and padding for small screens */
+    .container {
+        margin: 0 auto;
+        padding: 10px;
+    }
+
+    /* Reduce spacing between buttons */
+    .btn-group .btn {
+        margin-bottom: 10px;
+        font-size: 0.9rem;
+    }
+
+    /* Make sure dropdown stays full width on mobile */
+    .dropdown .dropdown-toggle {
+        width: 100%;
+    }
+
+    /* Center all card titles and resize them for better visibility */
+    .card-title {
+        font-size: 1.2rem;
+        text-align: center;
+    }
+
+    /* Ensure input fields don't overflow */
+    .form-control {
+        width: 100%;
+        margin-bottom: 10px;
+    }
+
+    /* Center the entire content of the page */
+    .text-center {
+        text-align: center;
+    }
+
+    /* Adjust event-item links to be full width */
+    .event-item a {
+        display: block;
+        padding: 10px 0;
+    }
+
+    /* Adjust font-size of total tickets display */
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    /* Make sure cards have equal padding on smaller screens */
+    .card {
+        margin-bottom: 20px;
+        padding: 10px;
+    }
+
+    /* Reduce the size of card-subtitles */
+    .card-subtitle {
+        font-size: 1rem;
+    }
+
+    /* For list items (events), make sure they don't overlap on small screens */
+    .list-unstyled li {
+        font-size: 0.9rem;
+    }
+
+    /* Set dropdown menu to take up full screen width */
+    .dropdown-menu {
+        width: 100%;
+        margin-top: 0;
+    }
+
+    /* Adjust badge size */
+    .badge {
+        font-size: 0.8rem;
+    }
+}
+
+/* Additional Custom Styling for All Screen Sizes */
+.card-container {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+/* Reduce button sizes for smaller devices */
+.btn-icon {
+    font-size: 0.9rem;
+    padding: 8px 12px;
+}
+
+/* Scrollable buttons on small screens */
+.scrollable-buttons {
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+/* Make sure buttons display inline */
+.scrollable-buttons .btn {
+    display: inline-block;
+    white-space: normal; /* Ensure text wraps within buttons */
+}
+
+/* Add some padding to the container */
+.scrollable-buttons {
+    padding-bottom: 30px;
+}
+
+/* For small screens, reduce button padding and spacing */
+@media (max-width: 576px) {
+    .scrollable-buttons .btn {
+        padding: 8px 10px;
+        margin-right: 5px; /* Add some space between the buttons */
+        font-size: larger;
+    }
+}
+
+
+
+
+
+
+
+
+
 /* Fancy Card Styling */
 .fancy-card {
     background: linear-gradient(135deg, #f8f9fa, #ffffff);

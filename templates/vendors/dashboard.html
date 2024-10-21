@@ -10,22 +10,25 @@
 <div class="container mt-4">
     <div class="d-flex justify-content-between mb-4">
         <!-- Navigation Buttons on the Left -->
-        <div class="btn-group">
-            <a href="{% url 'create_event' %}" class="btn btn-outline-danger btn-icon"><i class="fa fa-plus"></i> Create
-                Event</a>
-            <a href="{% url 'vendor_events' %}" class="btn btn-outline-danger btn-icon">View Events</a>
-            <a href="{% url 'verifiable_events' %}" class="btn btn-outline-danger btn-icon">Event Verification</a>
-            <a href="{% url 'view_inventory' %}" class="btn btn-outline-danger btn-icon">View Inventory</a>
-            <a href="{% url 'manage_pos_agents'%}" class="btn btn-outline-danger btn-icon">POS</a>
+        <!-- Navigation Buttons on the Left -->
+        <!-- Navigation Buttons on the Left -->
+<div class="scrollable-buttons">
+    <div class="btn-group">
+        <a href="{% url 'create_event' %}" class="btn btn-outline-danger btn-icon d-inline-block"><i class="fa fa-plus"></i> Create Event</a>
+        <a href="{% url 'vendor_events' %}" class="btn btn-outline-danger btn-icon d-inline-block">View Events</a>
+        <a href="{% url 'verifiable_events' %}" class="btn btn-outline-danger btn-icon d-inline-block">Event Verification</a>
+        <a href="{% url 'view_inventory' %}" class="btn btn-outline-danger btn-icon d-inline-block">View Inventory</a>
+        <a href="{% url 'manage_pos_agents'%}" class="btn btn-outline-danger btn-icon d-inline-block">POS</a>
 
-            {% if user.is_superuser %}
-            <a href="{% url 'pending_events' %}" class="btn btn-outline-danger btn-icon">
-                Pending Events <span class="badge badge-danger">{{ pending_count }}</span>
-            </a>
+        {% if user.is_superuser %}
+        <a href="{% url 'pending_events' %}" class="btn btn-outline-danger btn-icon d-inline-block">
+            Pending Events <span class="badge badge-danger">{{ pending_count }}</span>
+        </a>
+        <a href="{% url 'events_confirmed' %}" class="btn btn-outline-danger btn-icon d-inline-block">Events Confirmed</a>
+        {% endif %}
+    </div>
+</div>
 
-            <a href="{% url 'events_confirmed' %}" class="btn btn-outline-danger btn-icon">Events Confirmed</a>
-            {% endif %}
-        </div>
 
         <!-- Profile Dropdown on the Right -->
         <div class="dropdown">
@@ -79,7 +82,8 @@
                         <ul id="upcoming-events-list" class="list-unstyled">
                             {% if upcoming_events %}
                             {% for event in upcoming_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}"
+                                    class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No upcoming events.</p>
@@ -104,7 +108,8 @@
                         <ul id="sold-out-past-events-list" class="list-unstyled">
                             {% if sold_out_past_events %}
                             {% for event in sold_out_past_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}"
+                                    class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No past sold out events.</p>
@@ -139,7 +144,8 @@
             <div class="card-body text-center">
                 <h5 class="card-title text-danger">Total Tickets Sold</h5>
 
-                <p class="card-text display-4 text-success font-weight-bold" id="total-tickets-sold">{{ total_tickets_sold }}</p>
+                <p class="card-text display-4 text-success font-weight-bold" id="total-tickets-sold">{{
+                    total_tickets_sold }}</p>
             </div>
         </div>
     </div>
