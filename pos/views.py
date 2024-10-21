@@ -285,7 +285,7 @@ def event_action_view(request, assignment_id):
         'error_message': None
     }
 
-    if request.method == 'POST' and request.POST.get('ticket_number'):  # Verification logic
+    if request.method == 'POST' and request.POST.get('ticket_number'):
         ticket_number = request.POST.get('ticket_number')
         ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
 
@@ -308,48 +308,48 @@ def event_action_view(request, assignment_id):
 
     return render(request, 'pos/event_action.html', context)
 
-@user_passes_test(lambda u: u.is_authenticated and u.is_posagent)
+
+@login_required
 def pos_generate_ticket_view(request, assignment_id):
     assignment = get_object_or_404(AgentEventAssignment, id=assignment_id)
     event = assignment.event
+    vendor = assignment.vendor
 
-    context = {
-        'assignment': assignment,
-        'can_generate_tickets': assignment.generating_tickets,
-        'can_verify_tickets': assignment.verifying_tickets,
-        'ticket_data': assignment.event.ticket_categories.all(),
-        'error_message': None
-    }
+    event_data, error = prepare_event_data(event.id)
+    if error:
+        return render(request, error['template'], error['context'])
 
-    if request.method == 'POST':  # Ticket generation logic
-        event_data, error = prepare_event_data(assignment_id)
-        user_type, buyer = get_user_entity(request)
-        
-        if not buyer:
-            context['error_message'] = 'User is not authorized to buy tickets.'
-            return render(request, 'tickets/error.html', context)
+    if request.method == 'POST':
+        buyer = request.user
+        buyer_type = 'pos_agent'
 
-        # Process the ticket purchase
         purchase_data, error = process_ticket_purchase(
-            event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, buyer, user_type
+            event=event_data['event'], 
+            ticket_data=event_data['ticket_data'], 
+            ordinary_ticket_data=event_data['ordinary_ticket_data'], 
+            tickets_info=request.POST, 
+            buyer=buyer, 
+            buyer_type=buyer_type
         )
         if error:
             return render(request, error['template'], error['context'])
 
-        # Update context with purchase details
-        context.update({
-            'vendor': event_data['vendor'],
+        context = {
+             'assignment': assignment,
+             'assignment_id': assignment.id,
+            'event': event_data['event'],
+            'vendor': vendor,
             'ticket_details': purchase_data['ticket_details'],
             'total_price': purchase_data['total_price'],
             'total_tickets': purchase_data['total_tickets'],
             'customer': buyer,
             'ticket_data': event_data['ticket_data'],
             'ordinary_ticket_data': event_data['ordinary_ticket_data'],
-        })
-
+        }
         return render(request, 'tickets/ticket_success.html', context)
 
-    return render(request, 'pos/event_action.html', context)
+    return render(request, 'tickets/buy_ticket.html', event_data)
+
 
 @vendor_required
 @login_required
