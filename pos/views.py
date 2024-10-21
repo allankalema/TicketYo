@@ -20,6 +20,8 @@ from pos.models import AgentEventAssignment
 from .forms import *
 from tickets.models import *
 from django.http import JsonResponse
+from tickets.views import prepare_event_data, get_user_entity, process_ticket_purchase
+
 
 @login_required
 @vendor_required
@@ -275,7 +277,6 @@ def event_action_view(request, assignment_id):
     vendor = assignment.vendor  # Vendor who created the event
     categories = assignment.event.ticket_categories.all()
 
-
     tickets = Ticket.objects.filter(event=event, user=vendor)
     ticket_categories = TicketCategory.objects.filter(event=event)
 
@@ -315,7 +316,39 @@ def event_action_view(request, assignment_id):
                 context['error_message'] = 'Ticket not found.'
         
         else:  # Ticket generation logic
-            pass
+            # Insert the logic for generating tickets (replacing the `pass`)
+            
+            event_data, error = prepare_event_data(assignment_id)
+            if error:
+                return render(request, error['template'], error['context'])
+
+            
+            user_type, buyer = get_user_entity(request)
+            if not buyer:
+                context['error_message'] = 'User is not authorized to buy tickets.'
+                return render(request, 'tickets/error.html', context)
+
+            # Process the ticket purchase
+            purchase_data, error = process_ticket_purchase(
+                event_data['event'], event_data['ticket_data'], event_data['ordinary_ticket_data'], request.POST, buyer, user_type
+            )
+            if error:
+                return render(request, error['template'], error['context'])
+
+            # Update the context to include purchase details
+            context.update({
+                'vendor': event_data['vendor'],
+                'ticket_details': purchase_data['ticket_details'],
+                'total_price': purchase_data['total_price'],
+                'total_tickets': purchase_data['total_tickets'],
+                'customer': buyer,
+                'ticket_data': event_data['ticket_data'],
+                'ordinary_ticket_data': event_data['ordinary_ticket_data'],
+                
+            })
+
+            return render(request, 'tickets/ticket_success.html', context)
+
     return render(request, 'pos/event_action.html', context)
 
 
