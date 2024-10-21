@@ -8,14 +8,14 @@
     <div class="text-center mb-4">
         <!-- Show Generate Tickets button only if generating_tickets is true -->
         {% if assignment.generating_tickets %}
-        <span id="generate-tickets" class="action-span" style="cursor: pointer;">
+        <a href="{% url 'Generate_ticket' assignment.id %}" class="btn btn-outline-primary">
             Generate Tickets
-        </span>
+        </a>
         {% endif %}
 
         <!-- Show Verify Tickets button only if verifying_tickets is true -->
         {% if assignment.verifying_tickets %}
-        <span id="verify-tickets" class="action-span" style="cursor: pointer;">
+        <span id="verify-tickets" class="action-span btn btn-outline-primary" style="cursor: pointer;">
             Verify Tickets
         </span>
         {% endif %}
@@ -23,21 +23,9 @@
 
     <!-- Action Content -->
     <div id="action-content" class="mt-4">
-        <!-- Ticket Generation Section -->
-        {% if assignment.generating_tickets %}
-        <div id="generate-content" class="action-section" style="display: none;">
-            <h3>Generate Tickets</h3>
-            <p>This section is for generating tickets.</p>
-            <!-- Ticket Generation Form -->
-            <a href="{% url 'Generate_ticket' assignment.id %}" class="btn btn-primary">
-                Generate Tickets
-            </a>
-        </div>
-        {% endif %}
-
-        <!-- Ticket Verification Section -->
+        <!-- Ticket Verification Section (default) -->
         {% if assignment.verifying_tickets %}
-        <div id="verify-content" class="action-section" style="display: none;">
+        <div id="verify-content" class="action-section">
             <h3>Verify Tickets</h3>
             <p>This section is for verifying tickets.</p>
 
@@ -47,21 +35,25 @@
                     <label for="ticket_number">Enter Ticket Number:</label>
                     <input type="text" id="ticket_number" name="ticket_number" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary">Verify Ticket</button>
+                <button type="submit" class="btn btn-outline-primary">Verify Ticket</button>
             </form>
 
             <!-- Display verification results -->
             <div id="verification-results" class="mt-4">
                 {% if error_message %}
-                    <div class="alert alert-danger">{{ error_message }}</div>
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ error_message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
                 {% endif %}
 
                 {% if verification_result %}
-                    <div class="alert alert-success">
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
                         <strong>Ticket Verified Successfully!</strong><br>
                         <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
                         <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
                         <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                     </div>
                 {% endif %}
             </div>
@@ -70,63 +62,16 @@
     </div>
 </div>
 
-<!-- Custom JavaScript to handle showing the correct sections -->
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const generateSpan = document.getElementById('generate-tickets');
         const verifySpan = document.getElementById('verify-tickets');
-        const generateContent = document.getElementById('generate-content');
         const verifyContent = document.getElementById('verify-content');
 
-        // Function to show the correct content based on action
-        function showAction(action) {
-            if (action === 'generate') {
-                generateContent.style.display = 'block';
-                verifyContent.style.display = 'none';
-                setActiveSpan(generateSpan);
-            } else if (action === 'verify') {
-                verifyContent.style.display = 'block';
-                generateContent.style.display = 'none';
-                setActiveSpan(verifySpan);
-            }
-        }
-
-        // Event listeners for clicks
-        if (generateSpan) {
-            generateSpan.addEventListener('click', function() {
-                showAction('generate');
-                sessionStorage.setItem('activeAction', 'generate'); // Save state
-            });
-        }
-
-        if (verifySpan) {
-            verifySpan.addEventListener('click', function() {
-                showAction('verify');
-                sessionStorage.setItem('activeAction', 'verify'); // Save state
-            });
-        }
-
-        // Automatically display the first available action based on saved state or default
-        const savedAction = sessionStorage.getItem('activeAction');
-        if (savedAction) {
-            showAction(savedAction);
-        } else if ({{ assignment.generating_tickets|yesno:"true,false" }}) {
-            showAction('generate');
-        } else if ({{ assignment.verifying_tickets|yesno:"true,false" }}) {
-            showAction('verify');
-        }
-
-        function setActiveSpan(activeSpan) {
-            // Remove active class from all spans
-            document.querySelectorAll('.action-span').forEach(span => {
-                span.classList.remove('active');
-            });
-            // Add active class to the clicked span
-            activeSpan.classList.add('active');
+        // Automatically show verification content as the default action
+        if (verifySpan && verifyContent) {
+            verifyContent.style.display = 'block';
         }
     });
-
-    
 </script>
 
 <style>
@@ -138,6 +83,8 @@
         font-weight: bold;
         color: #007bff;
         cursor: pointer;
+        border: 2px solid #007bff;
+        background-color: transparent;
     }
 
     .action-span:hover {
@@ -148,6 +95,30 @@
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         transform: translateY(-2px);
         color: #0056b3;
+    }
+
+    .btn-outline-primary {
+        color: #007bff;
+        border: 2px solid #007bff;
+        background-color: transparent;
+    }
+
+    .btn-outline-primary:hover {
+        background-color: #007bff;
+        color: white;
+    }
+
+    /* Style for the close button */
+    .btn-close {
+        color: black; /* Change the color of the 'X' to black */
+        background: none;
+        border: none;
+        font-size: 1.25rem; /* Adjust size as necessary */
+        opacity: 1; /* Ensure it's fully opaque */
+    }
+    
+    .btn-close:hover {
+        color: #ff0000; /* Optional: Change color on hover */
     }
 </style>
 
