@@ -11,7 +11,8 @@
             <ul class="list-group mb-3">
                 {% for assignment in assigned_events %}
                     <li class="list-group-item">
-                        <a href="{% url 'pos_event_detail' event_id=assignment.event.id %}" class="text-decoration-none">{{ assignment.event.title }}</a>
+                        <a href="{% url 'pos_event_detail' agent_id=assignment.agent.id event_id=assignment.event.id %}" class="text-decoration-none">{{ assignment.event.title }}</a>
+
 
                     </li>
                 {% empty %}
