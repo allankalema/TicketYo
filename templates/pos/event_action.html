@@ -43,7 +43,7 @@
                 {% if error_message %}
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
                         {{ error_message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
                     </div>
                 {% endif %}
 
@@ -53,7 +53,7 @@
                         <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
                         <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
                         <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
                     </div>
                 {% endif %}
             </div>
@@ -108,9 +108,8 @@
         color: white;
     }
 
-    /* Style for the close button */
+    /* Ensure the close button is styled correctly */
     .btn-close {
-        color: black; /* Change the color of the 'X' to black */
         background: none;
         border: none;
         font-size: 1.25rem; /* Adjust size as necessary */
