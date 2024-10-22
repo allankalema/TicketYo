@@ -26,22 +26,6 @@
     <p><strong>Venue:</strong> {{ event.venue_name }}</p>
     <p><strong>Price:</strong> {{ event.sale_price }}</p>
 
-    {% if ticket_data %}
-        <h2>Ticket Categories</h2>
-        <ul>
-            {% for data in ticket_data %}
-            <li>
-                <h3>{{ data.category.category_title }}</h3>
-                <p><strong>Price:</strong> {{ data.category.category_price }}</p>
-                {% if data.tickets_remaining > 0 %}
-                <p><strong>Tickets:</strong> {{ data.tickets_remaining }} tickets</strong></p>
-                {% else %}
-                    <p style="color: red;"><strong>Sold Out</strong></p>
-                {% endif %}
-            </li>
-        {% endfor %}
-        </ul>
-    {% endif %}
 
     {% if ordinary_ticket_data %}
         <h2>Ordinary Ticket</h2>
