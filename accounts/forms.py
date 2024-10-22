@@ -1,8 +1,8 @@
 # accounts/forms.py
 from django import forms
-from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm
+from django.contrib.auth.forms import AuthenticationForm, PasswordChangeForm, SetPasswordForm
 from django.utils.translation import gettext_lazy as _
-from events.models import Cart
+from events.models import *
 
 class AuthenticationForm(AuthenticationForm):
     username = forms.CharField(
@@ -29,3 +29,20 @@ class AddToCartForm(forms.ModelForm):
     class Meta:
         model = Cart
         fields = ['event']
+
+
+class PasswordResetEmailForm(forms.Form):
+    email = forms.EmailField(label="Enter your email", max_length=254)
+
+    def clean_email(self):
+        email = self.cleaned_data['email']
+        if not User.objects.filter(email=email).exists():
+            raise forms.ValidationError("This email address is not registered. Please sign up.")
+        return email
+
+class CodeVerificationForm(forms.Form):
+    code = forms.CharField(label="Enter the code sent to your email", max_length=6)
+
+class CustomSetPasswordForm(SetPasswordForm):
+    new_password1 = forms.CharField(label="New password", widget=forms.PasswordInput)
+    new_password2 = forms.CharField(label="Confirm new password", widget=forms.PasswordInput)

@@ -11,6 +11,7 @@ from django.urls import reverse, reverse_lazy
 from django.core.mail import send_mail
 from django.conf import settings
 from events.models import Cart, Event
+import secrets
 
 def custom_login(request):
     if request.method == 'POST':
@@ -113,3 +114,63 @@ def delete_user_view(request):
 
     # Render the delete confirmation template
     return render(request, 'customers/delete_customer.html', {'user': user})
+
+
+def password_reset_email(request):
+    if request.method == "POST":
+        form = PasswordResetEmailForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(email=form.cleaned_data['email'])
+            verification_code = secrets.token_hex(3)  # Generates a 6-character code
+            user.verification_code = verification_code
+            user.verification_code_created_at = timezone.now()
+            user.save()
+
+            # Send email with the code
+            send_mail(
+                'Password Reset Code',
+                f'Use this code to reset your password: {verification_code}',
+                'noreply@yourdomain.com',
+                [user.email],
+            )
+            request.session['email'] = user.email
+            return redirect('verify_code')
+    else:
+        form = PasswordResetEmailForm()
+    return render(request, 'accounts/password_reset_email.html', {'form': form})
+
+def verify_code(request):
+    email = request.session.get('email')
+    if not email:
+        return redirect('password_reset_email')
+
+    if request.method == "POST":
+        form = CodeVerificationForm(request.POST)
+        if form.is_valid():
+            user = User.objects.get(email=email)
+            if user.verification_code == form.cleaned_data['code']:
+                return redirect('password_reset_confirm')
+            else:
+                form.add_error('code', 'Invalid code, please try again.')
+    else:
+        form = CodeVerificationForm()
+    
+    return render(request, 'accounts/verify_code.html', {'form': form})
+
+def password_reset_confirm(request):
+    email = request.session.get('email')
+    if not email:
+        return redirect('password_reset_email')
+
+    user = User.objects.get(email=email)
+
+    if request.method == 'POST':
+        form = CustomSetPasswordForm(user, request.POST)
+        if form.is_valid():
+            form.save()
+            login(request, user)
+            return redirect('all_events')
+    else:
+        form = CustomSetPasswordForm(user)
+
+    return render(request, 'accounts/password_reset_confirm.html', {'form': form})
