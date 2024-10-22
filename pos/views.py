@@ -8,6 +8,7 @@ from datetime import datetime
 from accounts.models import User
 from events.models import *
 import random
+import string
 from django.http import HttpResponse
 from vendors.decorators import vendor_required
 from django.contrib.auth.decorators import user_passes_test
@@ -21,8 +22,56 @@ from .forms import *
 from tickets.models import *
 from django.http import JsonResponse
 from tickets.views import prepare_event_data, get_user_entity, process_ticket_purchase
+from django.urls import reverse
+from django.utils.timezone import now
 
+def generate_verification_code():
+    return ''.join(random.choices(string.digits, k=6))
 
+def send_verification_email(user, code):
+    subject = 'Verify Your Email for POS Agent Signup'
+    message = f"Your verification code is {code}. It is valid for 10 minutes."
+    email_from = settings.DEFAULT_FROM_EMAIL
+    recipient_list = [user.email]
+    send_mail(subject, message, email_from, recipient_list)
+
+def pos_agent_signup(request):
+    if request.method == 'POST':
+        form = POSAgentSignupForm(request.POST)
+        if form.is_valid():
+            user = form.save(commit=False)
+            code = generate_verification_code()
+            user.verification_code = code
+            user.verification_code_created_at = timezone.now()
+            user.save()
+            send_verification_email(user, code)
+            return redirect(reverse('verify_email', kwargs={'user_id': user.id}))
+    else:
+        form = POSAgentSignupForm()
+    return render(request, 'pos/signup.html', {'form': form})
+
+def verify_email(request, user_id):
+    user = User.objects.get(id=user_id)
+    if request.method == 'POST':
+        code = request.POST.get('verification_code')
+        if user.verification_code == code and (now() - user.verification_code_created_at).seconds <= 600:
+            user.is_verified = True
+            user.is_active = True  # Ensure the user is active
+            user.save()
+            login(request, user)  # Log the user in after successful verification
+            # Send an email inviting them as POS agent
+            send_mail(
+                "POS Agent Signup Success",
+                "You have been successfully signed up as a POS agent.",
+                settings.DEFAULT_FROM_EMAIL,
+                [user.email]
+            )
+            messages.success(request, 'Verification successful. Welcome as a POS agent!')
+            return redirect('pos_dashboard')  # Redirect to the POS dashboard
+        else:
+            messages.error(request, 'Invalid or expired verification code.')
+            return redirect('verify_email', user_id=user.id)
+    return render(request, 'pos/verify_email.html', {'user': user})
 @login_required
 @vendor_required
 def manage_pos_agents(request):

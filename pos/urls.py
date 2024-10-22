@@ -17,4 +17,6 @@ urlpatterns = [
     path('event/deassign/<int:event_id>/', views.deassign_event, name='deassign_event'),
     path('event-action/<int:assignment_id>/', views.event_action_view, name='event_action'),
     path('generate-ticket/<int:assignment_id>/', views.pos_generate_ticket_view, name='Generate_ticket'),
+    path('signup/', views.pos_agent_signup, name='pos_signup'),
+    path('verify-email/<int:user_id>/', views.verify_email, name='verify_email'),
 ]
