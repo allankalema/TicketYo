@@ -12,7 +12,7 @@
         <!-- Navigation Buttons on the Left -->
         <!-- Navigation Buttons on the Left -->
         <!-- Navigation Buttons on the Left -->
-<div class="scrollable-buttons">
+<div class="scrollable-buttons mt-4">
     <div class="btn-group">
         <a href="{% url 'create_event' %}" class="btn btn-outline-danger btn-icon d-inline-block"><i class="fa fa-plus"></i> Create Event</a>
         <a href="{% url 'vendor_events' %}" class="btn btn-outline-danger btn-icon d-inline-block">View Events</a>
@@ -142,8 +142,8 @@
             <div class="card-body text-center">
                 <h5 class="card-title text-danger">Total Tickets Sold</h5>
 
-                <p class="card-text display-4 text-success font-weight-bold" id="total-tickets-sold">{{
-                    total_tickets_sold }}</p>
+                <p class="card-text display-4 text-success font-weight-bold" id="total-tickets-sold">
+                {{ total_tickets_sold }}</p>
             </div>
         </div>
     </div>

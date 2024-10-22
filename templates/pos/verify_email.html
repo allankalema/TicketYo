@@ -1,11 +1,13 @@
 {% extends "frontend/base.html" %}
 
 {% block content %}
-    <h2>Email Verification</h2>
+<div class="card fancy-card shadow-sm p-4 mt-5">
+    <h2 class="text-danger">Email Verification</h2>
     <p>A verification code has been sent to your email: {{ user.email }}</p>
     <form method="post">
         {% csrf_token %}
-        <input type="text" name="verification_code" placeholder="Enter verification code" required>
-        <button type="submit">Verify</button>
+        <input type="text" name="verification_code" class="form-control" placeholder="Enter verification code" required>
+        <button type="submit" class="btn btn-outline-danger mt-4">Verify</button>
     </form>
+</div>
 {% endblock %}

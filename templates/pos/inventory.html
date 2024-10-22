@@ -4,16 +4,25 @@
 <div class="container mt-5">
     <h1 class="text-center">Your Ticket Inventory</h1>
 
-    <!-- Search Bar -->
+    <!-- Beautified Search Bar -->
+<div class="container mt-4">
     <div class="text-center mb-4">
-        <input type="text" id="search" placeholder="Search by Vendor, Category, or Event Title" onkeyup="filterTickets()" />
-        <select id="eventFilter" onchange="filterTickets()">
+        <div class="input-group">
+            <input type="text" id="search" class="form-control" placeholder="Search by Vendor, Category, or Event Title" onkeyup="filterTickets()">
+            <button class="btn btn-outline-danger" type="submit">Go</button>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <select id="eventFilter" class="form-select" onchange="filterTickets()">
             <option value="">All Events</option>
             {% for event in events %}
                 <option value="{{ event.id }}">{{ event.title }}</option>
             {% endfor %}
         </select>
     </div>
+</div>
+
 
     <!-- Inventory Content -->
     <div id="ticketCards" class="row">
@@ -22,7 +31,7 @@
                 <h3>Total Tickets: {{ tickets.count }}</h3> <!-- Total number of tickets -->
                 <div class="row">
                     {% for ticket in tickets %}
-                        <div class="col-md-4 mb-4 ticket-card" data-event-id="{{ ticket.event.id }}">
+                        <div class="col-md-4 mb-4 ticket-card shadow-lg" data-event-id="{{ ticket.event.id }}">
                             <div class="card" style="border: 1px solid #e70000;">
                                 <div class="card-body">
                                     <h5 class="card-title">{{ ticket.ticket_category.category_title }} - {{ ticket.event.title }}</h5>
@@ -36,7 +45,7 @@
                 </div>
             </div>
         {% else %}
-            <p class="text-muted">No tickets found in your inventory.</p>
+            <p class="text-muted mt-5">No tickets found in your inventory.</p>
         {% endif %}
     </div>
 </div>

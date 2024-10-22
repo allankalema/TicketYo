@@ -1,24 +1,119 @@
-<h1>Ticket for {{ event.title }}</h1>
-<p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
-<p><strong>Category:</strong> {{ ticket.ticket_category.category_title }}</p>
-<p><strong>Event Description:</strong> {{ event.description }}</p>
-<p><strong>Event Start Date:</strong> {{ event.start_date }}</p>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ticket for {{ event.title }}</title>
+    <style>
+        /* Ticket Page Styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
 
-{% if event.end_date %}
-    <p><strong>Event End Date:</strong> {{ event.end_date }}</p>
-{% endif %}
+        .ticket-container {
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            border: 1px solid #ddd;
+            background-color: #f9f9f9;
+        }
 
-<p><strong>Event Location:</strong> {{ event.venue_name }}</p>
+        .poster {
+            text-align: center;
+        }
 
-<h2>Vendor Information:</h2>
-<p><strong>Store Name:</strong> {{ vendor.storename }}</p>
-<p><strong>Contact Email:</strong> {{ vendor.email }}</p>
-<p><strong>Phone Number:</strong> {{ vendor.store_phone }}</p>
+        .poster img {
+            max-width: 100%;
+            height: auto;
+            width: 300px; /* Reduce the size of the poster */
+            margin-bottom: 20px;
+            border-radius: 8px;
+        }
 
-<p><strong>QR Code:</strong></p>
-<p><img src="{{ qr_code_url }}" alt="QR Code"></p>
+        .ticket-details {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+        }
 
-{% if poster_url %}
-    <p><strong>Event Poster:</strong></p>
-    <p><img src="{{ poster_url }}" alt="Event Poster"></p>
-{% endif %}
+        .details-section {
+            width: 65%;
+        }
+
+        .qr-code {
+            width: 30%;
+            text-align: right;
+        }
+
+        .qr-code img {
+            max-width: 100%;
+            height: auto;
+            width: 150px; /* Adjust the size of the QR code */
+            border-radius: 8px;
+        }
+
+        h1, h2 {
+            margin: 0 0 15px 0;
+            color: #333;
+        }
+
+        p {
+            margin: 5px 0;
+            font-size: 16px;
+        }
+
+        .ticket-footer {
+            margin-top: 20px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+
+<div class="ticket-container">
+    <!-- Event Poster Section -->
+    <div class="poster">
+        {% if poster_url %}
+        <img src="{{ poster_url }}" alt="Event Poster">
+        {% endif %}
+    </div>
+
+    <!-- Ticket Details and QR Code Section -->
+    <div class="ticket-details">
+        <div class="details-section">
+            <h1>Ticket for {{ event.title }}</h1>
+            <p><strong>Ticket Number:</strong> {{ ticket.ticket_number }}</p>
+            <p><strong>Category:</strong> {{ ticket.ticket_category.category_title }}</p>
+            <p><strong>Event Description:</strong> {{ event.description }}</p>
+            <p><strong>Event Start Date:</strong> {{ event.start_date|date:"F d, Y" }}</p>
+
+            {% if event.end_date %}
+            <p><strong>Event End Date:</strong> {{ event.end_date|date:"F d, Y" }}</p>
+            {% endif %}
+
+            <p><strong>Event Location:</strong> {{ event.venue_name }}</p>
+
+            <h2>Vendor Information:</h2>
+            <p><strong>Store Name:</strong> {{ vendor.storename }}</p>
+            <p><strong>Contact Email:</strong> {{ vendor.email }}</p>
+            <p><strong>Phone Number:</strong> {{ vendor.store_phone }}</p>
+        </div>
+
+        <!-- QR Code Section -->
+        <div class="qr-code">
+            <p><strong>QR Code:</strong></p>
+            <img src="{{ qr_code_url }}" alt="QR Code">
+        </div>
+    </div>
+
+    <!-- Footer Section (Optional) -->
+    <div class="ticket-footer">
+        <p>Thank you for your purchase! Please bring this ticket and show the QR code at the event entrance.</p>
+    </div>
+</div>
+
+</body>
+</html>

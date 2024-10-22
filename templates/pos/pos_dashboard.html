@@ -2,17 +2,17 @@
 {% load static %}
 {% block content %}
 <div class="container mt-5">
-    <h1 class="text-center">Welcome to the POS Dashboard</h1>
-    <p class="text-center">You are logged in as {{ request.user.username }}.</p>
+    <h1 class="text-center text-danger">Welcome to the POS Dashboard</h1>
+    <p class="text-center text-success">You are logged in as {{ request.user.username }}.</p>
 
     <!-- Profile Dropdown Menu -->
     <div class="dropdown text-right">
-        <button class="btn btn-outline-danger dropdown-toggle" type="button" id="profileDropdown"
+        <button class="btn btn-danger dropdown-toggle" type="button" id="profileDropdown"
             data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
             Profile
         </button>
         <!-- Ensuring dropdown menu aligns to the right -->
-        <div class="dropdown-menu dropdown-menu-right" aria-labelledby="profileDropdown">
+        <div class="dropdown-menu dropdown-menu-right mb-4 aria-labelledby="profileDropdown">
             <a class="dropdown-item" href="{% url 'update_pos_agent_profile' %}">Update Profile</a>
             <a class="dropdown-item" href="{% url 'change_password' %}">Change Password</a>
             <a class="dropdown-item" href="{% url 'universal_logout' %}">Logout</a>
@@ -20,12 +20,22 @@
     </div>
 
 
-    <a href="{% url 'pos_inventory' %}" class="btn btn-outline-danger">Inventory</a>
+    <a href="{% url 'pos_inventory' %}" class="btn btn-outline-danger mt-4">Check Inventory</a>
 
-    <!-- Search Bar -->
+    <!-- Beautified Search Bar -->
+<div class="container mt-4">
     <div class="text-center mb-4">
-        <input type="text" id="search" placeholder="Search Events" onkeyup="filterEvents()" />
+        <div class="input-group">
+            <!-- Magnifying Glass Icon inside the input group -->
+            <span class="input-group-text bg-white border-right-0">
+                <i class="fa fa-search"></i>
+            </span>
+            <!-- Search Input -->
+            <input type="text" id="search" class="form-control border-left-0" placeholder="Search Events" onkeyup="filterEvents()" />
+        </div>
     </div>
+</div>
+
 
     <!-- Assigned Events Section -->
     <h3 class="mt-5">Your Assigned Events</h3>
@@ -41,7 +51,7 @@
                         <div class="col-md-4 mb-4">
                     {% endif %}
                 {% endwith %}
-                    <div class="card event-card">
+                    <div class="card event-card shadow-lg">
                         {% if assignment.event.poster %}
                             <img src="{{ assignment.event.poster.url }}" class="card-img-top event-poster" alt="{{ assignment.event.title }}">
                         {% else %}
@@ -88,7 +98,7 @@
             {% endfor %}
         </div>
     {% else %}
-        <p class="text-muted">No events assigned to you yet.</p>
+        <p class="text-muted mt-4 mb-4">No events assigned to you yet.</p>
     {% endif %}
 </div>
 

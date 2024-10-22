@@ -4,47 +4,82 @@
 
 {% block content %}
 
-<h1>Thank You for Your Purchase!</h1>
-
-<p>Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
-
-<h2>Event Details:</h2>
-<p><img src="{{ event.poster.url }}" alt="{{ event.title }}" width="200"></p>
-<ul>
-    <li><strong>Event Title:</strong> {{ event.title }}</li>
-    <li><strong>Event Description:</strong> {{ event.description }}</li>
-    <li><strong>Event Start Date:</strong> {{ event.start_date }}</li>
-
-    {% if event.end_date %}
-        <li><strong>Event End Date:</strong> {{ event.end_date }}</li>
-    {% endif %}
-
-    <li><strong>Event Location:</strong> {{ event.venue_name }}</li>
-</ul>
-
-<h2>Vendor Information:</h2>
-<ul>
-    <li><strong>Store Name:</strong> {{ vendor.storename }}</li>
-    <li><strong>Contact Email:</strong> {{ vendor.email }}</li>
-    <li><strong>Phone Number:</strong> {{ vendor.store_phone }}</li>
-</ul>
-
-{% for detail in ticket_details %}
-    <div class="ticket-section">
-        <h2>Ticket {{ forloop.counter }} Details:</h2>
-        <ul>
-            <li><strong>Category:</strong> {{ detail.category }}</li>
-            <li><strong>Ticket Number:</strong> {{ detail.ticket_number }}</li>
-            <li><strong>Price:</strong> UGX {{ detail.price }}</li>
-            <li><img src="{{ detail.qr_code_url }}" alt="QR Code"></li>
-        </ul>
-        <a href="{% url 'download_ticket_pdf' detail.ticket_number %}" class="btn btn-primary">Download PDF</a>
+<div class="container mt-5">
+    <!-- Thank You Section -->
+    <div class="text-center">
+        <h1 class="display-4 text-success">Thank You for Your Purchase!</h1>
+        <p class="lead">Your ticket(s) have been successfully generated. Below are the details of your purchase:</p>
     </div>
-{% endfor %}
 
-<h2>Total Summary:</h2>
-<ul>
-    <li><strong>Total Tickets:</strong> {{ total_tickets }}</li>
-    <li><strong>Total Price:</strong> UGX {{ total_price }}</li>
-</ul>
-{% endblock%}
+    <!-- Event Details Section -->
+    <div class="card my-4 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Event Details</h2>
+            <div class="row">
+                <div class="col-md-4">
+                    <img src="{{ event.poster.url }}" alt="{{ event.title }}" class="img-fluid rounded">
+                </div>
+                <div class="col-md-8">
+                    <ul class="list-unstyled">
+                        <li><strong>Event Title:</strong> {{ event.title }}</li>
+                        <li><strong>Description:</strong> {{ event.description }}</li>
+                        <li><strong>Start Date:</strong> {{ event.start_date|date:"F d, Y" }}</li>
+                        {% if event.end_date %}
+                        <li><strong>End Date:</strong> {{ event.end_date|date:"F d, Y" }}</li>
+                        {% endif %}
+                        <li><strong>Location:</strong> {{ event.venue_name }}</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Vendor Information Section -->
+    <div class="card my-4 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Vendor Information</h2>
+            <ul class="list-unstyled">
+                <li><strong>Store Name:</strong> {{ vendor.storename }}</li>
+                <li><strong>Contact Email:</strong> {{ vendor.email }}</li>
+                <li><strong>Phone Number:</strong> {{ vendor.store_phone }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- Ticket Details Section -->
+    {% for detail in ticket_details %}
+    <div class="card my-4 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Ticket {{ forloop.counter }} Details</h2>
+            <div class="row">
+                <div class="col-md-6">
+                    <ul class="list-unstyled">
+                        <li><strong>Category:</strong> {{ detail.category }}</li>
+                        <li><strong>Ticket Number:</strong> {{ detail.ticket_number }}</li>
+                        <li><strong>Price:</strong> UGX {{ detail.price }}</li>
+                    </ul>
+                </div>
+                <div class="col-md-6 text-center">
+                    <img src="{{ detail.qr_code_url }}" alt="QR Code" class="img-fluid">
+                </div>
+            </div>
+            <div class="text-center mt-3">
+                <a href="{% url 'download_ticket_pdf' detail.ticket_number %}" class="btn btn-danger">Download PDF</a>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+
+    <!-- Total Summary Section -->
+    <div class="card my-4 shadow">
+        <div class="card-body">
+            <h2 class="card-title">Total Summary</h2>
+            <ul class="list-unstyled">
+                <li><strong>Total Tickets:</strong> {{ total_tickets }}</li>
+                <li><strong>Total Price:</strong> UGX {{ total_price }}</li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
