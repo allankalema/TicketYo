@@ -176,6 +176,11 @@
                 <a href="{% url 'dashboard' %}" class="nav-link text-black">Vendor Dashboard</a>
             </li>
             {% endif %}
+            {% if user.is_authenticated and user.is_posagent %}
+            <li class="nav-item">
+                <a href="{% url 'pos_dashboard' %}" class="nav-link text-black">Pos Dashboard</a>
+            </li>
+            {% endif %}
             {% if not user.is_authenticated %}
             <li class="nav-item">
                 <a href="{% url 'customer_signup' %}" class="nav-link text-black">Sign Up</a>
@@ -224,6 +229,15 @@
                 </div>
             </a>
             {% endif %}
+
+            {% if user.is_authenticated and user.pos_agent %}
+            <a href="{% url 'pos_dashboard' %}" class="nav-link text-center">
+                <div class="nav-icon-label">
+                    <i class="bi bi-person-fill fs-4"></i>
+                    <span class="d-block small">Dashboard</span>
+                </div>
+            </a>
+            {% endif %}
     
             {% if user.is_authenticated and user.is_vendor %}
             <a href="{% url 'dashboard' %}" class="nav-link text-center">
@@ -233,6 +247,11 @@
                 </div>
             </a>
             {% endif %}
+             {% if user.is_authenticated and user.is_posagent %}
+                <li class="nav-item">
+                    <a href="{% url 'pos_dashboard' %}" class="nav-link text-black">Dashboard</a>
+                </li>
+                {% endif %}
     
         </div>
     </nav>
