@@ -19,7 +19,7 @@
             Verify Tickets
         </span>
 
-                <!-- QR Code Scan Button -->
+        <!-- QR Code Scan Button -->
         <span id="scan-qr" class="action-span btn btn-outline-primary" style="cursor: pointer;">
             Scan QR Code
         </span>
@@ -75,64 +75,63 @@
 <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-    const scanQrButton = document.getElementById('scan-qr');
-    
-    if (scanQrButton) {
-        scanQrButton.addEventListener('click', function() {
-            console.log("QR Button Clicked");  // Log to ensure click is detected
-            
-            // Check if the browser supports getUserMedia API
-            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
-                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
-                    .then(function(stream) {
-                        const videoElement = document.createElement('video');
-                        videoElement.srcObject = stream;
-                        videoElement.setAttribute("playsinline", true); // iOS compatibility
-                        videoElement.play();
-                        
-                        const qrCanvas = document.createElement('canvas');
-                        const qrContext = qrCanvas.getContext('2d');
+        const scanQrButton = document.getElementById('scan-qr');
+        const ticketNumberInput = document.getElementById('ticket_number');  // Input field for ticket number
+        
+        if (scanQrButton) {
+            scanQrButton.addEventListener('click', function() {
+                console.log("QR Button Clicked");
+                
+                if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                        .then(function(stream) {
+                            const videoElement = document.createElement('video');
+                            videoElement.srcObject = stream;
+                            videoElement.setAttribute("playsinline", true); // iOS compatibility
+                            videoElement.play();
+                            
+                            const qrCanvas = document.createElement('canvas');
+                            const qrContext = qrCanvas.getContext('2d');
 
-                        // Append video to the body for scanning (make it invisible or use it for a preview)
-                        document.body.appendChild(videoElement);
-                        videoElement.style.display = "none";  // Hide the video preview
+                            // Append video to the body for scanning (invisible preview)
+                            document.body.appendChild(videoElement);
+                            videoElement.style.display = "none";  // Hide video preview
 
-                        // Continuously scan QR code from the video feed
-                        function scanQR() {
-                            qrCanvas.width = videoElement.videoWidth;
-                            qrCanvas.height = videoElement.videoHeight;
-                            qrContext.drawImage(videoElement, 0, 0, qrCanvas.width, qrCanvas.height);
-                            try {
-                                const qrCodeResult = jsQR(qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data, qrCanvas.width, qrCanvas.height);
-                                if (qrCodeResult) {
-                                    console.log("QR Code Detected: ", qrCodeResult.data);
-                                    alert("QR Code: " + qrCodeResult.data);  // Show result in alert or input field
-                                    
-                                    // Stop the video stream after successful scan
-                                    stream.getTracks().forEach(track => track.stop());
-                                    videoElement.remove();  // Remove the video element after use
-                                } else {
-                                    requestAnimationFrame(scanQR);  // Try again if no QR found
+                            // Continuously scan QR code from the video feed
+                            function scanQR() {
+                                qrCanvas.width = videoElement.videoWidth;
+                                qrCanvas.height = videoElement.videoHeight;
+                                qrContext.drawImage(videoElement, 0, 0, qrCanvas.width, qrCanvas.height);
+
+                                try {
+                                    const qrCodeResult = jsQR(qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data, qrCanvas.width, qrCanvas.height);
+                                    if (qrCodeResult) {
+                                        console.log("QR Code Detected: ", qrCodeResult.data);
+                                        ticketNumberInput.value = qrCodeResult.data;  // Set the value in the input field
+                                        
+                                        // Stop the video stream after successful scan
+                                        stream.getTracks().forEach(track => track.stop());
+                                        videoElement.remove();  // Remove video element
+                                    } else {
+                                        requestAnimationFrame(scanQR);  // Retry if no QR code found
+                                    }
+                                } catch (error) {
+                                    console.error("Error scanning QR: ", error);
+                                    requestAnimationFrame(scanQR);  // Continue scanning if error occurs
                                 }
-                            } catch (error) {
-                                console.error("Error scanning QR: ", error);
-                                requestAnimationFrame(scanQR);  // Continue scanning in case of error
                             }
-                        }
-                        scanQR();  // Start scanning
-                    })
-                    .catch(function(err) {
-                        // Handle errors with accessing the camera
-                        console.error("Error accessing camera: ", err);
-                        alert('Unable to access the camera. Please ensure it is enabled and accessible.');
-                    });
-            } else {
-                alert('Camera is not supported on this device or browser.');
-            }
-        });
-    }
-});
-
+                            scanQR();  // Start scanning
+                        })
+                        .catch(function(err) {
+                            console.error("Error accessing camera: ", err);
+                            alert('Unable to access the camera. Please ensure it is enabled and accessible.');
+                        });
+                } else {
+                    alert('Camera is not supported on this device or browser.');
+                }
+            });
+        }
+    });
 </script>
 
 <style>
@@ -169,16 +168,15 @@
         color: white;
     }
 
-    /* Ensure the close button is styled correctly */
     .btn-close {
         background: none;
         border: none;
-        font-size: 1.25rem; /* Adjust size as necessary */
-        opacity: 1; /* Ensure it's fully opaque */
+        font-size: 1.25rem;
+        opacity: 1;
     }
-    
+
     .btn-close:hover {
-        color: #ff0000; /* Optional: Change color on hover */
+        color: #ff0000;
     }
 
     #qr-reader {
@@ -186,7 +184,6 @@
         padding: 20px;
     }
 
-    /* Hide QR reader when not active */
     #qr-reader {
         display: none;
     }
