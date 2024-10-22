@@ -138,6 +138,71 @@
             });
         }
     });
+
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const form = document.getElementById('verify-ticket-form');
+        const verificationResultsDiv = document.getElementById('verification-results');  // The div to display results
+
+        form.addEventListener('submit', function(e) {
+            e.preventDefault();  // Prevent the form from submitting normally
+
+            const formData = new FormData(form);
+            const ticketNumber = formData.get('ticket_number');
+
+            // Send the form data via AJAX
+            fetch(form.action, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': formData.get('csrfmiddlewaretoken'),
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams(formData)  // Serialize the form data
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Clear previous results
+                verificationResultsDiv.innerHTML = '';
+
+                // Handle error message
+                if (data.status === 'error') {
+                    const errorMessage = `
+                        <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                            ${data.message}
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>`;
+                    verificationResultsDiv.innerHTML = errorMessage;
+                }
+
+                // Handle success message
+                if (data.status === 'success') {
+                    const successMessage = `
+                        <div class="alert alert-success alert-dismissible fade show" role="alert">
+                            <strong>Ticket Verified Successfully!</strong><br>
+                            <strong>Category:</strong> ${data.ticket_category}<br>
+                            <strong>Customer Username:</strong> ${data.customer_username}<br>
+                            <strong>Purchase Date:</strong> ${data.purchase_date}<br>
+                            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>`;
+                    verificationResultsDiv.innerHTML = successMessage;
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                verificationResultsDiv.innerHTML = `
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        An error occurred. Please try again later.
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </div>`;
+            });
+        });
+    });
 </script>
 
     
