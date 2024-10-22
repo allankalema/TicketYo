@@ -84,6 +84,7 @@
             </ul>
         </div>
     </nav>
+    
 <!-- Display any messages -->
 {% if messages %}
 <div class="mb-3">
@@ -193,7 +194,12 @@
         <!-- Content will go here -->
         {% endblock %}
     </div>
-
+    {% if user.is_authenticated and user.is_posagent %}
+    <div class="alert alert-warning alert-dismissible fade show mt-3" role="alert">
+        <strong>Notice:</strong> As a POS agent, you can only generate tickets for events you are assigned to.
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+    {% endif %}
     <!-- Bottom navigation bar for small screens -->
     <nav class="navbar navbar-light bg-light fixed-bottom d-lg-none">
         <div class="container-fluid d-flex justify-content-around">
