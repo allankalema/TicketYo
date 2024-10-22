@@ -18,6 +18,12 @@
         <span id="verify-tickets" class="action-span btn btn-outline-primary" style="cursor: pointer;">
             Verify Tickets
         </span>
+
+                <!-- QR Code Scan Button -->
+        <span id="scan-qr" class="action-span btn btn-outline-primary" style="cursor: pointer;">
+            Scan QR Code
+        </span>
+
         {% endif %}
     </div>
 
@@ -38,23 +44,27 @@
                 <button type="submit" class="btn btn-outline-primary">Verify Ticket</button>
             </form>
 
+            <!-- QR Code Scanning Section -->
+            <div id="qr-reader" style="width: 300px; margin: auto; display: none;"></div>
+            <div id="qr-reader-results" class="mt-4"></div>
+
             <!-- Display verification results -->
             <div id="verification-results" class="mt-4">
                 {% if error_message %}
-                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                        {{ error_message }}
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                    </div>
+                <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                    {{ error_message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+                </div>
                 {% endif %}
 
                 {% if verification_result %}
-                    <div class="alert alert-success alert-dismissible fade show" role="alert">
-                        <strong>Ticket Verified Successfully!</strong><br>
-                        <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
-                        <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
-                        <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
-                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                    </div>
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <strong>Ticket Verified Successfully!</strong><br>
+                    <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
+                    <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
+                    <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+                </div>
                 {% endif %}
             </div>
         </div>
@@ -62,16 +72,67 @@
     </div>
 </div>
 
+<script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        const verifySpan = document.getElementById('verify-tickets');
-        const verifyContent = document.getElementById('verify-content');
+    const scanQrButton = document.getElementById('scan-qr');
+    
+    if (scanQrButton) {
+        scanQrButton.addEventListener('click', function() {
+            console.log("QR Button Clicked");  // Log to ensure click is detected
+            
+            // Check if the browser supports getUserMedia API
+            if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+                navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } })
+                    .then(function(stream) {
+                        const videoElement = document.createElement('video');
+                        videoElement.srcObject = stream;
+                        videoElement.setAttribute("playsinline", true); // iOS compatibility
+                        videoElement.play();
+                        
+                        const qrCanvas = document.createElement('canvas');
+                        const qrContext = qrCanvas.getContext('2d');
 
-        // Automatically show verification content as the default action
-        if (verifySpan && verifyContent) {
-            verifyContent.style.display = 'block';
-        }
-    });
+                        // Append video to the body for scanning (make it invisible or use it for a preview)
+                        document.body.appendChild(videoElement);
+                        videoElement.style.display = "none";  // Hide the video preview
+
+                        // Continuously scan QR code from the video feed
+                        function scanQR() {
+                            qrCanvas.width = videoElement.videoWidth;
+                            qrCanvas.height = videoElement.videoHeight;
+                            qrContext.drawImage(videoElement, 0, 0, qrCanvas.width, qrCanvas.height);
+                            try {
+                                const qrCodeResult = jsQR(qrContext.getImageData(0, 0, qrCanvas.width, qrCanvas.height).data, qrCanvas.width, qrCanvas.height);
+                                if (qrCodeResult) {
+                                    console.log("QR Code Detected: ", qrCodeResult.data);
+                                    alert("QR Code: " + qrCodeResult.data);  // Show result in alert or input field
+                                    
+                                    // Stop the video stream after successful scan
+                                    stream.getTracks().forEach(track => track.stop());
+                                    videoElement.remove();  // Remove the video element after use
+                                } else {
+                                    requestAnimationFrame(scanQR);  // Try again if no QR found
+                                }
+                            } catch (error) {
+                                console.error("Error scanning QR: ", error);
+                                requestAnimationFrame(scanQR);  // Continue scanning in case of error
+                            }
+                        }
+                        scanQR();  // Start scanning
+                    })
+                    .catch(function(err) {
+                        // Handle errors with accessing the camera
+                        console.error("Error accessing camera: ", err);
+                        alert('Unable to access the camera. Please ensure it is enabled and accessible.');
+                    });
+            } else {
+                alert('Camera is not supported on this device or browser.');
+            }
+        });
+    }
+});
+
 </script>
 
 <style>
@@ -118,6 +179,16 @@
     
     .btn-close:hover {
         color: #ff0000; /* Optional: Change color on hover */
+    }
+
+    #qr-reader {
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Hide QR reader when not active */
+    #qr-reader {
+        display: none;
     }
 </style>
 
