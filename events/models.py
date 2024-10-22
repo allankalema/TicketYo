@@ -47,16 +47,15 @@ class TicketCategory(models.Model):
     def __str__(self):
         return f'{self.category_title} - {self.event.title}'
 
-# events/models.py
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
-    event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, null=True, blank=True, on_delete=models.SET_NULL)  # Make event optional
     added_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f'{self.user} - {self.event.title}'
-
-
+        return f'{self.user} - {self.event.title if self.event else "No Event"}'
+  
+    
 class ActionLog(models.Model):
     admin_user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)  # Link to the user who performed the action
     event = models.ForeignKey(Event, on_delete=models.CASCADE)  # Direct reference to Event model

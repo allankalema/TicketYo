@@ -139,7 +139,7 @@ SOCIALACCOUNT_PROVIDERS = {
 
 SOCIALACCOUNT_LOGIN_ON_GET = True
 
-LOGIN_REDIRECT_URL = '/events/home/'
+LOGIN_REDIRECT_URL = 'homepage'
 
 
 LOGOUT_REDIRECT_URL = '/Accounts/login'
@@ -175,7 +175,7 @@ EMAIL_HOST_PASSWORD = 'sldd pbjt smoa tzod'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN URL
-LOGIN_URL = '/Accounts/login/'  # Update to the correct path if needed
+LOGIN_URL = 'login'  # Update to the correct path if needed
 
 SITE_URL = 'http://127.0.0.1:8000/'
 
