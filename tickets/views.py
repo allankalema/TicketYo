@@ -3,6 +3,7 @@ from events.models import Event, TicketCategory
 from .models import Ticket
 from django.contrib.auth.decorators import login_required
 import qrcode
+from pos.decorators import restrict_pos_agents
 from io import BytesIO
 from django.core.files import File
 from django.utils import timezone
@@ -78,6 +79,7 @@ def process_ticket_purchase(event, ticket_data, ordinary_ticket_data, tickets_in
 
     return {'ticket_details': ticket_details, 'total_tickets': total_tickets, 'total_price': total_price}, None
 
+
 def generate_tickets(event, category, quantity, vendor, buyer, buyer_type, generated_by):
     tickets = []
     for _ in range(quantity):
@@ -116,7 +118,10 @@ def generate_qr_code(ticket_number):
     img.save(buffer)
     return File(buffer, name=f'{ticket_number}_qr.png')
 
+
+
 @login_required
+@restrict_pos_agents  # Prevent POS agents from accessing this view
 def buy_ticket(request, event_id):
     event_data, error = prepare_event_data(event_id)
     if error:
@@ -149,6 +154,7 @@ def buy_ticket(request, event_id):
         return render(request, 'tickets/ticket_success.html', context)
 
     return render(request, 'tickets/buy_ticket.html', event_data)
+
 
 @login_required
 def download_ticket_pdf(request, ticket_number):

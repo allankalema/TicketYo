@@ -117,8 +117,7 @@
                         <ul id="sold-out-upcoming-events-list" class="list-unstyled">
                             {% if sold_out_upcoming_events %}
                             {% for event in sold_out_upcoming_events %}
-                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{
-                                    event.title }}</a></li>
+                            <li class="event-item"><a href="{% url 'event_detail' event.id %}" class="event-link">{{event.title }}</a></li>
                             {% endfor %}
                             {% else %}
                             <p class="text-center text-muted">No upcoming sold out events.</p>
