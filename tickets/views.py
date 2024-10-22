@@ -283,18 +283,12 @@ def verify_ticket(request, event_id):
     # Ensure the correct tickets are being filtered by event and vendor
     tickets = Ticket.objects.filter(event=event, user=vendor)
 
-    # Debugging: Check the tickets retrieved
-    print(f"Retrieved tickets: {tickets}")  # Add this line
-
     if request.method == 'POST':
         ticket_number = request.POST.get('ticket_number', '').strip()
         
         # Case-insensitive search and check if the ticket exists
         ticket = tickets.filter(ticket_number__iexact=ticket_number).first()
 
-        # Debugging: Check the ticket searched
-        print(f"Searched ticket number: {ticket_number}, Found ticket: {ticket}")  # Add this line
-        
         if ticket:
             if ticket.verified:
                 return JsonResponse({'status': 'error', 'message': 'This ticket has already been verified.'})

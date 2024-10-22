@@ -54,24 +54,30 @@
 
     <!-- Display verification results -->
     <div id="verification-results" class="mt-4">
+        <!-- Error message rendering -->
         {% if error_message %}
         <div class="alert alert-danger alert-dismissible fade show" role="alert">
             {{ error_message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
         </div>
         {% endif %}
-
-    {% if verification_result %}
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>Ticket Verified Successfully!</strong><br>
-                    <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
-                    <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
-                    <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"><i class="bi bi-x-lg"></i></button>
-                </div>
-                {% endif %}
-    <div id="verification_result"></div>
-
+    
+        <!-- Success verification result rendering -->
+        {% if verification_result %}
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            <strong>Ticket Verified Successfully!</strong><br>
+            <strong>Category:</strong> {{ verification_result.ticket_category }}<br>
+            <strong>Customer Username:</strong> {{ verification_result.customer_username }}<br>
+            <strong>Purchase Date:</strong> {{ verification_result.purchase_date }}<br>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    
     <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
 <script>
     document.addEventListener('DOMContentLoaded', function() {
