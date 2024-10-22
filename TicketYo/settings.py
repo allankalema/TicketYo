@@ -36,6 +36,12 @@ INSTALLED_APPS = [
     'frontend',
     'pos',
     'accounts',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'django.contrib.humanize',
+
 ]
 
 MIDDLEWARE = [
@@ -46,6 +52,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     
 ]
 
@@ -111,8 +118,31 @@ USE_TZ = True
 # Custom authentication backends
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': [
+            'profile',
+            'email',
+        ],
+        'AUTH_PARAMS': {
+            'access_type': 'online',
+        },
+        'OAUTH_PKCE_ENABLED': True,
+    }
+}
+
+
+SOCIALACCOUNT_LOGIN_ON_GET = True
+
+LOGIN_REDIRECT_URL = 'homepage'
+
+
+LOGOUT_REDIRECT_URL = '/Accounts/login'
 
 ## Jazzmin settings for customizing the admin interface
 JAZZMIN_SETTINGS = {
@@ -145,9 +175,11 @@ EMAIL_HOST_PASSWORD = 'sldd pbjt smoa tzod'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # LOGIN URL
-LOGIN_URL = '/'  # Update to the correct path if needed
+LOGIN_URL = 'login'  # Update to the correct path if needed
 
+SITE_URL = 'http://127.0.0.1:8000/'
 
+SOCIALACCOUNT_ADAPTER = 'accounts.addapters.MySocialAccountAdapter'
 
 
 BLINK_API_URL = config('BLINK_API_URL')
